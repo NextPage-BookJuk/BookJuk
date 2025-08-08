@@ -30,7 +30,7 @@
 | **IDE**           | IntelliJ IDEA           | Ultimate or Community       | Java 및 Spring 개발을 위한 주요 IDE       |
 | **문서**            | Markdown                | -                           | 기능 명세서, API 문서 등 작성               |
 
-
+jdbc, querydsl + 
 ---
 
 ### 📂 프로젝트 구조 (기본틀 구체화 예정)
