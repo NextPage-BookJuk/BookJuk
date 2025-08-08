@@ -42,8 +42,8 @@
 
 > 아래 링크를 통해 각자의 회고 문서를 볼 수 있습니다.
 
-* [강관주 - 2025-08-05 회고](https://github.com/Kanggwanju/project-docs/blob/main/meeting-notes)
-* [김경민 - 2025-08-05 회고](https://github.com/minee0505/meetings/blob/main)
-* [박현수 - 2025-08-05 회고](https://github.com/hsp64/memoir/blob/main/teamNextPage20250805)
-* [신동준 - 2025-08-05 회고](https://github.com/sdj3959/my-retrospectives/tree/master/projects/202508BookJuk)
-* [진도희 - 2025-08-05 회고](https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings)
+* [강관주 - 2025-08-07 회고](https://github.com/Kanggwanju/project-docs/blob/main/meeting-notes)
+* [김경민 - 2025-08-07 회고](https://github.com/minee0505/meetings/blob/main)
+* [박현수 - 2025-08-07 회고](https://github.com/hsp64/memoir/blob/main/teamNextPage20250805)
+* [신동준 - 2025-08-07 회고](https://github.com/sdj3959/my-retrospectives/tree/master/projects/202508BookJuk)
+* [진도희 - 2025-08-07 회고](https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings)
