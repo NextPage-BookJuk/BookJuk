@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="/css/board-detail.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적 - 게시글 상세</title>
+    
+</head>
+<body>
+    <header class="header">
+        <h1 class="logo" onclick="goHome()">북적북적</h1>
+        <nav class="nav">
+            <a href="#" onclick="goHome()">홈</a>
+            <a href="#" onclick="goMyPage()">마이페이지</a>
+            <a href="#" class="back-btn" onclick="goBack()">뒤로가기</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="#" onclick="goHome()">홈</a> > 
+            <a href="#" onclick="goMeetingDetail()">따뜻한 겨울 소설 읽기</a> > 
+            <a href="#" onclick="goMeetingDetail()">게시판</a> > 
+            책 읽은 소감 미리 공유해요!
+        </div>
+
+        <div class="meeting-info-bar">
+            <span class="meeting-icon">📚</span>
+            <div class="meeting-details">
+                <h4>따뜻한 겨울 소설 읽기</h4>
+                <p>논픽션 · 김영하 · 2025.08.15 19:00 · 강남구</p>
+            </div>
+        </div>
+
+        <!-- 게시글 내용 -->
+        <div class="post-container">
+            <div class="post-header">
+                <h1 class="post-title">책 읽은 소감 미리 공유해요!</h1>
+                
+                <div class="post-meta">
+                    <div class="meta-left">
+                        <div class="author-info">
+                            <div class="author-avatar">도</div>
+                            <div class="author-details">
+                                <span class="author-name">도도뇽</span>
+                                <span class="author-role">호스트</span>
+                            </div>
+                        </div>
+                        <span class="post-date">2시간 전</span>
+                    </div>
+                    
+                    <div class="post-actions" id="postActions" style="display: none;">
+                        <button class="action-btn btn-edit" onclick="editPost()">수정</button>
+                        <button class="action-btn btn-delete" onclick="deletePost()">삭제</button>
+                    </div>
+                </div>
+
+                <div class="post-stats">
+                    <div class="stat-item" onclick="toggleLike()" id="likeBtn">
+                        <span>👍</span>
+                        <span id="likeCount">5</span>
+                        <span>좋아요</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>💬</span>
+                        <span id="commentCount">3</span>
+                        <span>댓글</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>👁️</span>
+                        <span>27</span>
+                        <span>조회</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="post-content">
+                <p>안녕하세요! 김영하 작가의 <strong>'논픽션'</strong>을 읽고 있는데 정말 재미있네요.</p>
+                
+                <p>특히 <em>현실과 허구 사이의 경계</em>에 대한 이야기가 인상 깊었어요. 작가가 소설을 쓰면서 겪는 고민들, 그리고 현실의 이야기가 어떻게 소설이 되어가는지에 대한 과정이 흥미롭습니다.</p>
+
+                <blockquote>
+                    "소설은 거짓말이지만, 그 거짓말을 통해 진실에 다가간다"
+                </blockquote>
+
+                <p>이 부분에서 정말 많은 생각이 들었어요. 다들 어떻게 생각하시나요?</p>
+
+                <p>그리고 책을 읽으면서 떠오른 질문들:</p>
+                <ul>
+                    <li>작가의 경험이 소설에 얼마나 반영되어야 할까요?</li>
+                    <li>픽션과 논픽션의 경계는 어디까지일까요?</li>
+                    <li>독자는 소설을 읽을 때 작가의 실제 경험을 알아야 할까요?</li>
+                </ul>
+
+                <p>모임에서 이런 이야기들을 나누면 정말 좋을 것 같아요! 😊</p>
+            </div>
+        </div>
+
+        <!-- 댓글 섹션 -->
+        <div class="comments-section">
+            <div class="comments-header">
+                <h3 class="comments-title">댓글</h3>
+                <p class="comments-count">총 3개의 댓글</p>
+            </div>
+
+            <!-- 댓글 작성 폼 -->
+            <div class="comment-form">
+                <div class="comment-form-header">
+                    <div class="current-user-avatar">책</div>
+                    <span class="current-user-name">책벌레123</span>
+                </div>
+                <textarea class="comment-textarea" id="commentTextarea" placeholder="댓글을 입력하세요..." maxlength="500"></textarea>
+                <div class="comment-form-actions">
+                    <span class="comment-char-count" id="commentCharCount">0/500</span>
+                    <button class="comment-submit-btn" onclick="submitComment()" id="commentSubmitBtn" disabled>
+                        댓글 작성
+                    </button>
+                </div>
+            </div>
+
+            <!-- 댓글 목록 -->
+            <div class="comments-list">
+                <!-- 댓글 1 -->
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-author-info">
+                            <div class="comment-avatar">독</div>
+                            <div class="comment-author-details">
+                                <span class="comment-author-name">독서왕</span>
+                                <span class="comment-author-role">참여자</span>
+                            </div>
+                            <span class="comment-date">1시간 전</span>
+                        </div>
+                        <div class="comment-actions" style="display: none;">
+                            <button class="comment-action-btn comment-edit">수정</button>
+                            <button class="comment-action-btn comment-delete">삭제</button>
+                        </div>
+                    </div>
+                    <div class="comment-content">
+                        정말 공감되는 부분이에요! 저도 그 부분에서 많은 생각이 들었습니다. 특히 "거짓말을 통해 진실에 다가간다"는 표현이 인상 깊었어요.
+                    </div>
+                    <div class="comment-reply-btn">
+                        <button class="reply-btn" onclick="toggleReplyForm(1)">답글</button>
+                    </div>
+                    
+                    <!-- 답글 작성 폼 -->
+                    <div class="reply-form" id="replyForm1">
+                        <textarea class="reply-textarea" placeholder="답글을 입력하세요..."></textarea>
+                        <div class="reply-actions">
+                            <button class="reply-submit" onclick="submitReply(1)">답글 작성</button>
+                            <button class="reply-cancel" onclick="toggleReplyForm(1)">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 댓글 2 -->
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-author-info">
+                            <div class="comment-avatar">소</div>
+                            <div class="comment-author-details">
+                                <span class="comment-author-name">소설마니아</span>
+                                <span class="comment-author-role">참여자</span>
+                            </div>
+                            <span class="comment-date">30분 전</span>
+                        </div>
+                    </div>
+                    <div class="comment-content">
+                        김영하 작가의 다른 작품들도 읽어보셨나요? '살인자의 기억법'이나 '빛의 제국' 같은 작품들과 비교해서 읽으면 더 재미있을 것 같아요!
+                    </div>
+                    <div class="comment-reply-btn">
+                        <button class="reply-btn" onclick="toggleReplyForm(2)">답글</button>
+                    </div>
+                    
+                    <!-- 답글들 -->
+                    <div class="replies">
+                        <div class="reply-item">
+                            <div class="comment-header">
+                                <div class="comment-author-info">
+                                    <div class="comment-avatar">도</div>
+                                    <div class="comment-author-details">
+                                        <span class="comment-author-name">도도뇽</span>
+                                        <span class="comment-author-role">호스트</span>
+                                    </div>
+                                    <span class="comment-date">20분 전</span>
+                                </div>
+                            </div>
+                            <div class="comment-content">
+                                아! 좋은 아이디어네요. 다음 모임 때 김영하 작가의 다른 작품들과 비교 분석해보는 시간을 가져보면 어떨까요?
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 답글 작성 폼 -->
+                    <div class="reply-form" id="replyForm2">
+                        <textarea class="reply-textarea" placeholder="답글을 입력하세요..."></textarea>
+                        <div class="reply-actions">
+                            <button class="reply-submit" onclick="submitReply(2)">답글 작성</button>
+                            <button class="reply-cancel" onclick="toggleReplyForm(2)">취소</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 댓글 3 -->
+                <div class="comment-item">
+                    <div class="comment-header">
+                        <div class="comment-author-info">
+                            <div class="comment-avatar">문</div>
+                            <div class="comment-author-details">
+                                <span class="comment-author-name">문학청년</span>
+                                <span class="comment-author-role">참여자</span>
+                            </div>
+                            <span class="comment-date">10분 전</span>
+                        </div>
+                    </div>
+                    <div class="comment-content">
+                        질문 목록 정말 좋네요! 특히 "독자는 소설을 읽을 때 작가의 실제 경험을 알아야 할까요?" 이 질문에 대해서 토론해보고 싶어요.
+                    </div>
+                    <div class="comment-reply-btn">
+                        <button class="reply-btn" onclick="toggleReplyForm(3)">답글</button>
+                    </div>
+                    
+                    <!-- 답글 작성 폼 -->
+                    <div class="reply-form" id="replyForm3">
+                        <textarea class="reply-textarea" placeholder="답글을 입력하세요..."></textarea>
+                        <div class="reply-actions">
+                            <button class="reply-submit" onclick="submitReply(3)">답글 작성</button>
+                            <button class="reply-cancel" onclick="toggleReplyForm(3)">취소</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 현재 사용자 정보 (실제로는 서버에서 받아옴)
+        const currentUser = {
+            name: '책벌레123',
+            avatar: '책',
+            role: '참여자'
+        };
+
+        // 게시글 작성자 정보
+        const postAuthor = '도도뇽';
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 댓글 글자수 카운터
+            const commentTextarea = document.getElementById('commentTextarea');
+            const commentCharCount = document.getElementById('commentCharCount');
+            const commentSubmitBtn = document.getElementById('commentSubmitBtn');
+
+            commentTextarea.addEventListener('input', function() {
+                const length = this.value.length;
+                commentCharCount.textContent = `${length}/500`;
+                
+                // 버튼 활성화/비활성화
+                commentSubmitBtn.disabled = length === 0 || length > 500;
+                
+                // 글자수 경고
+                if (length > 450) {
+                    commentCharCount.style.color = '#ff6b35';
+                } else {
+                    commentCharCount.style.color = '#777';
+                }
+            });
+
+            // 게시글 작성자인 경우 수정/삭제 버튼 표시
+            if (currentUser.name === postAuthor) {
+                document.getElementById('postActions').style.display = 'flex';
+            }
+
+            // 각 댓글의 작성자인 경우 수정/삭제 버튼 표시
+            updateCommentActions();
+        });
+
+        function updateCommentActions() {
+            // 실제로는 각 댓글의 작성자 정보와 현재 사용자를 비교
+            // 여기서는 시뮬레이션을 위해 첫 번째 댓글만 수정 가능하게 설정
+        }
+
+        function toggleLike() {
+            const likeBtn = document.getElementById('likeBtn');
+            const likeCount = document.getElementById('likeCount');
+            let count = parseInt(likeCount.textContent);
+            
+            if (likeBtn.classList.contains('liked')) {
+                // 좋아요 취소
+                likeBtn.classList.remove('liked');
+                likeCount.textContent = count - 1;
+            } else {
+                // 좋아요 추가
+                likeBtn.classList.add('liked');
+                likeCount.textContent = count + 1;
+            }
+        }
+
+        function submitComment() {
+            const textarea = document.getElementById('commentTextarea');
+            const content = textarea.value.trim();
+            
+            if (!content) {
+                alert('댓글 내용을 입력해주세요.');
+                return;
+            }
+            
+            // 댓글 추가 시뮬레이션
+            const commentsList = document.querySelector('.comments-list');
+            const newComment = createCommentElement(content, currentUser, '방금 전');
+            commentsList.appendChild(newComment);
+            
+            // 댓글 수 업데이트
+            const commentCount = document.getElementById('commentCount');
+            commentCount.textContent = parseInt(commentCount.textContent) + 1;
+            
+            // 폼 초기화
+            textarea.value = '';
+            document.getElementById('commentCharCount').textContent = '0/500';
+            document.getElementById('commentSubmitBtn').disabled = true;
+            
+            alert('댓글이 작성되었습니다.');
+        }
+
+        function createCommentElement(content, author, date) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <div class="comment
+<script src="/js/board-detail.js"></script>
