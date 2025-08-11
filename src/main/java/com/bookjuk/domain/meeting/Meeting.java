@@ -106,7 +106,7 @@ public class Meeting {
 
     // 빌더 패턴을 사용한 생성자
     @Builder
-    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String location, int maxParticipants, String status) {
+    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String location, Integer maxParticipants, String status) {
         this.host = host;
         this.title = title;
         this.description = description;
