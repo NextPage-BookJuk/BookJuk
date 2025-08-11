@@ -83,4 +83,11 @@ public class MeetingParticipant {
         this.status = status;
     }
 
+    /**
+     * 사용자의 모임 내 역할을 변경한다.
+     * @param role 변경할 역할 (ParticipantRole 열거형으로, 예: HOST, PARTICIPANT)
+     */
+    public void changeRole(ParticipantRole role) {
+        this.role = role;
+    }
 }
