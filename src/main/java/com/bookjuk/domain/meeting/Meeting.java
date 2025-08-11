@@ -2,6 +2,7 @@ package com.bookjuk.domain.meeting;
 
 import com.bookjuk.domain.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
 import lombok.AccessLevel;
 import lombok.*;
 import org.hibernate.annotations.Comment;
@@ -81,12 +82,22 @@ public class Meeting {
     @Comment("모임 시간")
     private LocalDateTime meetingTime;
 
-    @Column(name = "location", nullable = false, length = 255)
-    @Comment("모임 장소")
-    private String location;
+    // 주소 정규화
+    @Column(name = "region", nullable = false, length = 20)
+    @Comment("시/도")
+    private String region;
+
+    @Column(name = "city", nullable = false, length = 30)
+    @Comment("시/구/군")
+    private String city;
+
+    @Column(name = "detail_address", length = 255)
+    @Comment("상세주소(선택)")
+    private String detailAddress;
 
     @Column(name = "max_participants", nullable = false)
     @Comment("최대 참여 인원")
+    @Max(value = 10)
     private Integer maxParticipants;
 
     @Column(name = "status", nullable = false, length = 20)
@@ -106,7 +117,7 @@ public class Meeting {
 
     // 빌더 패턴을 사용한 생성자
     @Builder
-    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String location, Integer maxParticipants, String status) {
+    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String region, String city, String detailAddress, Integer maxParticipants, MeetingStatus status) {
         this.host = host;
         this.title = title;
         this.description = description;
@@ -115,9 +126,11 @@ public class Meeting {
         this.bookAuthor = bookAuthor;
         this.genre = genre;
         this.meetingTime = meetingTime;
-        this.location = location;
+        this.region = region;
+        this.city = city;
+        this.detailAddress = detailAddress;
         this.maxParticipants = maxParticipants;
-        this.meetingStatus = meetingStatus;
+        this.meetingStatus = status;
     }
 
 }
