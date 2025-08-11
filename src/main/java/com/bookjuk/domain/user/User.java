@@ -1,6 +1,7 @@
 package com.bookjuk.domain.user;
 
 import com.bookjuk.domain.meeting.Meeting;
+import com.bookjuk.domain.participant.MeetingParticipant;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,9 +29,14 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    // Meeting 엔티티와 1:N 관계
     @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
     List<Meeting> meetings = new ArrayList<>();
+//
+//    @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<Meeting> participants = new ArrayList<>();
 
+    // 중간 엔티티 기준 1:N
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<Meeting> participants = new ArrayList<>();
+    private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
 }

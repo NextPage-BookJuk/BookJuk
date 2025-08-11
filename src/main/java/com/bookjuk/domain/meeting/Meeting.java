@@ -1,5 +1,6 @@
 package com.bookjuk.domain.meeting;
 
+import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -9,6 +10,8 @@ import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Meeting 클래스는 독서 모임에 대한 정보를 나타내는 엔티티로, 모임의 기본 정보와 관련 데이터들을 포함한다.
@@ -53,6 +56,10 @@ public class Meeting {
     @JoinColumn(name = "host_id", nullable = false)
     @Comment("방장(주최자)의 user_id")
     private User host; // host_id 컬럼을 User 객체로 매핑합니다.
+
+    // 중간 엔티티 기준 1:N
+    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
 
     @Column(name = "title", nullable = false, length = 255)
     @Comment("모임 제목")
@@ -115,9 +122,14 @@ public class Meeting {
     @Comment("모임 정보 수정 시점")
     private LocalDateTime updatedAt;
 
+    // 모임 제목 변경 도메인 메서드, MeetingRepositoryTest 전용
+    public void changeTitle(String newTitle) {
+        this.title = newTitle;
+    }
+
     // 빌더 패턴을 사용한 생성자
     @Builder
-    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String region, String city, String detailAddress, Integer maxParticipants, MeetingStatus status) {
+    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String region, String city, String detailAddress, Integer maxParticipants, MeetingStatus meetingStatus) {
         this.host = host;
         this.title = title;
         this.description = description;
@@ -130,7 +142,7 @@ public class Meeting {
         this.city = city;
         this.detailAddress = detailAddress;
         this.maxParticipants = maxParticipants;
-        this.meetingStatus = status;
+        this.meetingStatus = meetingStatus;
     }
 
 }
