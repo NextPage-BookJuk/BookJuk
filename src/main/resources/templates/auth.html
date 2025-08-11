@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="/css/auth.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적 - 회원가입/로그인</title>
+    
+</head>
+<body>
+    <header class="header">
+        <h1 class="logo" onclick="goHome()">북적북적</h1>
+        <a href="#" class="back-btn" onclick="goHome()">홈으로</a>
+    </header>
+
+    <div class="container">
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="showLogin()">로그인</button>
+            <button class="auth-tab" onclick="showSignup()">회원가입</button>
+        </div>
+
+        <!-- 로그인 폼 -->
+        <div id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label class="form-label">이메일 <span class="required">*</span></label>
+                <input type="email" class="form-input" id="loginEmail" placeholder="이메일을 입력하세요">
+                <div class="error-message" id="loginEmailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">비밀번호 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="loginPassword" placeholder="비밀번호를 입력하세요">
+                <div class="error-message" id="loginPasswordError"></div>
+            </div>
+            
+            <button type="button" class="submit-btn" onclick="handleLogin()">로그인</button>
+        </div>
+
+        <!-- 회원가입 폼 -->
+        <div id="signupForm" class="auth-form hidden">
+            <div class="form-group">
+                <label class="form-label">닉네임 <span class="required">*</span></label>
+                <input type="text" class="form-input" id="nickname" placeholder="닉네임을 입력하세요">
+                <div class="helper-text">중복 허용됩니다</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">이메일 <span class="required">*</span></label>
+                <div class="input-group">
+                    <input type="email" class="form-input" id="email" placeholder="이메일을 입력하세요">
+                    <button type="button" class="check-btn" onclick="checkEmail()">중복확인</button>
+                </div>
+                <div class="error-message" id="emailError"></div>
+                <div class="success-message" id="emailSuccess"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">비밀번호 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="password" placeholder="영문+숫자 포함 6~20자">
+                <div class="helper-text">영문 + 숫자 포함 6~20자</div>
+                <div class="error-message" id="passwordError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">비밀번호 확인 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="passwordConfirm" placeholder="비밀번호를 다시 입력하세요">
+                <div class="error-message" id="passwordConfirmError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">선호 장르 (선택)</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre1" value="소설">
+                        <label for="genre1">소설</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre2" value="에세이">
+                        <label for="genre2">에세이</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre3" value="자기계발">
+                        <label for="genre3">자기계발</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre4" value="역사">
+                        <label for="genre4">역사</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre5" value="과학">
+                        <label for="genre5">과학</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="genre6" value="철학">
+                        <label for="genre6">철학</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">자기소개 (선택)</label>
+                <textarea class="form-textarea" id="introduction" placeholder="간단한 자기소개를 작성해주세요"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">프로필 이미지 (선택)</label>
+                <div class="file-input-wrapper">
+                    <input type="file" class="file-input" id="profileImage" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+                    <label for="profileImage" class="file-input-label">
+                        📷 이미지 선택 (10MB 이하, JPG/PNG)
+                    </label>
+                </div>
+                <div class="file-preview" id="imagePreview"></div>
+                <div class="error-message" id="imageError"></div>
+            </div>
+            
+            <button type="button" class="submit-btn" onclick="handleSignup()">회원가입</button>
+        </div>
+    </div>
+
+    
+    <script src="/js/auth.js"></script>
+</body>
+</html>

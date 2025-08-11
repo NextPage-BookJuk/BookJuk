@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="/css/meeting-detail.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적 - 모임 상세</title>
+    
+</head>
+<body>
+    <header class="header">
+        <h1 class="logo" onclick="goHome()">북적북적</h1>
+        <nav class="nav">
+            <a href="#" onclick="goHome()">홈</a>
+            <a href="#" onclick="goMyPage()">마이페이지</a>
+            <a href="#" class="create-meeting-btn" onclick="createMeeting()">모임 만들기</a>
+            <a href="#" onclick="logout()">로그아웃</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <!-- 왼쪽 컨텐츠 영역 -->
+        <div class="content-left">
+            <div class="breadcrumb">
+                <a href="#" onclick="goHome()">홈</a> > <a href="#" onclick="goHome()">모임 목록</a> > 따뜻한 겨울 소설 읽기
+            </div>
+
+            <div class="meeting-header">
+                <div class="meeting-image">
+                    <div class="status-badges">
+                        <span class="status-tag status-recruiting">모집 중</span>
+                        <span class="status-tag genre-tag">소설</span>
+                    </div>
+                </div>
+                
+                <div class="meeting-info">
+                    <h1 class="meeting-title">따뜻한 겨울 소설 읽기</h1>
+                    
+                    <div class="book-info">
+                        <div class="book-title">논픽션</div>
+                        <div class="book-author">김영하 지음</div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-icon">🗓️</span>
+                            <span>2025년 8월 15일 (목) 19:00</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">📍</span>
+                            <span>강남구 역삼동</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">📚</span>
+                            <span>장르: 소설</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon">🏠</span>
+                            <span>강남역 2번 출구 앞 카페</span>
+                        </div>
+                    </div>
+
+                    <div class="host-info">
+                        <div class="host-profile">
+                            <div class="host-avatar">도</div>
+                            <div class="host-details">
+                                <h4>도도뇽 (호스트)</h4>
+                                <div class="host-stats">받은 좋아요 23개 · 주최 모임 8회</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs-container">
+                <div class="tabs-header">
+                    <button class="tab-btn active" onclick="showTab('participants')">참여자 목록</button>
+                    <button class="tab-btn" onclick="showTab('board')">게시판</button>
+                    <button class="tab-btn" onclick="showTab('attendance')" id="attendanceTab" style="display: none;">출석 체크</button>
+                </div>
+
+                <!-- 참여자 탭 -->
+                <div class="tab-content active" id="participants-tab">
+                    <div class="participants-list">
+                        <div class="participant-item">
+                            <div class="participant-info">
+                                <div class="participant-avatar">도</div>
+                                <div class="participant-details">
+                                    <h5>도도뇽</h5>
+                                    <span class="participant-status status-host">호스트</span>
+                                </div>
+                            </div>
+                            <div class="participant-actions">
+                                <div class="likes-info">
+                                    <span>❤️</span>
+                                    <span>23</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="participant-item">
+                            <div class="participant-info">
+                                <div class="participant-avatar">책</div>
+                                <div class="participant-details">
+                                    <h5>책벌레123</h5>
+                                    <span class="participant-status status-approved">참여 확정</span>
+                                </div>
+                            </div>
+                            <div class="participant-actions">
+                                <div class="likes-info">
+                                    <span>❤️</span>
+                                    <span>15</span>
+                                </div>
+                                <button class="btn btn-danger btn-sm host-only" onclick="removeParticipant('책벌레123')" style="display: none;">
+                                    제외
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="participant-item">
+                            <div class="participant-info">
+                                <div class="participant-avatar">독</div>
+                                <div class="participant-details">
+                                    <h5>독서왕</h5>
+                                    <span class="participant-status status-pending">승인 대기</span>
+                                </div>
+                            </div>
+                            <div class="participant-actions">
+                                <div class="likes-info">
+                                    <span>❤️</span>
+                                    <span>8</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm host-only" onclick="approveParticipant('독서왕')" style="display: none;">
+                                    승인
+                                </button>
+                                <button class="btn btn-danger btn-sm host-only" onclick="rejectParticipant('독서왕')" style="display: none;">
+                                    거절
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="participant-item">
+                            <div class="participant-info">
+                                <div class="participant-avatar">소</div>
+                                <div class="participant-details">
+                                    <h5>소설마니아</h5>
+                                    <span class="participant-status status-approved">참여 확정</span>
+                                </div>
+                            </div>
+                            <div class="participant-actions">
+                                <div class="likes-info">
+                                    <span>❤️</span>
+                                    <span>31</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="participant-item">
+                            <div class="participant-info">
+                                <div class="participant-avatar">문</div>
+                                <div class="participant-details">
+                                    <h5>문학청년</h5>
+                                    <span class="participant-status status-approved">참여 확정</span>
+                                </div>
+                            </div>
+                            <div class="participant-actions">
+                                <div class="likes-info">
+                                    <span>❤️</span>
+                                    <span>12</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 게시판 탭 -->
+                <div class="tab-content" id="board-tab">
+                    <div class="board-header">
+                        <div class="board-stats">
+                            총 3개의 게시글
+                        </div>
+                        <button class="btn btn-primary" onclick="openWriteModal()" id="writeBtn">
+                            <span>✏️</span>
+                            글쓰기
+                        </button>
+                    </div>
+
+                    <div class="board-section">
+                        <div class="post-item" onclick="viewPost(1)">
+                            <div class="post-header">
+                                <div>
+                                    <div class="post-title">책 읽은 소감 미리 공유해요!</div>
+                                    <div class="post-meta">
+                                        <div class="post-author">
+                                            <div class="author-avatar">도</div>
+                                            <span>도도뇽</span>
+                                        </div>
+                                        <span>•</span>
+                                        <span>2시간 전</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                김영하 작가의 '논픽션' 정말 재미있게 읽고 있어요. 현실과 허구 사이의 경계에 대한 이야기가 인상 깊네요. 다들 어떻게 생각하시나요?
+                            </div>
+                            <div class="post-stats">
+                                <div class="post-stat-item">
+                                    <span>💬</span>
+                                    <span>댓글 2</span>
+                                </div>
+                                <div class="post-stat-item">
+                                    <span>👍</span>
+                                    <span>좋아요 5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="post-item" onclick="viewPost(2)">
+                            <div class="post-header">
+                                <div>
+                                    <div class="post-title">모임 장소 안내</div>
+                                    <div class="post-meta">
+                                        <div class="post-author">
+                                            <div class="author-avatar">도</div>
+                                            <span>도도뇽</span>
+                                        </div>
+                                        <span>•</span>
+                                        <span>1일 전</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                안녕하세요! 모임 장소는 강남역 근처 조용한 카페로 정했습니다. 자세한 주소는 개별 메시지로 보내드릴게요.
+                            </div>
+                            <div class="post-stats">
+                                <div class="post-stat-item">
+                                    <span>💬</span>
+                                    <span>댓글 8</span>
+                                </div>
+                                <div class="post-stat-item">
+                                    <span>👍</span>
+                                    <span>좋아요 3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="post-item" onclick="viewPost(3)">
+                            <div class="post-header">
+                                <div>
+                                    <div class="post-title">처음 참여합니다!</div>
+                                    <div class="post-meta">
+                                        <div class="post-author">
+                                            <div class="author-avatar">책</div>
+                                            <span>책벌레123</span>
+                                        </div>
+                                        <span>•</span>
+                                        <span>3일 전</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="post-content">
+                                독서모임 처음 참여하는데 떨리네요! 잘 부탁드려요 😊
+                            </div>
+                            <div class="post-stats">
+                                <div class="post-stat-item">
+                                    <span>💬</span>
+                                    <span>댓글 5</span>
+                                </div>
+                                <div class="post-stat-item">
+                                    <span>👍</span>
+                                    <span>좋아요 7</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 출석 탭 -->
+                <div class="tab-content" id="attendance-tab">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="background-color: #f8f6f3; padding: 30px; border-radius: 15px; margin-bottom: 30px; border-left: 4px solid #8b7355;">
+                            <div style="font-size: 24px; font-weight: bold; color: #8b7355; margin-bottom: 10px;">2025년 8월 15일 모임 출석</div>
+                            <div style="font-size: 16px; color: #777; margin-bottom: 20px;">모임 당일에 출석 여부를 선택해주세요</div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 30px;">
+                            <button class="btn btn-success" onclick="markAttendance(true)">
+                                <span>✅</span>
+                                참여
+                            </button>
+                            <button class="btn btn-secondary" onclick="markAttendance(false)">
+                                <span>❌</span>
+                                불참
+                            </button>
+                        </div>
+
+                        <div style="text-align: left;">
+                            <h4 style="margin-bottom: 15px;">출석 현황</h4>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #f8f6f3; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #8b7355;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar">도</div>
+                                    <span>도도뇽 (호스트)</span>
+                                </div>
+                                <span style="padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; background-color: #d4edda; color: #155724;">참여</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #f8f6f3; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #8b7355;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar">책</div>
+                                    <span>책벌레123</span>
+                                </div>
+                                <span style="padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; background-color: #fff3cd; color: #856404;">미정</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #f8f6f3; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid #8b7355;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="participant-avatar">소</div>
+                                    <span>소설마니아</span>
+                                </div>
+                                <span style="padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; background-color: #d4edda; color: #155724;">참여</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 오른쪽 사이드바 -->
+        <div class="content-right">
+            <!-- 참여 현황 -->
+            <div class="participants-sidebar">
+                <h3 class="sidebar-title">👥 참여 현황</h3>
+                <div class="participants-summary">
+                    <div class="participants-count-display">5/8명</div>
+                    <div class="participants-mini-list">
+                        <div class="participant-mini-item">
+                            <div class="participant-mini-avatar">도</div>
+                            <div class="participant-mini-info">
+                                <div class="participant-mini-name">도도뇽</div>
+                                <div class="participant-mini-status">호스트</div>
+                            </div>
+                        </div>
+                        <div class="participant-mini-item">
+                            <div class="participant-mini-avatar">책</div>
+                            <div class="participant-mini-info">
+                                <div class="participant-mini-name">책벌레123</div>
+                                <div class="participant-mini-status">참여 확정</div>
+                            </div>
+                        </div>
+                        <div class="participant-mini-item">
+                            <div class="participant-mini-avatar">독</div>
+                            <div class="participant-mini-info">
+                                <div class="participant-mini-name">독서왕</div>
+                                <div class="participant-mini-status">승인 대기</div>
+                            </div>
+                        </div>
+                        <div class="participant-mini-item">
+                            <div class="participant-mini-avatar">소</div>
+                            <div class="participant-mini-info">
+                                <div class="participant-mini-name">소설마니아</div>
+                                <div class="participant-mini-status">참여 확정</div>
+                            </div>
+                        </div>
+                        <div class="participant-mini-item">
+                            <div class="participant-mini-avatar">문</div>
+                            <div class="participant-mini-info">
+                                <div class="participant-mini-name">문학청년</div>
+                                <div class="participant-mini-status">참여 확정</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 액션 영역 -->
+            <div class="action-sidebar">
+                <div class="meeting-status-info">
+                    <div class="status-info-item">
+                        <span class="status-info-label">모집 상태</span>
+                        <span class="status-info-value">모집 중</span>
+                    </div>
+                    <div class="status-info-item">
+                        <span class="status-info-label">남은 자리</span>
+                        <span class="status-info-value">3자리</span>
+                    </div>
+                    <div class="status-info-item">
+                        <span class="status-info-label">신청 마감</span>
+                        <span class="status-info-value">8월 14일 18:00</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="applyToMeeting()" id="applyBtn">
+                    <span>✋</span>
+                    모임 신청하기
+                </button>
+                <button class="btn btn-secondary" onclick="editMeeting()" id="editBtn" style="display: none;">
+                    <span>✏️</span>
+                    모임 수정
+                </button>
+                <button class="btn btn-danger" onclick="cancelMeeting()" id="cancelBtn" style="display: none;">
+                    모임 취소
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 모달들 -->
+    <div class="modal-overlay" id="apply-modal">
+        <div class="modal">
+            <h3>모임 신청</h3>
+            <p>이 모임에 신청하시겠습니까?<br>호스트의 승인 후 참여가 확정됩니다.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="confirmApply()">신청하기</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="write-modal">
+        <div class="modal">
+            <h3>새 글 작성</h3>
+            <div class="write-form">
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-input" id="postTitle" placeholder="글 제목을 입력하세요" maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">내용</label>
+                    <textarea class="form-textarea" id="postContent" placeholder="내용을 입력하세요" maxlength="1000"></textarea>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="submitPost()">게시</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="post-detail-modal">
+        <div class="modal" style="max-width: 600px;">
+            <h3 id="postDetailTitle">게시글 제목</h3>
+            <div class="post-meta" id="postDetailMeta" style="margin-bottom: 20px;">
+                <div class="post-author">
+                    <div class="author-avatar">도</div>
+                    <span>작성자</span>
+                </div>
+                <span>•</span>
+                <span>작성일</span>
+            </div>
+            <div id="postDetailContent" style="margin-bottom: 20px; line-height: 1.6;">
+                게시글 내용
+            </div>
+            <div class="post-stats" id="postDetailStats" style="margin-bottom: 20px;">
+                <div class="post-stat-item">
+                    <span>💬</span>
+                    <span>댓글 0</span>
+                </div>
+                <div class="post-stat-item">
+                    <span>👍</span>
+                    <span>좋아요 0</span>
+                </div>
+            </div>
+            <div style="border-top: 1px solid #eee; padding-top: 20px;">
+                <h4 style="margin-bottom: 15px;">댓글</h4>
+                <div id="commentsList">
+                    <!-- 댓글 목록이 여기에 들어감 -->
+                </div>
+                <div style="margin-top: 15px;">
+                    <textarea class="form-textarea" id="newComment" placeholder="댓글을 입력하세요" style="min-height: 60px;"></textarea>
+                    <button class="btn btn-primary" onclick="addComment()" style="margin-top: 10px; width: auto;">댓글 작성</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="/js/meeting-detail.js"></script>
+</body>
+</html>
