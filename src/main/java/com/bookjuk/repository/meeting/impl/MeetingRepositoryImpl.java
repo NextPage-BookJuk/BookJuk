@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
@@ -61,10 +62,17 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
                 .selectFrom(meeting)
                 .where(whereClause)
                 .orderBy(getOrderSpecifier(condition))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
+        Long totalCount = factory
+                .select(meeting.count())
+                .from(meeting)
+                .where(whereClause)
+                .fetchOne();
 
-        return null;
+        return new PageImpl<>(meetingList, pageable, totalCount == null ? 0L : totalCount);
     }
 
     /**
