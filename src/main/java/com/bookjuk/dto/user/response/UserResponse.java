@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 public class UserResponse {
 
     private Long userId;
-    private String nickname;
+    private String username;
     private String email;
     private String profileImage;
     private String preferredGenre;
@@ -30,7 +30,7 @@ public class UserResponse {
     public static UserResponse from(User user) {
         return UserResponse.builder()
                 .userId(user.getId())
-                .nickname(user.getNickname())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .profileImage(user.getProfileImage())
                 .preferredGenre(user.getPreferredGenre())
