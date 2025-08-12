@@ -1,6 +1,5 @@
 package com.bookjuk.service;
 
-import com.bookjuk.domain.participant.MeetingParticipantRepository;
 import com.bookjuk.dto.review.ReviewRequest;
 import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;

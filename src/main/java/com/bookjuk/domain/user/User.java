@@ -16,7 +16,6 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -40,4 +39,10 @@ public class User {
     // 중간 엔티티 기준 1:N
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
+
+    @Builder
+    public User(String nickname, String email) {
+        this.nickname = nickname;
+        this.email = email;
+    }
 }

@@ -51,18 +51,18 @@ class MeetingRepositoryTest {
         meetingRepository.deleteAll();
         userRepository.deleteAll();
         // 유저정보 만들기 (임시 테스트용)
-        u1 = User.builder()
-                .nickname("치이카와")
-                .email("abc123@naver.com")
-                .build();
-        u2 = User.builder()
-                .nickname("하치와레")
-                .email("abc123@google.com")
-                .build();
-        u3 = User.builder()
-                .nickname("우사기")
-                .email("abc123@daum.net")
-                .build();
+//        u1 = User.builder()
+//                .nickname("치이카와")
+//                .email("abc123@naver.com")
+//                .build();
+//        u2 = User.builder()
+//                .nickname("하치와레")
+//                .email("abc123@google.com")
+//                .build();
+//        u3 = User.builder()
+//                .nickname("우사기")
+//                .email("abc123@daum.net")
+//                .build();
 
         List<User> users = userRepository.saveAllAndFlush(
                 List.of(u1, u2, u3)
