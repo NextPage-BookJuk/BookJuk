@@ -36,6 +36,14 @@
                 <div class="error-message" id="titleError" style="display: none;"></div>
             </div>
 
+            <!-- description 필드 추가 -->
+            <div class="form-group">
+                <label class="form-label">모임 설명</label>
+                <textarea class="form-textarea" id="description" placeholder="모임에 대한 상세한 설명을 입력해주세요"></textarea>
+                <div class="helper-text">어떤 모임인지 자세히 알려주세요</div>
+                <div class="error-message" id="descriptionError" style="display: none;"></div>
+            </div>
+
             <div class="input-group">
                 <div class="form-group" style="flex: 2;">
                     <label class="form-label">책 제목 <span class="required">*</span></label>
@@ -130,7 +138,7 @@
 
             <div class="form-group">
                 <label class="form-label">최대 인원 <span class="required">*</span></label>
-                <input type="number" class="form-input capacity-input" id="maxCapacity" min="2" max="12" placeholder="2">
+                <input type="number" class="form-input capacity-input" id="maxCapacity" min="2" max="10" placeholder="2">
                 <div class="helper-text">호스트 포함 2명 ~ 10명까지 설정 가능합니다</div>
                 <div class="error-message" id="maxCapacityError" style="display: none;"></div>
             </div>
