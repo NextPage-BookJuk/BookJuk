@@ -7,11 +7,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import java.util.Optional;
 
 import java.util.List;
 
 @Repository
 public interface MeetingRepository extends JpaRepository<Meeting, Long> {
+
+    // 쿼리 메서드, 전달된 문자열과 제목명이 같은 모임을 찾음
+    List<Meeting> findByTitle(String title);
 
     // JpaRepository가 기본으로 제공하는 메서드들:
     // - save(Meeting meeting): 모임 생성 및 수정 (ID가 없으면 생성, 있으면 수정)
