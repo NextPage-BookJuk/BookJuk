@@ -63,7 +63,7 @@ public class MeetingController {
         // 실제 User 엔티티 구조에 맞게 수정 필요
         return User.builder()
                 .id(1L)
-                .nickname("테스트유저")
+                .username("테스트유저")
                 .email("test@example.com")
                 .build();
     }
