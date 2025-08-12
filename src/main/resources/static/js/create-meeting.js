@@ -367,6 +367,12 @@ function createFormData() {
     formData.append('city', document.getElementById('city').value);
     formData.append('maxParticipants', document.getElementById('maxCapacity').value);
 
+    // description 필드 추가
+    const description = document.getElementById('description').value.trim();
+    if (description) {
+        formData.append('description', description);
+    }
+
     // 선택적 필드
     const detailAddress = document.getElementById('detailAddress').value.trim();
     if (detailAddress) {
