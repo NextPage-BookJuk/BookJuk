@@ -24,7 +24,7 @@ create table meeting_review
 @Entity
 @Table(name = "meeting_review")
 
-@Getter @ToString(exclude = {"meeting, user"})
+@Getter @ToString(exclude = {"meeting", "reviewer", "reviewee"})
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MeetingReview {
