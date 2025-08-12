@@ -2,7 +2,6 @@ package com.bookjuk.service;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.meeting.MeetingStatus;
-import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.review.MeetingReview;
@@ -18,14 +17,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Repository;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -52,9 +48,9 @@ class ReviewServiceTest {
 
     private User u1, u2, u3, u4;
     private Meeting m1, m2, m3;
-    private MeetingParticipant mp1, mp2, mp3, mp4, mp5, mp6;
+    private com.bookjuk.domain.participant.MeetingParticipant mp1, mp2, mp3, mp4, mp5, mp6;
 
-    private List<MeetingParticipant> meetingParticipants;
+    private List<com.bookjuk.domain.participant.MeetingParticipant> meetingParticipants;
 
     @BeforeEach
     void insertBulk() {
@@ -137,37 +133,37 @@ class ReviewServiceTest {
         );
 
         // 참가자 정보 만들기
-        mp1 = MeetingParticipant.builder()
+        mp1 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u1)
                 .meeting(m1)
                 .role(ParticipantRole.HOST)
                 .status(ParticipantStatus.APPROVED)
                 .build();
-        mp2 = MeetingParticipant.builder()
+        mp2 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u2)
                 .meeting(m1)
                 .role(ParticipantRole.PARTICIPANT)
                 .status(ParticipantStatus.APPROVED)
                 .build();
-        mp3 = MeetingParticipant.builder()
+        mp3 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u3)
                 .meeting(m1)
                 .role(ParticipantRole.PARTICIPANT)
                 .status(ParticipantStatus.PENDING)
                 .build();
-        mp4 = MeetingParticipant.builder()
+        mp4 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u1)
                 .meeting(m2)
                 .role(ParticipantRole.PARTICIPANT)
                 .status(ParticipantStatus.PENDING)
                 .build();
-        mp5 = MeetingParticipant.builder()
+        mp5 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u2)
                 .meeting(m2)
                 .role(ParticipantRole.HOST)
                 .status(ParticipantStatus.APPROVED)
                 .build();
-        mp6 = MeetingParticipant.builder()
+        mp6 = com.bookjuk.domain.participant.MeetingParticipant.builder()
                 .participant(u2)
                 .meeting(m3)
                 .role(ParticipantRole.HOST)

@@ -1,25 +1,20 @@
 package com.bookjuk.service;
 
 import com.bookjuk.domain.meeting.Meeting;
-import com.bookjuk.domain.meeting.MeetingStatus;
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
-import com.bookjuk.dto.review.ReviewRequest;
 import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.review.MeetingReviewRepository;
 import com.bookjuk.repository.user.UserRepository;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.bookjuk.domain.meeting.MeetingStatus.COMPLETED;
 
