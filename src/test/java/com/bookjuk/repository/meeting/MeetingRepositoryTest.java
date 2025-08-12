@@ -51,17 +51,21 @@ class MeetingRepositoryTest {
         meetingRepository.deleteAll();
         userRepository.deleteAll();
         // 유저정보 만들기 (임시 테스트용)
+
         u1 = User.builder()
-                .nickname("치이카와")
+                .username("치이카와")
                 .email("abc123@naver.com")
+                .password("abc123")
                 .build();
         u2 = User.builder()
-                .nickname("하치와레")
+                .username("하치와레")
                 .email("abc123@google.com")
+                .password("abc123")
                 .build();
         u3 = User.builder()
-                .nickname("우사기")
+                .username("우사기")
                 .email("abc123@daum.net")
+                .password("abc123")
                 .build();
 
         List<User> users = userRepository.saveAllAndFlush(
@@ -81,7 +85,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("안산시")
                 .maxParticipants(6)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         m2 = Meeting.builder()
                 .host(u2)
@@ -95,7 +98,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("안양시")
                 .maxParticipants(8)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         m3 = Meeting.builder()
                 .host(u2)
@@ -109,7 +111,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("구리시")
                 .maxParticipants(4)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
 
         List<Meeting> meetings = meetingRepository.saveAllAndFlush(
@@ -170,7 +171,7 @@ class MeetingRepositoryTest {
     void meetingCreateAndReadTest() {
         // given
         User u = User.builder()
-                .nickname("루피")
+                .username("루피")
                 .email("lulu123@naver.com")
                 .build();
         userRepository.save(u);
@@ -188,7 +189,6 @@ class MeetingRepositoryTest {
                 .region("서울광역시")
                 .city("강남구")
                 .maxParticipants(7)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
 
         // when
@@ -249,7 +249,7 @@ class MeetingRepositoryTest {
     void CreateAndReadTest() {
         // given
         User u = User.builder()
-                .nickname("루피")
+                .username("루피")
                 .email("lulu123@naver.com")
                 .build();
         userRepository.save(u);
@@ -266,7 +266,6 @@ class MeetingRepositoryTest {
                 .region("서울광역시")
                 .city("강남구")
                 .maxParticipants(7)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         meetingRepository.save(m);
 
