@@ -27,7 +27,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String nickname;
+    private String username;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -64,11 +64,11 @@ public class User {
     private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
 
     @Builder
-    public User(Long id, String nickname, String email, List<Meeting> meetings, List<MeetingParticipant> meetingParticipants,
+    public User(Long id, String username, String email, List<Meeting> meetings, List<MeetingParticipant> meetingParticipants,
                 String password, String preferredGenre, String profileImage, String introduction,
                 LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
-        this.nickname = nickname;
+        this.username = username;
         this.email = email;
         this.meetings = meetings != null ? meetings : new ArrayList<>();
         this.meetingParticipants = meetingParticipants != null ? meetingParticipants : new ArrayList<>();
