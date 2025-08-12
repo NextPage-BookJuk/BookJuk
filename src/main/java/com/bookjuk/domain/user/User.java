@@ -2,6 +2,7 @@ package com.bookjuk.domain.user;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.participant.MeetingParticipant;
+import com.bookjuk.domain.review.MeetingReview;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,8 +16,6 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -25,7 +24,10 @@ public class User {
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String nickname;
+    private String username;
+
+    @Column(nullable = false, length = 50)
+    private String password;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -40,4 +42,18 @@ public class User {
     // 중간 엔티티 기준 1:N
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
+
+    // 중간 엔티티 기준 1:N
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MeetingReview> meetingReviewers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "reviewee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MeetingReview> meetingReviewees = new ArrayList<>();
+
+    @Builder
+    public User(String username, String password, String email) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+    }
 }

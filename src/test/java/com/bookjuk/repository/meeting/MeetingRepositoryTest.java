@@ -52,16 +52,19 @@ class MeetingRepositoryTest {
         userRepository.deleteAll();
         // 유저정보 만들기 (임시 테스트용)
         u1 = User.builder()
-                .nickname("치이카와")
+                .username("치이카와")
                 .email("abc123@naver.com")
+                .password("abc123")
                 .build();
         u2 = User.builder()
-                .nickname("하치와레")
+                .username("하치와레")
                 .email("abc123@google.com")
+                .password("abc123")
                 .build();
         u3 = User.builder()
-                .nickname("우사기")
+                .username("우사기")
                 .email("abc123@daum.net")
+                .password("abc123")
                 .build();
 
         List<User> users = userRepository.saveAllAndFlush(
@@ -170,7 +173,7 @@ class MeetingRepositoryTest {
     void meetingCreateAndReadTest() {
         // given
         User u = User.builder()
-                .nickname("루피")
+                .username("루피")
                 .email("lulu123@naver.com")
                 .build();
         userRepository.save(u);
@@ -249,7 +252,7 @@ class MeetingRepositoryTest {
     void CreateAndReadTest() {
         // given
         User u = User.builder()
-                .nickname("루피")
+                .username("루피")
                 .email("lulu123@naver.com")
                 .build();
         userRepository.save(u);
