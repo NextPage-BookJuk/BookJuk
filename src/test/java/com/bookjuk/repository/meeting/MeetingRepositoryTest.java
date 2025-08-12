@@ -84,7 +84,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("안산시")
                 .maxParticipants(6)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         m2 = Meeting.builder()
                 .host(u2)
@@ -98,7 +97,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("안양시")
                 .maxParticipants(8)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         m3 = Meeting.builder()
                 .host(u2)
@@ -112,7 +110,6 @@ class MeetingRepositoryTest {
                 .region("경기도")
                 .city("구리시")
                 .maxParticipants(4)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
 
         List<Meeting> meetings = meetingRepository.saveAllAndFlush(
@@ -191,7 +188,6 @@ class MeetingRepositoryTest {
                 .region("서울광역시")
                 .city("강남구")
                 .maxParticipants(7)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
 
         // when
@@ -269,7 +265,6 @@ class MeetingRepositoryTest {
                 .region("서울광역시")
                 .city("강남구")
                 .maxParticipants(7)
-                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         meetingRepository.save(m);
 
