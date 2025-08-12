@@ -14,14 +14,15 @@ import org.springframework.context.annotation.Configuration;
 @RequiredArgsConstructor
 public class QueryDslConfig {
 
-    private final EntityManager entityManager;
+    private final EntityManager em;
 
     /**
      * JPAQueryFactory Bean 등록
      * QueryDSL을 사용하기 위한 핵심 컴포넌트
      */
     @Bean
-    public JPAQueryFactory jpaQueryFactory() {
-        return new JPAQueryFactory(entityManager);
+    public JPAQueryFactory factory() {
+        return new JPAQueryFactory(em);
     }
+
 }

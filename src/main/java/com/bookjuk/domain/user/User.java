@@ -2,6 +2,7 @@ package com.bookjuk.domain.user;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.participant.MeetingParticipant;
+import com.bookjuk.domain.review.MeetingReview;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,8 +19,6 @@ import java.util.List;
 @ToString(exclude = {"meetings", "meetingParticipants"})
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -29,6 +28,7 @@ public class User {
 
     @Column(nullable = false, length = 50)
     private String username;
+
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -63,6 +63,7 @@ public class User {
     // 중간 엔티티 기준 1:N
     @OneToMany(mappedBy = "participant", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
+
 
     @Builder
     public User(Long id, String username, String email, List<Meeting> meetings, List<MeetingParticipant> meetingParticipants,

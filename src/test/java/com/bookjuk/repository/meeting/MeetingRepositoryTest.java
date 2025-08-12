@@ -54,14 +54,17 @@ class MeetingRepositoryTest {
         u1 = User.builder()
                 .username("치이카와")
                 .email("abc123@naver.com")
+                .password("abc123")
                 .build();
         u2 = User.builder()
                 .username("하치와레")
                 .email("abc123@google.com")
+                .password("abc123")
                 .build();
         u3 = User.builder()
                 .username("우사기")
                 .email("abc123@daum.net")
+                .password("abc123")
                 .build();
 
         List<User> users = userRepository.saveAllAndFlush(
