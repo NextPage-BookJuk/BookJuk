@@ -1,5 +1,6 @@
 package com.bookjuk.domain.meeting;
 
+
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.user.User;
 import jakarta.persistence.*;
@@ -60,6 +61,7 @@ public class Meeting {
     // 중간 엔티티 기준 1:N
     @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeetingParticipant> meetingParticipants = new ArrayList<>();
+
 
     @Column(name = "title", nullable = false, length = 255)
     @Comment("모임 제목")
@@ -127,9 +129,22 @@ public class Meeting {
         this.title = newTitle;
     }
 
+
     // 빌더 패턴을 사용한 생성자
     @Builder
-    public Meeting(User host, String title, String description, String imageUrl, String bookTitle, String bookAuthor, String genre, LocalDateTime meetingTime, String region, String city, String detailAddress, Integer maxParticipants, MeetingStatus meetingStatus) {
+    public Meeting(User host,
+                   String title,
+                   String description,
+                   String imageUrl,
+                   String bookTitle,
+                   String bookAuthor,
+                   String genre,
+                   LocalDateTime meetingTime,
+                   String region,
+                   String city,
+                   String detailAddress,
+                   Integer maxParticipants,
+                   MeetingStatus meetingStatus) {
         this.host = host;
         this.title = title;
         this.description = description;
@@ -146,3 +161,4 @@ public class Meeting {
     }
 
 }
+

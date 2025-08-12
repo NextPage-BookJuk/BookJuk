@@ -5,3 +5,4 @@ public enum MeetingStatus {
     COMPLETED,  // 종료
     CANCELLED   // 취소
 }
+
