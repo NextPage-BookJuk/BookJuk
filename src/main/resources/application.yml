@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/bookjuk
+
+    username: root
+    password: mariadb
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+  web:
+    resources:
+      static-locations: classpath:/static/
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+logging:
+  level:
+    org.springframework: info
+
+server:
+  port: 9000
+
+# JWT (JSON Web Token) 설정
+jwt:
+  # JWT 서명에 사용할 비밀키
+  secret: RSpAUufXMjnvXNy41wz9HdieijJ0Yeo1xUzihJNTU+EzrVOG4KB7jiGs6y4YGYrxK7AveGVLDF5/negptN+muw==
+
+  # 토큰 만료 시간 (밀리초 단위)
+  # 24시간: 24 * 60 * 60 * 1000 = 86400000
+  expiration: 86400000
