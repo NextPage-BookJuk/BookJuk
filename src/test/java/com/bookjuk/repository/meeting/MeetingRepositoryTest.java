@@ -51,6 +51,7 @@ class MeetingRepositoryTest {
         meetingRepository.deleteAll();
         userRepository.deleteAll();
         // 유저정보 만들기 (임시 테스트용)
+
         u1 = User.builder()
                 .username("치이카와")
                 .email("abc123@naver.com")
