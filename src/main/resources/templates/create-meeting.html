@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>북적북적 - 모임 만들기</title>
-    <link rel="stylesheet" href="/css/create-meeting.css">
+    <!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+    <link rel="stylesheet" th:href="@{/css/create-meeting.css}">
 </head>
 <body>
 <header class="header">
@@ -36,7 +37,7 @@
                 <div class="error-message" id="titleError" style="display: none;"></div>
             </div>
 
-            <!-- description 필드 추가 -->
+            <!-- 추가: description 필드 추가 -->
             <div class="form-group">
                 <label class="form-label">모임 설명</label>
                 <textarea class="form-textarea" id="description" placeholder="모임에 대한 상세한 설명을 입력해주세요"></textarea>
@@ -171,6 +172,7 @@
 </div> <!-- [수정] container div 닫기 -->
 
 <!-- [수정] script 태그를 body가 닫히기 직전의 올바른 위치로 이동 -->
-<script src="/js/create-meeting.js"></script>
+<!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+<script th:src="@{/js/create-meeting.js}"></script>
 </body>
 </html>
