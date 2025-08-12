@@ -67,6 +67,14 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
         return null;
     }
 
+    /**
+     * 주어진 검색 조건에 따라 정렬 기준(OrderSpecifier)을 반환하는 메서드.
+     *
+     * @param condition 검색 조건을 담고 있는 객체로, 정렬 기준(sortBy)을 포함.
+     *                  가능한 값: "latest" (최신순), "deadline" (마감 임박 순), "popular" (인기순).
+     * @return 정렬 기준에 해당하는 QueryDSL의 OrderSpecifier 객체.
+     *         기본값은 생성일(latest) 기준 내림차순.
+     */
     private OrderSpecifier<?> getOrderSpecifier(MeetingSearchCondition condition) {
 
         // 정렬조건
