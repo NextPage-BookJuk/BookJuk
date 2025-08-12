@@ -81,6 +81,7 @@ class MeetingRepositoryTest {
                 .bookAuthor("나가노작가")
                 .genre("동화")
                 .meetingTime(LocalDateTime.of(2025, 8, 20, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .region("경기도")
                 .city("안산시")
                 .maxParticipants(6)
@@ -94,6 +95,7 @@ class MeetingRepositoryTest {
                 .bookAuthor("짤쓸사람")
                 .genre("동화")
                 .meetingTime(LocalDateTime.of(2025, 8, 18, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .region("경기도")
                 .city("안양시")
                 .maxParticipants(8)
@@ -107,6 +109,7 @@ class MeetingRepositoryTest {
                 .bookAuthor("무파사")
                 .genre("동화")
                 .meetingTime(LocalDateTime.of(2025, 8, 21, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .region("경기도")
                 .city("구리시")
                 .maxParticipants(4)
@@ -172,6 +175,7 @@ class MeetingRepositoryTest {
         User u = User.builder()
                 .username("루피")
                 .email("lulu123@naver.com")
+                .password("abc123")
                 .build();
         userRepository.save(u);
 
@@ -183,6 +187,7 @@ class MeetingRepositoryTest {
                 .imageUrl("https://example.com/image5.jpg")
                 .bookTitle("가을의 시")
                 .bookAuthor("이시인")
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .genre("시")
                 .meetingTime(LocalDateTime.of(2025, 8, 27, 19, 0))
                 .region("서울광역시")
@@ -250,6 +255,7 @@ class MeetingRepositoryTest {
         User u = User.builder()
                 .username("루피")
                 .email("lulu123@naver.com")
+                .password("abc123")
                 .build();
         userRepository.save(u);
 
@@ -260,6 +266,7 @@ class MeetingRepositoryTest {
                 .imageUrl("https://example.com/image5.jpg")
                 .bookTitle("가을의 시")
                 .bookAuthor("이시인")
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .genre("시")
                 .meetingTime(LocalDateTime.of(2025, 8, 27, 19, 0))
                 .region("서울광역시")
