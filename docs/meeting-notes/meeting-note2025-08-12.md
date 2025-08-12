@@ -112,12 +112,12 @@
 
 ---
 
-## 🗒️ 다음 작업 계획
+## 📅 다음 작업 계획
 
-* Repository, Service 레이어 구현 시작
-* API 명세서 최종 검토 및 문서화
-* DDL 변경에 따른 테스트 데이터 생성
-
+* 리뷰(좋아요) 기능의 Controller 계층 구현 및 통합 테스트
+* 모임 리스트 조회 API에 Pagination 기능 추가
+* ApiResponse DTO 적용 범위 확대
+* 프론트엔드와 API 연동 테스트
 ---
 
 ## 🧾 팀원별 오늘의 회고
@@ -132,9 +132,4 @@
 
 
 
-## 📅 다음 작업 계획
 
-* 리뷰(좋아요) 기능의 Controller 계층 구현 및 통합 테스트
-* 모임 리스트 조회 API에 Pagination 기능 추가
-* ApiResponse DTO 적용 범위 확대
-* 프론트엔드와 API 연동 테스트
