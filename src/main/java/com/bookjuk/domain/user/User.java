@@ -2,11 +2,13 @@ package com.bookjuk.domain.user;
 
 import com.bookjuk.domain.meeting.Meeting;
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
 public class User {
 
     @Id
