@@ -58,8 +58,10 @@ public enum ErrorCode {
     // =========================
     // ❤️ 좋아요 / 후기 관련
     // =========================
+    MEETING_NOT_COMPLETED("MEETING_NOT_COMPLETED", "미팅이 완료되지 않았습니다.", 400),
     DUPLICATE_LIKE("DUPLICATE_LIKE", "좋아요는 최대 한 번만 누를 수 있습니다.", 400),
     LIKE_SELF_NOT_ALLOWED("LIKE_SELF_NOT_ALLOWED", "자기 자신을 좋아요할 수 없습니다.", 400),
+    USER_NOT_PARTICIPANT("USER_NOT_PARTICIPANT", "해당 사용자는 모임 참여자가 아닙니다.", 400),
 
     // =========================
     // ⚠️ 공통 유효성 / 시스템 에러
