@@ -265,8 +265,8 @@ function validateDateTime() {
 function validateMaxCapacity() {
     const capacity = parseInt(document.getElementById('maxCapacity').value);
 
-    if (capacity < 2 || capacity > 12) {
-        showError('maxCapacityError', '최대 인원은 2명 이상 12명 이하로 설정해주세요.');
+    if (capacity < 2 || capacity > 10) {
+        showError('maxCapacityError', '최대 인원은 2명 이상 10명 이하로 설정해주세요.');
         return false;
     }
 
