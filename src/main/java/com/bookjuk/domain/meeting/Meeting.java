@@ -125,10 +125,10 @@ public class Meeting {
     @Comment("모임 정보 수정 시점")
     private LocalDateTime updatedAt;
 
-    // 모임 제목 변경 도메인 메서드, MeetingRepositoryTest 전용
-    public void changeTitle(String newTitle) {
-        this.title = newTitle;
-    }
+//    // 모임 제목 변경 도메인 메서드, MeetingRepositoryTest 전용 // 이 부분 삭제하셔도 됩니다!
+//    public void changeTitle(String newTitle) {
+//        this.title = newTitle;
+//    }
 
 
     // 빌더 패턴을 사용한 생성자

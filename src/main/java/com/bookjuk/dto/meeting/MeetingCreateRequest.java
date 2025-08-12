@@ -19,7 +19,7 @@ public class MeetingCreateRequest {
     @Size(max = 255, message = "모임 제목은 255자를 넘을 수 없습니다.")
     private String title;
 
-    @Size(max = 65535, message = "모임 상세 설명이 너무 깁니다.") // TEXT 타입에 맞춰 넉넉하게 설정
+    @Size(max = 2000, message = "모임 상세 설명은 2000자를 넘을 수 없습니다.")
     private String description;
 
     @NotEmpty(message = "선정 도서 제목을 입력해주세요.")
@@ -42,8 +42,8 @@ public class MeetingCreateRequest {
     @Size(max = 20, message = "시/도는 20자를 넘을 수 없습니다.")
     private String region;
 
-    @NotEmpty(message = "시/구/군을 입력해주세요.")
-    @Size(max = 30, message = "시/구/군은 30자를 넘을 수 없습니다.")
+    @NotEmpty(message = "시/군/구를 입력해주세요.")
+    @Size(max = 30, message = "시/군/구는 30자를 넘을 수 없습니다.")
     private String city;
 
     @Size(max = 255, message = "상세 주소는 255자를 넘을 수 없습니다.")
@@ -54,8 +54,13 @@ public class MeetingCreateRequest {
     @Max(value = 10, message = "최대 참여 인원은 10명을 넘을 수 없습니다.")
     private int maxParticipants;
 
-    // 이 DTO를 Meeting 엔티티로 변환하는 메서드 (서비스 로직에서 사용)
-    // host와 imageUrl은 서비스 레이어에서 별도로 받아와 주입
+    /**
+     * 이 DTO를 Meeting 엔티티로 변환하는 메서드
+     * @param req MeetingCreateRequest DTO
+     * @param host 호스트 사용자
+     * @param imageUrl 업로드된 이미지 URL
+     * @return Meeting 엔티티
+     */
     public static Meeting toEntity(MeetingCreateRequest req, User host, String imageUrl) {
         return Meeting.builder()
                 .host(host)
