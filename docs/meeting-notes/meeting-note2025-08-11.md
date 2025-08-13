@@ -1,4 +1,4 @@
-# 📋 2025년 8월 12일 팀 회의록 - 북적북적 프로젝트
+# 📋 2025년 8월 11일 팀 회의록 - 북적북적 프로젝트
 
 > 백엔드 개발 착수 및 DB 구조 변경, API 명세 반영 회의
 
@@ -52,9 +52,9 @@
 
 > 아래 링크를 통해 각자의 회고 문서를 볼 수 있습니다.
 
-* [강관주 - 2025-08-08 회고](https://github.com/Kanggwanju/project-docs/blob/main/meeting-notes)
-* [김경민 - 2025-08-08 회고](https://github.com/minee0505/meetings/blob/main)
-* [박현수 - 2025-08-08 회고](https://github.com/hsp64/memoir/blob/main/teamNextPage20250805)
-* [신동준 - 2025-08-08 회고](https://github.com/sdj3959/my-retrospectives/tree/master/projects/202508BookJuk)
-* [진도희 - 2025-08-08 회고](https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings)
+* [강관주 - 2025-08-11 회고](https://github.com/Kanggwanju/project-docs/blob/main/meeting-notes)
+* [김경민 - 2025-08-11 회고](https://github.com/minee0505/meetings/blob/main)
+* [박현수 - 2025-08-11 회고](https://github.com/hsp64/memoir/blob/main/teamNextPage20250805)
+* [신동준 - 2025-08-11 회고](https://github.com/sdj3959/my-retrospectives/tree/master/projects/202508BookJuk)
+* [진도희 - 2025-08-11 회고](https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings)
 
