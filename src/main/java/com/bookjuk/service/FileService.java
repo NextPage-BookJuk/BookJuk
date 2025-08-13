@@ -1,5 +1,6 @@
 package com.bookjuk.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
  * @return 웹에서 접근 가능한 파일의 URL, 파일이 없으면 null
  * @throws IOException 파일 저장 중 오류 발생 시
  */
+@Transactional
 public interface FileService {
 
     String uploadFile(MultipartFile file) throws IOException;

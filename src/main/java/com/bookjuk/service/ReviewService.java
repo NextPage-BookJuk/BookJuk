@@ -1,3 +1,4 @@
+/*
 package com.bookjuk.service;
 
 import com.bookjuk.domain.meeting.Meeting;
@@ -34,10 +35,12 @@ public class ReviewService {
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final UserRepository userRepository;
 
-    /**
+    */
+/**
      * 좋아요 남기기 로직
      *
-     */
+     *//*
+
     public ReviewResponse createReview(Long meetingId, Long reviewerId, Long revieweeId) {
 
         // 1. 미팅 정보 확인
@@ -101,3 +104,4 @@ public class ReviewService {
 
 
 }
+*/

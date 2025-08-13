@@ -1,103 +1,96 @@
 // 전역 변수
 let selectedImageFile = null;
 
+// 지역 데이터 (HTML과 동일하게 업데이트)
+const regionData = {
+    "서울특별시": ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"],
+    "부산광역시": ["중구", "서구", "동구", "영도구", "부산진구", "동래구", "남구", "북구", "해운대구", "사하구", "금정구", "강서구", "연제구", "수영구", "사상구", "기장군"],
+    "대구광역시": ["중구", "동구", "서구", "남구", "북구", "수성구", "달서구", "달성군"],
+    "인천광역시": ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"],
+    "광주광역시": ["동구", "서구", "남구", "북구", "광산구"],
+    "대전광역시": ["동구", "중구", "서구", "유성구", "대덕구"],
+    "울산광역시": ["중구", "남구", "동구", "북구", "울주군"],
+    "세종특별자치시": ["세종시"],
+    "경기도": ["수원시", "성남시", "안양시", "안산시", "용인시", "광명시", "평택시", "과천시", "오산시", "시흥시", "군포시", "의왕시", "하남시", "이천시", "안성시", "김포시", "화성시", "광주시", "여주시", "고양시", "구리시", "남양주시", "동두천시", "부천시", "양주시", "의정부시", "파주시", "연천군", "가평군", "포천시"],
+    "강원도": ["춘천시", "원주시", "강릉시", "동해시", "태백시", "속초시", "삼척시", "홍천군", "횡성군", "영월군", "평창군", "정선군", "철원군", "화천군", "양구군", "인제군", "고성군", "양양군"],
+    "충청북도": ["청주시", "충주시", "제천시", "보은군", "옥천군", "영동군", "증평군", "진천군", "괴산군", "음성군", "단양군"],
+    "충청남도": ["천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "당진시", "금산군", "부여군", "서천군", "청양군", "홍성군", "예산군", "태안군"],
+    "전라북도": ["전주시", "군산시", "익산시", "정읍시", "남원시", "김제시", "완주군", "진안군", "무주군", "장수군", "임실군", "순창군", "고창군", "부안군"],
+    "전라남도": ["목포시", "여수시", "순천시", "나주시", "광양시", "담양군", "곡성군", "구례군", "고흥군", "보성군", "화순군", "장흥군", "강진군", "해남군", "영암군", "무안군", "함평군", "영광군", "장성군", "완도군", "진도군", "신안군"],
+    "경상북도": ["포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시", "문경시", "경산시", "군위군", "의성군", "청송군", "영양군", "영덕군", "청도군", "고령군", "성주군", "칠곡군", "예천군", "봉화군", "울진군", "울릉군"],
+    "경상남도": ["창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시", "의령군", "함안군", "창녕군", "고성군", "남해군", "하동군", "산청군", "함양군", "거창군", "합천군"],
+    "제주특별자치도": ["제주시", "서귀포시"]
+};
+
+
 // 페이지 로드 완료 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     initializePage();
 });
 
-/**
- * 페이지 초기화
- */
+// 페이지 초기화
 function initializePage() {
     setMinDate();
     setupEventListeners();
     loadLocationData();
 }
 
-/**
- * 오늘 이후 날짜만 선택 가능하도록 설정
- */
+// 오늘 이후 날짜만 선택 가능하도록 설정
 function setMinDate() {
-    const dateInput = document.getElementById('date');
+    const dateInput = document.getElementById('meetingDate');   // HTML의 ID와 일치하도록 수정
     const today = new Date();
     const minDate = today.toISOString().split('T')[0];
     dateInput.min = minDate;
 }
 
-/**
- * 이벤트 리스너 설정
- */
+// 시/군/구 선택을 초기 비활성화 상태로 설정
+function initializeCitySelect() {
+    const citySelect = document.getElementById('city');
+    citySelect.disabled = true;
+}
+
+// 이벤트 리스너 설정
 function setupEventListeners() {
     // 파일 드래그 앤 드롭 이벤트
     const uploadArea = document.querySelector('.file-upload-area');
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('dragleave', handleDragLeave);
-    uploadArea.addEventListener('drop', handleDrop);
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+    }
 }
 
-/**
- * 지역 데이터 로드 (간소화된 버전)
- */
-function loadLocationData() {
-    // 실제 구현에서는 외부 API나 데이터베이스에서 로드
-    const locationData = {
-        '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구'],
-        '부산광역시': ['해운대구', '수영구', '부산진구', '동래구', '남구', '북구', '사상구', '연제구'],
-        '대구광역시': ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군'],
-        '인천광역시': ['중구', '동구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군'],
-        '경기도': ['수원시', '성남시', '고양시', '용인시', '부천시', '안산시', '안양시', '남양주시']
-    };
 
-    window.locationData = locationData;
-}
 
-/**
- * 시/도 변경 시 시/군 업데이트
- */
+// 시/도 변경 시 시/군/구 업데이트  (HTML의 함수명과 일치하게 수정)
 function updateCities() {
-    const province = document.getElementById('province').value;
+    const regionSelect = document.getElementById('region'); // province -> region으로 수정
     const citySelect = document.getElementById('city');
-    const districtSelect = document.getElementById('district');
+    const selectedRegion = regionSelect.value;
 
-    // 시/군과 구 초기화
-    citySelect.innerHTML = '<option value="">시/군 선택</option>';
-    districtSelect.innerHTML = '<option value="">구 선택</option>';
+    // 기존 옵션들 제거
+    citySelect.innerHTML = '<option value="">시/군/구 선택</option>';
 
-    if (province && window.locationData && window.locationData[province]) {
-        const cities = window.locationData[province];
-        cities.forEach(city => {
+    if (selectedRegion && regionData[selectedRegion]) {
+        // 선택된 시/도에 해당하는 시/군/구 목록 추가
+        regionData[selectedRegion].forEach(city => {
             const option = document.createElement('option');
             option.value = city;
             option.textContent = city;
             citySelect.appendChild(option);
         });
+
+        // 시/군/구 선택 활성화
+        citySelect.disabled = false;
+    } else {
+        // 시/도가 선택되지 않은 경우 비활성화
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">시/도를 먼저 선택해주세요</option>';
     }
 }
 
-/**
- * 시/군 변경 시 구 업데이트 (현재는 동일하게 처리)
- */
-function updateDistricts() {
-    const city = document.getElementById('city').value;
-    const districtSelect = document.getElementById('district');
 
-    // 구 초기화
-    districtSelect.innerHTML = '<option value="">구 선택</option>';
-
-    if (city) {
-        // 실제로는 더 세분화된 데이터가 필요하지만,
-        // 현재는 선택된 시/군을 구 옵션으로도 표시
-        const option = document.createElement('option');
-        option.value = city;
-        option.textContent = city;
-        districtSelect.appendChild(option);
-    }
-}
-
-/**
- * 이미지 미리보기
- */
+// 이미지 미리보기
 function previewImage(input) {
     const file = input.files[0];
     if (file) {
@@ -112,9 +105,7 @@ function previewImage(input) {
     }
 }
 
-/**
- * 이미지 파일 유효성 검사
- */
+// 이미지 파일 유효성 검사
 function validateImageFile(file) {
     // 파일 크기 검사 (10MB)
     const maxSize = 10 * 1024 * 1024;
@@ -133,9 +124,7 @@ function validateImageFile(file) {
     return true;
 }
 
-/**
- * 이미지 미리보기 표시
- */
+// 이미지 미리보기 표시
 function showImagePreview(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -148,9 +137,7 @@ function showImagePreview(file) {
     reader.readAsDataURL(file);
 }
 
-/**
- * 이미지 제거
- */
+// 이미지 제거
 function removeImage() {
     document.getElementById('meetingImage').value = '';
     document.getElementById('imagePreview').innerHTML = '';
@@ -158,25 +145,19 @@ function removeImage() {
     clearError('imageError');
 }
 
-/**
- * 드래그 오버 이벤트
- */
+// 드래그 오버 이벤트
 function handleDragOver(e) {
     e.preventDefault();
     e.currentTarget.classList.add('dragover');
 }
 
-/**
- * 드래그 리브 이벤트
- */
+// 드래그 리브 이벤트
 function handleDragLeave(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('dragover');
 }
 
-/**
- * 드롭 이벤트
- */
+// 드롭 이벤트
 function handleDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('dragover');
@@ -192,24 +173,21 @@ function handleDrop(e) {
     }
 }
 
-/**
- * 폼 유효성 검사
- */
+// 폼 유효성 검사
 function validateForm() {
     let isValid = true;
 
-    // 필수 필드 검사
+    // 필수 필드 검사 (HTML ID와 일치하도록 수정)
     const requiredFields = [
         { id: 'title', name: '모임 제목' },
         { id: 'bookTitle', name: '책 제목' },
-        { id: 'author', name: '저자' },
+        { id: 'bookAuthor', name: '저자' }, // author -> bookAuthor로 수정
         { id: 'genre', name: '장르' },
-        { id: 'date', name: '날짜' },
-        { id: 'time', name: '시간' },
-        { id: 'province', name: '시/도' },
-        { id: 'city', name: '시/군' },
-        { id: 'district', name: '구' },
-        { id: 'maxCapacity', name: '최대 인원' }
+        { id: 'meetingDate', name: '날짜' }, // date -> meetingDate로 수정
+        { id: 'meetingTime', name: '시간' }, // time -> meetingTime으로 수정
+        { id: 'region', name: '시/도' }, // province -> region으로 수정
+        { id: 'city', name: '시/군/구' },
+        { id: 'maxParticipants', name: '최대 인원' } // maxCapacity -> maxParticipants로 수정
     ];
 
     requiredFields.forEach(field => {
@@ -237,31 +215,27 @@ function validateForm() {
     return isValid;
 }
 
-/**
- * 날짜/시간 유효성 검사
- */
+// 날짜/시간 유효성 검사
 function validateDateTime() {
-    const date = document.getElementById('date').value;
-    const time = document.getElementById('time').value;
+    const date = document.getElementById('meetingDate').value; // HTML ID와 일치
+    const time = document.getElementById('meetingTime').value; // HTML ID와 일치
 
     if (date && time) {
         const selectedDateTime = new Date(date + 'T' + time);
         const now = new Date();
 
         if (selectedDateTime <= now) {
-            showError('timeError', '모임 시간은 현재 시간 이후로 설정해야 합니다.');
+            showError('meetingTimeError', '모임 시간은 현재 시간 이후로 설정해야 합니다.');
             return false;
         }
     }
 
-    clearError('dateError');
-    clearError('timeError');
+    clearError('meetingDateError');
+    clearError('meetingTimeError');
     return true;
 }
 
-/**
- * 최대 인원 유효성 검사
- */
+// 최대 인원 유효성 검사
 function validateMaxCapacity() {
     const capacity = parseInt(document.getElementById('maxCapacity').value);
 
@@ -274,9 +248,7 @@ function validateMaxCapacity() {
     return true;
 }
 
-/**
- * 에러 메시지 표시
- */
+// 에러 메시지 표시
 function showError(elementId, message) {
     const errorElement = document.getElementById(elementId);
     if (errorElement) {
@@ -291,9 +263,7 @@ function showError(elementId, message) {
     }
 }
 
-/**
- * 에러 메시지 지우기
- */
+// 에러 메시지 지우기
 function clearError(elementId) {
     const errorElement = document.getElementById(elementId);
     if (errorElement) {
@@ -308,9 +278,7 @@ function clearError(elementId) {
     }
 }
 
-/**
- * 모임 저장 (메인 함수)
- */
+// 모임 저장 (메인 함수)
 async function saveMeeting() {
     // 폼 유효성 검사
     if (!validateForm()) {
@@ -358,14 +326,14 @@ async function saveMeeting() {
 function createFormData() {
     const formData = new FormData();
 
-    // 텍스트 데이터
+    // 텍스트 데이터 (HTML의 ID와 일치하도록 수정)
     formData.append('title', document.getElementById('title').value.trim());
     formData.append('bookTitle', document.getElementById('bookTitle').value.trim());
-    formData.append('bookAuthor', document.getElementById('author').value.trim());
+    formData.append('bookAuthor', document.getElementById('bookAuthor').value.trim()); // author -> bookAuthor
     formData.append('genre', document.getElementById('genre').value);
-    formData.append('region', document.getElementById('province').value);
+    formData.append('region', document.getElementById('region').value); // province -> region
     formData.append('city', document.getElementById('city').value);
-    formData.append('maxParticipants', document.getElementById('maxCapacity').value);
+    formData.append('maxParticipants', document.getElementById('maxParticipants').value); // maxCapacity -> maxParticipants
 
     // description 필드 추가
     const description = document.getElementById('description').value.trim();
@@ -379,9 +347,9 @@ function createFormData() {
         formData.append('detailAddress', detailAddress);
     }
 
-    // 날짜/시간 조합
-    const date = document.getElementById('date').value;
-    const time = document.getElementById('time').value;
+    // 날짜/시간 조합 (HTML ID와 일치)
+    const date = document.getElementById('meetingDate').value;
+    const time = document.getElementById('meetingTime').value;
     const meetingTime = date + 'T' + time;
     formData.append('meetingTime', meetingTime);
 
@@ -393,25 +361,19 @@ function createFormData() {
     return formData;
 }
 
-/**
- * 뒤로가기
- */
+//뒤로가기
 function goBack() {
     if (confirm('작성 중인 내용이 사라집니다. 정말 나가시겠습니까?')) {
         history.back();
     }
 }
 
-/**
- * 홈으로 이동
- */
+// 홈으로 이동
 function goHome() {
     window.location.href = '/';
 }
 
-/**
- * 마이페이지로 이동
- */
+// 마이페이지로 이동
 function goMyPage() {
     window.location.href = '/mypage';
 }
