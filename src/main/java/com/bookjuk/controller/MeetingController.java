@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MeetingController {
 
     private final MeetingService meetingService;
-
+  
     /**
      * 모임 생성 페이지를 반환합니다.
      * @return 모임 생성 템플릿

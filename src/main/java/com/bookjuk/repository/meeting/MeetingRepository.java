@@ -5,14 +5,15 @@ import com.bookjuk.domain.meeting.MeetingStatus;
 import com.bookjuk.domain.user.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
-
 import java.util.List;
 
+
 @Repository
-public interface MeetingRepository extends JpaRepository<Meeting, Long> {
+public interface MeetingRepository extends JpaRepository<Meeting, Long>, MeetingRepositoryCustom {
 
     // 쿼리 메서드, 전달된 문자열과 제목명이 같은 모임을 찾음
     List<Meeting> findByTitle(String title);
