@@ -152,6 +152,12 @@
             box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
         }
 
+        /* 추가: form-textarea 에러 상태 스타일 */
+        .form-textarea.error {
+            border-color: #ff6b35;
+            background-color: #fff5f5;
+        }
+
         .form-select {
             width: 100%;
             padding: 15px 18px;
@@ -167,6 +173,12 @@
             outline: none;
             border-color: #8b7355;
             background-color: #fff;
+        }
+
+        /*추가: form-select 에러 상태 스타일 */
+        .form-select.error {
+            border-color: #ff6b35;
+            background-color: #fff5f5;
         }
 
         .input-group {
