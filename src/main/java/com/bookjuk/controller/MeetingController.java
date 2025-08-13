@@ -1,12 +1,19 @@
 package com.bookjuk.controller;
 
 import com.bookjuk.domain.user.User;
+import com.bookjuk.dto.common.ApiResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
+import com.bookjuk.dto.meeting.request.MeetingListItemDto;
+import com.bookjuk.dto.meeting.request.MeetingListSearchRequest;
+import com.bookjuk.dto.meeting.response.MeetingListResponse;
+import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
 import com.bookjuk.service.MeetingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -52,6 +59,27 @@ public class MeetingController {
 
         log.info("모임 생성 완료 - ID: {}", response.getMeetingId());
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 모임 목록 조회 API (동적 쿼리)
+     * GET /api/meetings
+     */
+    @GetMapping("/api/meetings")
+    public ResponseEntity<?> getMeetings(MeetingListSearchRequest request) {
+        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}");
+
+        // 요청 → 검색조건 + 페이지로 변환
+        MeetingRepositoryCustom.MeetingSearchCondition condition = request.toCondition();
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+
+        // 서비스 호출 (MeetingListResponse)
+        MeetingListResponse response = meetingService.getMeetingList(condition, pageable);
+
+        // 공통 응답 포맷으로 감싸기
+        return ResponseEntity.ok(
+                ApiResponse.success("모임 정보 목록이 조회되었습니다.", response)
+        );
     }
 
     /**
