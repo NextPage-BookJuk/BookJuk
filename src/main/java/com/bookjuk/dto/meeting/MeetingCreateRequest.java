@@ -30,6 +30,7 @@ public class MeetingCreateRequest {
     @Size(max = 100, message = "저자 이름은 100자를 넘을 수 없습니다.")
     private String bookAuthor;
 
+    @NotEmpty(message = "장르를 선택해주세요.")
     @Size(max = 100, message = "장르 이름은 100자를 넘을 수 없습니다.")
     private String genre;
 
@@ -42,9 +43,13 @@ public class MeetingCreateRequest {
     @Size(max = 20, message = "시/도는 20자를 넘을 수 없습니다.")
     private String region;
 
-    @NotEmpty(message = "시/군/구를 입력해주세요.")
-    @Size(max = 30, message = "시/군/구는 30자를 넘을 수 없습니다.")
+    @NotEmpty(message = "시/군을 입력해주세요.")
+    @Size(max = 30, message = "시/군은 30자를 넘을 수 없습니다.")
     private String city;
+
+    @NotEmpty(message = "구/군을 입력해주세요.")
+    @Size(max = 30, message = "구/군은 30자를 넘을 수 없습니다.")
+    private String district;
 
     @Size(max = 255, message = "상세 주소는 255자를 넘을 수 없습니다.")
     private String detailAddress;
@@ -72,6 +77,7 @@ public class MeetingCreateRequest {
                 .meetingTime(req.getMeetingTime())
                 .region(req.getRegion())
                 .city(req.getCity())
+                .district(req.getDistrict())
                 .detailAddress(req.getDetailAddress())
                 .maxParticipants(req.getMaxParticipants())
                 .imageUrl(imageUrl)

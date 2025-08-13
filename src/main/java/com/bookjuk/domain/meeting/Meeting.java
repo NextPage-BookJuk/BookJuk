@@ -84,7 +84,7 @@ public class Meeting {
     @Comment("선정 도서 저자")
     private String bookAuthor;
 
-    @Column(name = "genre", length = 100)
+    @Column(name = "genre", nullable = false, length = 100)
     @Comment("모임 장르")
     private String genre;
 
@@ -98,8 +98,12 @@ public class Meeting {
     private String region;
 
     @Column(name = "city", nullable = false, length = 30)
-    @Comment("시/구/군")
+    @Comment("시/군")
     private String city;
+
+    @Column(name = "district", nullable = false, length = 30)
+    @Comment("구/군")
+    private String district;
 
     @Column(name = "detail_address", length = 255)
     @Comment("상세주소(선택)")
@@ -125,12 +129,6 @@ public class Meeting {
     @Comment("모임 정보 수정 시점")
     private LocalDateTime updatedAt;
 
-//    // 모임 제목 변경 도메인 메서드, MeetingRepositoryTest 전용 // 이 부분 삭제하셔도 됩니다!
-//    public void changeTitle(String newTitle) {
-//        this.title = newTitle;
-//    }
-
-
     // 빌더 패턴을 사용한 생성자
     @Builder
     public Meeting(User host,
@@ -143,6 +141,7 @@ public class Meeting {
                    LocalDateTime meetingTime,
                    String region,
                    String city,
+                   String district,
                    String detailAddress,
                    Integer maxParticipants,
                    MeetingStatus meetingStatus) {
@@ -156,6 +155,7 @@ public class Meeting {
         this.meetingTime = meetingTime;
         this.region = region;
         this.city = city;
+        this.district = district;
         this.detailAddress = detailAddress;
         this.maxParticipants = maxParticipants;
         this.meetingStatus = meetingStatus;
@@ -178,6 +178,7 @@ public class Meeting {
         this.meetingTime = request.getMeetingTime();
         this.region = request.getRegion();
         this.city = request.getCity();
+        this.district = request.getDistrict();
         this.detailAddress = request.getDetailAddress();
         this.maxParticipants = request.getMaxParticipants();
 
