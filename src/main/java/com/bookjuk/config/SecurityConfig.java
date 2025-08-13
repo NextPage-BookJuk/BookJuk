@@ -51,11 +51,9 @@ public class SecurityConfig {
                                         "/"
                                         , "/login"
                                         , "/signup"
-                                        , "/trips/**"
-                                        , "/dashboard"
                                 ).permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-                                .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/api/users/**").permitAll()
 
                                 // 인증 및 권한이 필요한 경로
 //                                .requestMatchers("/api/premium/**").hasAnyAuthority("VIP", "GOLD")

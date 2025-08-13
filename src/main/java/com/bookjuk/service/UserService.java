@@ -44,7 +44,7 @@ public class UserService {
 
         // 3. User 엔티티 생성 (빌더 패턴 사용)
         User newUser = User.builder()
-                .username(request.getNickname())
+                .username(request.getUsername())
                 .email(request.getEmail())
                 .password(encodedPassword)
                 .preferredGenre(request.getPreferredGenre())

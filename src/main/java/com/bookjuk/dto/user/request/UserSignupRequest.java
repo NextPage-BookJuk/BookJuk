@@ -18,7 +18,7 @@ public class UserSignupRequest {
 
     @NotBlank(message = "닉네임은 필수입니다.")
     @Size(max = 50, message = "닉네임은 50자를 초과할 수 없습니다.")
-    private String nickname;
+    private String username;
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
