@@ -26,6 +26,7 @@ import static com.bookjuk.domain.meeting.MeetingStatus.COMPLETED;
 
 @RequiredArgsConstructor
 @Service
+@Transactional
 @Slf4j
 public class ReviewService {
 

@@ -10,7 +10,7 @@ import static com.bookjuk.domain.participant.QMeetingParticipant.meetingParticip
 
 
 @RequiredArgsConstructor
-public class MeetingParticipantRepositoryImpl implements MeetingParticipantCustomRepository{
+public class MeetingParticipantRepositoryImpl implements MeetingParticipantCustom {
 
     // queryDsl을 사용하기 위한 의존객체
     private final JPAQueryFactory factory;
