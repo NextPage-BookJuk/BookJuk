@@ -17,7 +17,10 @@ public class MyPageService {
     private final MeetingReviewRepository meetingReviewRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
 
-    public void viewMyPage() {
+    /**
+     * 마이페이지 진입 정보 조회(디폴트) 로직입니다.
+     */
+    public void viewMyPage(Long userId) {
 
     }
 }
