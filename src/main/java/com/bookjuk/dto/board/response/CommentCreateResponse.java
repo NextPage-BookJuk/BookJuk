@@ -9,7 +9,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class CommentCreatedResponse {
+public class CommentCreateResponse {
 
     // 새로 생성된 댓글의 고유 식별자(클라이언트는 이 ID를 사용하여 생성된 게시글에 접근할 수 있다.)
     private Long commentId;
