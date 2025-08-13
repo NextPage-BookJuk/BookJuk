@@ -102,6 +102,7 @@ public class MeetingListTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 20, 19, 0))
                 .region("경기도")
                 .city("안산시")
+                .district("단원구")
                 .maxParticipants(6)
                 .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
@@ -116,6 +117,7 @@ public class MeetingListTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 18, 19, 0))
                 .region("경기도")
                 .city("안양시")
+                .district("주먹구구")
                 .maxParticipants(8)
                 .meetingStatus(MeetingStatus.COMPLETED)
                 .build();
@@ -130,6 +132,7 @@ public class MeetingListTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 21, 19, 0))
                 .region("경기도")
                 .city("구리시")
+                .district("구구")
                 .maxParticipants(4)
                 .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
