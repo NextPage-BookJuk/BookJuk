@@ -21,7 +21,6 @@ import java.util.Date;
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
-    private SecretKey key;
 
     /**
      * JWT 토큰 발급에 필요한 서명 만들기
@@ -45,7 +44,7 @@ public class JwtProvider {
                 .setIssuedAt(now) // 언제 발급했는지
                 .setExpiration(expiryDate) // 언제 만료되는지
                 .issuer("BookJuk") // 발급자 정보
-                .signWith(key) // 서명
+                .signWith(getSigningKey()) // 서명
                 .compact();
     }
 
@@ -57,7 +56,7 @@ public class JwtProvider {
     public boolean validateToken(String token) {
         try {
             Jwts.parser()
-                    .verifyWith(this.key)
+                    .verifyWith(getSigningKey())
                     .build()
                     .parseSignedClaims(token);
             return true;
@@ -74,7 +73,7 @@ public class JwtProvider {
      */
     public String getEmailFromToken(String token) {
         return Jwts.parser()
-                .verifyWith(this.key)
+                .verifyWith(getSigningKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()

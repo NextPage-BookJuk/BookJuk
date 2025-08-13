@@ -16,29 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Meeting 클래스는 독서 모임에 대한 정보를 나타내는 엔티티로, 모임의 기본 정보와 관련 데이터들을 포함한다.
- * 이 클래스는 JPA를 사용하여 데이터베이스와 매핑되고, 모임과 관련된 다양한 속성을 제공한다.
+ * Meeting 클래스는 사용자가 생성한 독서 모임 정보를 관리하는 엔티티입니다.
+ * 모임의 제목, 설명, 선정 도서 정보, 장소, 모임 시간, 최대 참여 인원, 현재 상태 등을 포함합니다.
+ * 또한 주최자 정보와 연관된 참가자 리스트를 포함하며, 데이터베이스의 "meeting" 테이블과 매핑됩니다.
+ * 불변성을 유지하기 위해 기본 생성자는 protected로 제한되어 있습니다.
  *
- * 주요 속성:
- * - id: 모임의 고유 식별자
- * - user: 모임의 방장(주최자) 정보를 포함하는 User 엔티티와의 연관 관계
- * - title: 모임의 제목
- * - description: 모임의 상세 설명
- * - imageUrl: 대표 이미지 URL
- * - bookTitle: 모임에서 선정한 도서의 제목
- * - bookAuthor: 모임에서 선정한 도서의 저자
- * - genre: 모임 장르(도서 장르 등)
- * - meetingTime: 모임 시간
- * - location: 모임 장소
- * - maxParticipants: 모임 최대 참여 인원
- * - status: 모임 상태 (RECRUITING, COMPLETED, CANCELLED)
- * - createdAt: 모임 생성 시간 (자동 생성)
- * - updatedAt: 모임 정보 수정 시간 (자동 업데이트)
+ * 주요 기능:
+ * - 모임 생성 시 필요한 데이터를 설정할 수 있습니다.
+ * - 모임 정보 변경을 위한 도메인 메서드 및 업데이트 메서드를 제공합니다.
  *
- * 이 클래스는 lombok 라이브러리를 활용하여 getter 메서드, equals, hashCode, toString 메서드를 자동으로 생성한다.
- * 불변성을 유지하기 위해 기본 생성자는 protected로 제한되어 있으며, 빌더 패턴을 지원하도록 설계될 수 있다.
+ * 제약 사항:
+ * - 모임의 최대 참여 인원(maxParticipants)은 10명을 초과할 수 없습니다.
+ * - 모임의 상태는 모집 중(RECRUITING), 종료(COMPLETED), 취소됨(CANCELLED) 중 하나여야 합니다.
+ *
+ * 연관 관계:
+ * - 다대일 관계로 주최자(User)와 연관됩니다.
+ * - 일대다 관계로 참가자 리스트(MeetingParticipant)와 연관됩니다.
  */
-
 @Entity
 @Table(name = "meeting")
 @Getter
