@@ -24,7 +24,7 @@ public interface MeetingRepositoryCustom {
     class MeetingSearchCondition {
 
         private String region; // 시/도로 검색
-        private String city;   // 시/구/군으로 검색
+        private String city;   // 시/군으로 검색
         private String genre;  // 모임 장르로 검색
 
         // 상태값 ( RECRUITING(모집), COMPLETED(종료), CANCELLED(취소) )
