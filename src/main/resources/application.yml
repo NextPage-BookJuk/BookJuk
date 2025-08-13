@@ -31,6 +31,7 @@ logging:
   level:
     org.springframework: info
 
+
 server:
   port: 9000
 
@@ -42,3 +43,7 @@ jwt:
   # 토큰 만료 시간 (밀리초 단위)
   # 24시간: 24 * 60 * 60 * 1000 = 86400000
   expiration: 86400000
+
+file:
+  upload:
+    location: ${user.home}/spring/upload
