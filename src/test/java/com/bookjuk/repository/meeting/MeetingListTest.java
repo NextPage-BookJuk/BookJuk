@@ -230,7 +230,7 @@ public class MeetingListTest {
                 .build();
 
         // when
-        Page<Meeting> meetingPage = meetingRepository.getTripList(condition, pageable);
+        Page<Meeting> meetingPage = meetingRepository.getMeetingList(condition, pageable);
         // 실제 데이터 꺼냄
         List<Meeting> meetingList = meetingPage.getContent();
         // then
@@ -258,7 +258,7 @@ public class MeetingListTest {
                 .build();
 
         // when
-        Page<Meeting> meetingPage = meetingRepository.getTripList(condition, pageable);
+        Page<Meeting> meetingPage = meetingRepository.getMeetingList(condition, pageable);
         // 실제 데이터 꺼냄
         List<Meeting> meetingList = meetingPage.getContent();
         // then
