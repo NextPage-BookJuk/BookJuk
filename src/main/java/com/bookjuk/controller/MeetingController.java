@@ -3,6 +3,7 @@ package com.bookjuk.controller;
 import com.bookjuk.domain.user.User;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
+import com.bookjuk.repository.user.UserRepository;
 import com.bookjuk.service.MeetingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MeetingController {
 
     private final MeetingService meetingService;
+    private final UserRepository userRepository;
 
     /**
      * 모임 생성 페이지를 반환합니다.
@@ -46,7 +48,7 @@ public class MeetingController {
         // TODO: 현재 로그인한 사용자 정보 가져오기
         // 실제 구현에서는 Security Context나 세션에서 현재 사용자를 가져와야 합니다.
         // 지금은 임시로 더미 사용자를 생성합니다.
-        User currentUser = createDummyUser(); // 임시 구현
+        User currentUser = getOrCreateDummyUser(); // 임시 구현
 
         MeetingDetailResponse response = meetingService.createMeeting(request, currentUser, imageFile);
 
@@ -55,17 +57,29 @@ public class MeetingController {
     }
 
     /**
-     * 임시 사용자 생성 메서드
+     * 임시 사용자 생성 또는 조회 메서드
+     * 실제 데이터베이스에 저장된 사용자를 반환합니다.
      * TODO: 실제 인증 시스템 구현 후 제거 예정
      */
-    private User createDummyUser() {
-        // User 엔티티에 빌더나 생성자가 있다고 가정
-        // 실제 User 엔티티 구조에 맞게 수정 필요
-        return User.builder()
-                .id(1L)
-                .username("테스트유저")
-                .email("test@example.com")
-                .build();
+    private User getOrCreateDummyUser() {
+        // 이미 존재하는 더미 사용자가 있는지 확인
+        String dummyEmail = "dummy@bookjuk.com";
+
+        return userRepository.findByEmail(dummyEmail)
+                .orElseGet(() -> {
+                    // 없으면 새로 생성해서 저장
+                    User newUser = User.builder()
+                            .username("더미사용자")
+                            .email(dummyEmail)
+                            .password("dummy123") // 실제로는 암호화해야 함
+                            .preferredGenre("소설")
+                            .introduction("테스트용 더미 사용자입니다.")
+                            .build();
+
+                    User savedUser = userRepository.save(newUser);
+                    log.info("더미 사용자 생성 완료 - ID: {}", savedUser.getId());
+                    return savedUser;
+                });
     }
 
 }
