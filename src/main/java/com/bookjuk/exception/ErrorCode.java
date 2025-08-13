@@ -47,6 +47,8 @@ public enum ErrorCode {
     // =========================
     POST_NOT_FOUND("POST_NOT_FOUND", "게시글을 찾을 수 없습니다.", 404),
     NOT_POST_AUTHOR("NOT_POST_AUTHOR", "게시글 작성자만 수정 또는 삭제할 수 있습니다.", 403),
+    POST_ACCESS_DENIED("POST_ACCESS_DENIED", "게시글 작성 권한이 없습니다.", 403),
+    POST_MODIFY_ACCESS_DENIED("POST_MODIFY_ACCESS_DENIED", "게시글 수정/삭제 권한이 없습니다.", 403),
     FILE_SIZE_EXCEEDED("FILE_SIZE_EXCEEDED", "파일 크기가 제한을 초과했습니다.", 400),
 
     // =========================
@@ -54,6 +56,14 @@ public enum ErrorCode {
     // =========================
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "댓글을 찾을 수 없습니다.", 404),
     NOT_COMMENT_AUTHOR("NOT_COMMENT_AUTHOR", "댓글 작성자만 수정 또는 삭제할 수 있습니다.", 403),
+    COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글 작성 권한이 없습니다.", 403),
+    COMMENT_MODIFY_ACCESS_DENIED("COMMENT_MODIFY_ACCESS_DENIED", "댓글 수정/삭제 권한이 없습니다.", 403),
+
+    // =========================
+    // 🎯 게시판 규칙 관련
+    // =========================
+    BOARD_ACCESS_DENIED("BOARD_ACCESS_DENIED", "게시판 접근 권한이 없습니다. HOST 또는 승인된 참여자만 이용할 수 있습니다.", 403),
+    MEETING_BOARD_MISMATCH("MEETING_BOARD_MISMATCH", "해당 모임의 게시글이 아닙니다.", 400),
 
     // =========================
     // ❤️ 좋아요 / 후기 관련
