@@ -3,16 +3,15 @@ package com.bookjuk.repository.participant;
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
-import com.bookjuk.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import java.util.List;
+
 import java.util.Optional;
 
 @Repository
-public interface MeetingParticipantRepository extends JpaRepository<MeetingParticipant, Long> {
+public interface MeetingParticipantRepository extends JpaRepository<MeetingParticipant, Long>, MeetingParticipantCustom {
 
     // 파생 쿼리: 연관관계 경로를 정확히 기술 (Meeting.id / User.id)
     boolean existsByMeeting_IdAndParticipant_IdAndStatus(

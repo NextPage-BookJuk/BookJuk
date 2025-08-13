@@ -1,18 +1,14 @@
 package com.bookjuk.repository.review;
 
 import com.bookjuk.domain.meeting.Meeting;
-import com.bookjuk.domain.review.QMeetingReview;
 import com.bookjuk.domain.user.User;
-import com.bookjuk.repository.participant.MeetingParticipantCustomRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
 
 import static com.bookjuk.domain.review.QMeetingReview.meetingReview;
 
 @RequiredArgsConstructor
-public class MeetingReviewRepositoryImpl implements MeetingReviewCustomRepository {
+public class MeetingReviewRepositoryImpl implements MeetingReviewCustom {
 
     // queryDsl을 사용하기 위한 의존객체
     private final JPAQueryFactory factory;
