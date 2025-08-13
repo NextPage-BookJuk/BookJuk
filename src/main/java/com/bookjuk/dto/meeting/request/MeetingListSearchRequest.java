@@ -1,4 +1,4 @@
-package com.bookjuk.dto.meeting;
+package com.bookjuk.dto.meeting.request;
 
 import com.bookjuk.domain.meeting.MeetingStatus;
 import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class MeetingSearchRequest {
+public class MeetingListSearchRequest {
 
     // 필터
     private String region;
