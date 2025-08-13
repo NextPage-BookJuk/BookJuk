@@ -1,6 +1,273 @@
 // 전역 변수
 let selectedImageFile = null;
 
+// 지역 데이터 (3단계 구조: 시/도 → 시/군 → 구/군) - 전국 완전 데이터
+const regionData = {
+    "서울특별시": {
+        "종로구": ["종로구"],
+        "중구": ["중구"],
+        "용산구": ["용산구"],
+        "성동구": ["성동구"],
+        "광진구": ["광진구"],
+        "동대문구": ["동대문구"],
+        "중랑구": ["중랑구"],
+        "성북구": ["성북구"],
+        "강북구": ["강북구"],
+        "도봉구": ["도봉구"],
+        "노원구": ["노원구"],
+        "은평구": ["은평구"],
+        "서대문구": ["서대문구"],
+        "마포구": ["마포구"],
+        "양천구": ["양천구"],
+        "강서구": ["강서구"],
+        "구로구": ["구로구"],
+        "금천구": ["금천구"],
+        "영등포구": ["영등포구"],
+        "동작구": ["동작구"],
+        "관악구": ["관악구"],
+        "서초구": ["서초구"],
+        "강남구": ["강남구"],
+        "송파구": ["송파구"],
+        "강동구": ["강동구"]
+    },
+    "부산광역시": {
+        "중구": ["중구"],
+        "서구": ["서구"],
+        "동구": ["동구"],
+        "영도구": ["영도구"],
+        "부산진구": ["부산진구"],
+        "동래구": ["동래구"],
+        "남구": ["남구"],
+        "북구": ["북구"],
+        "해운대구": ["해운대구"],
+        "사하구": ["사하구"],
+        "금정구": ["금정구"],
+        "강서구": ["강서구"],
+        "연제구": ["연제구"],
+        "수영구": ["수영구"],
+        "사상구": ["사상구"],
+        "기장군": ["기장군"]
+    },
+    "대구광역시": {
+        "중구": ["중구"],
+        "동구": ["동구"],
+        "서구": ["서구"],
+        "남구": ["남구"],
+        "북구": ["북구"],
+        "수성구": ["수성구"],
+        "달서구": ["달서구"],
+        "달성군": ["달성군"]
+    },
+    "인천광역시": {
+        "중구": ["중구"],
+        "동구": ["동구"],
+        "미추홀구": ["미추홀구"],
+        "연수구": ["연수구"],
+        "남동구": ["남동구"],
+        "부평구": ["부평구"],
+        "계양구": ["계양구"],
+        "서구": ["서구"],
+        "강화군": ["강화군"],
+        "옹진군": ["옹진군"]
+    },
+    "광주광역시": {
+        "동구": ["동구"],
+        "서구": ["서구"],
+        "남구": ["남구"],
+        "북구": ["북구"],
+        "광산구": ["광산구"]
+    },
+    "대전광역시": {
+        "동구": ["동구"],
+        "중구": ["중구"],
+        "서구": ["서구"],
+        "유성구": ["유성구"],
+        "대덕구": ["대덕구"]
+    },
+    "울산광역시": {
+        "중구": ["중구"],
+        "남구": ["남구"],
+        "동구": ["동구"],
+        "북구": ["북구"],
+        "울주군": ["울주군"]
+    },
+    "세종특별자치시": {
+        "세종시": ["세종시"]
+    },
+    "경기도": {
+        "수원시": ["영통구", "장안구", "팔달구", "연무구"],
+        "성남시": ["수정구", "중원구", "분당구"],
+        "안양시": ["만안구", "동안구"],
+        "안산시": ["상록구", "단원구"],
+        "용인시": ["처인구", "기흥구", "수지구"],
+        "고양시": ["덕양구", "일산동구", "일산서구"],
+        "부천시": ["원미구", "소사구", "오정구"],
+        "광명시": ["광명시"],
+        "평택시": ["평택시"],
+        "과천시": ["과천시"],
+        "오산시": ["오산시"],
+        "시흥시": ["시흥시"],
+        "군포시": ["군포시"],
+        "의왕시": ["의왕시"],
+        "하남시": ["하남시"],
+        "이천시": ["이천시"],
+        "안성시": ["안성시"],
+        "김포시": ["김포시"],
+        "화성시": ["화성시"],
+        "광주시": ["광주시"],
+        "여주시": ["여주시"],
+        "구리시": ["구리시"],
+        "남양주시": ["남양주시"],
+        "동두천시": ["동두천시"],
+        "양주시": ["양주시"],
+        "의정부시": ["의정부시"],
+        "파주시": ["파주시"],
+        "연천군": ["연천군"],
+        "가평군": ["가평군"],
+        "포천시": ["포천시"],
+        "양평군": ["양평군"]
+    },
+    "강원도": {
+        "춘천시": ["춘천시"],
+        "원주시": ["원주시"],
+        "강릉시": ["강릉시"],
+        "동해시": ["동해시"],
+        "태백시": ["태백시"],
+        "속초시": ["속초시"],
+        "삼척시": ["삼척시"],
+        "홍천군": ["홍천군"],
+        "횡성군": ["횡성군"],
+        "영월군": ["영월군"],
+        "평창군": ["평창군"],
+        "정선군": ["정선군"],
+        "철원군": ["철원군"],
+        "화천군": ["화천군"],
+        "양구군": ["양구군"],
+        "인제군": ["인제군"],
+        "고성군": ["고성군"],
+        "양양군": ["양양군"]
+    },
+    "충청북도": {
+        "청주시": ["상당구", "서원구", "흥덕구", "청원구"],
+        "충주시": ["충주시"],
+        "제천시": ["제천시"],
+        "보은군": ["보은군"],
+        "옥천군": ["옥천군"],
+        "영동군": ["영동군"],
+        "증평군": ["증평군"],
+        "진천군": ["진천군"],
+        "괴산군": ["괴산군"],
+        "음성군": ["음성군"],
+        "단양군": ["단양군"]
+    },
+    "충청남도": {
+        "천안시": ["동남구", "서북구"],
+        "공주시": ["공주시"],
+        "보령시": ["보령시"],
+        "아산시": ["아산시"],
+        "서산시": ["서산시"],
+        "논산시": ["논산시"],
+        "계룡시": ["계룡시"],
+        "당진시": ["당진시"],
+        "금산군": ["금산군"],
+        "부여군": ["부여군"],
+        "서천군": ["서천군"],
+        "청양군": ["청양군"],
+        "홍성군": ["홍성군"],
+        "예산군": ["예산군"],
+        "태안군": ["태안군"]
+    },
+    "전라북도": {
+        "전주시": ["완산구", "덕진구"],
+        "군산시": ["군산시"],
+        "익산시": ["익산시"],
+        "정읍시": ["정읍시"],
+        "남원시": ["남원시"],
+        "김제시": ["김제시"],
+        "완주군": ["완주군"],
+        "진안군": ["진안군"],
+        "무주군": ["무주군"],
+        "장수군": ["장수군"],
+        "임실군": ["임실군"],
+        "순창군": ["순창군"],
+        "고창군": ["고창군"],
+        "부안군": ["부안군"]
+    },
+    "전라남도": {
+        "목포시": ["목포시"],
+        "여수시": ["여수시"],
+        "순천시": ["순천시"],
+        "나주시": ["나주시"],
+        "광양시": ["광양시"],
+        "담양군": ["담양군"],
+        "곡성군": ["곡성군"],
+        "구례군": ["구례군"],
+        "고흥군": ["고흥군"],
+        "보성군": ["보성군"],
+        "화순군": ["화순군"],
+        "장흥군": ["장흥군"],
+        "강진군": ["강진군"],
+        "해남군": ["해남군"],
+        "영암군": ["영암군"],
+        "무안군": ["무안군"],
+        "함평군": ["함평군"],
+        "영광군": ["영광군"],
+        "장성군": ["장성군"],
+        "완도군": ["완도군"],
+        "진도군": ["진도군"],
+        "신안군": ["신안군"]
+    },
+    "경상북도": {
+        "포항시": ["남구", "북구"],
+        "경주시": ["경주시"],
+        "김천시": ["김천시"],
+        "안동시": ["안동시"],
+        "구미시": ["구미시"],
+        "영주시": ["영주시"],
+        "영천시": ["영천시"],
+        "상주시": ["상주시"],
+        "문경시": ["문경시"],
+        "경산시": ["경산시"],
+        "군위군": ["군위군"],
+        "의성군": ["의성군"],
+        "청송군": ["청송군"],
+        "영양군": ["영양군"],
+        "영덕군": ["영덕군"],
+        "청도군": ["청도군"],
+        "고령군": ["고령군"],
+        "성주군": ["성주군"],
+        "칠곡군": ["칠곡군"],
+        "예천군": ["예천군"],
+        "봉화군": ["봉화군"],
+        "울진군": ["울진군"],
+        "울릉군": ["울릉군"]
+    },
+    "경상남도": {
+        "창원시": ["의창구", "성산구", "마산합포구", "마산회원구", "진해구"],
+        "진주시": ["진주시"],
+        "통영시": ["통영시"],
+        "사천시": ["사천시"],
+        "김해시": ["김해시"],
+        "밀양시": ["밀양시"],
+        "거제시": ["거제시"],
+        "양산시": ["양산시"],
+        "의령군": ["의령군"],
+        "함안군": ["함안군"],
+        "창녕군": ["창녕군"],
+        "고성군": ["고성군"],
+        "남해군": ["남해군"],
+        "하동군": ["하동군"],
+        "산청군": ["산청군"],
+        "함양군": ["함양군"],
+        "거창군": ["거창군"],
+        "합천군": ["합천군"]
+    },
+    "제주특별자치도": {
+        "제주시": ["제주시"],
+        "서귀포시": ["서귀포시"]
+    }
+};
+
 // 페이지 로드 완료 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     initializePage();
@@ -12,17 +279,28 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializePage() {
     setMinDate();
     setupEventListeners();
-    loadLocationData();
+    initializeSelects();
 }
 
 /**
  * 오늘 이후 날짜만 선택 가능하도록 설정
  */
 function setMinDate() {
-    const dateInput = document.getElementById('date');
+    const dateInput = document.getElementById('meetingDate');
     const today = new Date();
     const minDate = today.toISOString().split('T')[0];
     dateInput.min = minDate;
+}
+
+/**
+ * 선택박스들을 초기 비활성화 상태로 설정
+ */
+function initializeSelects() {
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+
+    citySelect.disabled = true;
+    districtSelect.disabled = true;
 }
 
 /**
@@ -31,67 +309,89 @@ function setMinDate() {
 function setupEventListeners() {
     // 파일 드래그 앤 드롭 이벤트
     const uploadArea = document.querySelector('.file-upload-area');
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('dragleave', handleDragLeave);
-    uploadArea.addEventListener('drop', handleDrop);
-}
-
-/**
- * 지역 데이터 로드 (간소화된 버전)
- */
-function loadLocationData() {
-    // 실제 구현에서는 외부 API나 데이터베이스에서 로드
-    const locationData = {
-        '서울특별시': ['강남구', '강동구', '강북구', '강서구', '관악구', '광진구', '구로구', '금천구'],
-        '부산광역시': ['해운대구', '수영구', '부산진구', '동래구', '남구', '북구', '사상구', '연제구'],
-        '대구광역시': ['중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군'],
-        '인천광역시': ['중구', '동구', '연수구', '남동구', '부평구', '계양구', '서구', '강화군'],
-        '경기도': ['수원시', '성남시', '고양시', '용인시', '부천시', '안산시', '안양시', '남양주시']
-    };
-
-    window.locationData = locationData;
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+    }
 }
 
 /**
  * 시/도 변경 시 시/군 업데이트
  */
 function updateCities() {
-    const province = document.getElementById('province').value;
+    console.log('updateCities 함수 호출됨');
+
+    const regionSelect = document.getElementById('region');
     const citySelect = document.getElementById('city');
     const districtSelect = document.getElementById('district');
+    const selectedRegion = regionSelect.value;
 
-    // 시/군과 구 초기화
+    console.log('선택된 지역:', selectedRegion);
+
+    // 시/군과 구/군 초기화
     citySelect.innerHTML = '<option value="">시/군 선택</option>';
-    districtSelect.innerHTML = '<option value="">구 선택</option>';
+    districtSelect.innerHTML = '<option value="">구/군 선택</option>';
+    districtSelect.disabled = true;
 
-    if (province && window.locationData && window.locationData[province]) {
-        const cities = window.locationData[province];
-        cities.forEach(city => {
+    if (selectedRegion && regionData[selectedRegion]) {
+        console.log('지역 데이터 발견:', regionData[selectedRegion]);
+
+        // 선택된 시/도에 해당하는 시/군 목록 추가
+        Object.keys(regionData[selectedRegion]).forEach(city => {
             const option = document.createElement('option');
             option.value = city;
             option.textContent = city;
             citySelect.appendChild(option);
         });
+
+        // 시/군 선택 활성화
+        citySelect.disabled = false;
+        console.log('시/군 선택 활성화됨');
+    } else {
+        // 시/도가 선택되지 않은 경우 비활성화
+        citySelect.disabled = true;
+        citySelect.innerHTML = '<option value="">시/도를 먼저 선택해주세요</option>';
+        console.log('시/군 선택 비활성화됨');
     }
 }
 
 /**
- * 시/군 변경 시 구 업데이트 (현재는 동일하게 처리)
+ * 시/군 변경 시 구/군 업데이트
  */
 function updateDistricts() {
-    const city = document.getElementById('city').value;
+    console.log('updateDistricts 함수 호출됨');
+
+    const regionSelect = document.getElementById('region');
+    const citySelect = document.getElementById('city');
     const districtSelect = document.getElementById('district');
+    const selectedRegion = regionSelect.value;
+    const selectedCity = citySelect.value;
 
-    // 구 초기화
-    districtSelect.innerHTML = '<option value="">구 선택</option>';
+    console.log('선택된 시/군:', selectedCity);
 
-    if (city) {
-        // 실제로는 더 세분화된 데이터가 필요하지만,
-        // 현재는 선택된 시/군을 구 옵션으로도 표시
-        const option = document.createElement('option');
-        option.value = city;
-        option.textContent = city;
-        districtSelect.appendChild(option);
+    // 구/군 초기화
+    districtSelect.innerHTML = '<option value="">구/군 선택</option>';
+
+    if (selectedRegion && selectedCity && regionData[selectedRegion] && regionData[selectedRegion][selectedCity]) {
+        console.log('구/군 데이터 발견:', regionData[selectedRegion][selectedCity]);
+
+        // 선택된 시/군에 해당하는 구/군 목록 추가
+        regionData[selectedRegion][selectedCity].forEach(district => {
+            const option = document.createElement('option');
+            option.value = district;
+            option.textContent = district;
+            districtSelect.appendChild(option);
+        });
+
+        // 구/군 선택 활성화
+        districtSelect.disabled = false;
+        console.log('구/군 선택 활성화됨');
+    } else {
+        // 시/군이 선택되지 않은 경우 비활성화
+        districtSelect.disabled = true;
+        districtSelect.innerHTML = '<option value="">시/군을 먼저 선택해주세요</option>';
+        console.log('구/군 선택 비활성화됨');
     }
 }
 
@@ -198,18 +498,18 @@ function handleDrop(e) {
 function validateForm() {
     let isValid = true;
 
-    // 필수 필드 검사
+    // 필수 필드 검사 (3단계 지역 구조 포함)
     const requiredFields = [
         { id: 'title', name: '모임 제목' },
         { id: 'bookTitle', name: '책 제목' },
-        { id: 'author', name: '저자' },
+        { id: 'bookAuthor', name: '저자' },
         { id: 'genre', name: '장르' },
-        { id: 'date', name: '날짜' },
-        { id: 'time', name: '시간' },
-        { id: 'province', name: '시/도' },
+        { id: 'meetingDate', name: '날짜' },
+        { id: 'meetingTime', name: '시간' },
+        { id: 'region', name: '시/도' },
         { id: 'city', name: '시/군' },
-        { id: 'district', name: '구' },
-        { id: 'maxCapacity', name: '최대 인원' }
+        { id: 'district', name: '구/군' },
+        { id: 'maxParticipants', name: '최대 인원' }
     ];
 
     requiredFields.forEach(field => {
@@ -241,21 +541,21 @@ function validateForm() {
  * 날짜/시간 유효성 검사
  */
 function validateDateTime() {
-    const date = document.getElementById('date').value;
-    const time = document.getElementById('time').value;
+    const date = document.getElementById('meetingDate').value;
+    const time = document.getElementById('meetingTime').value;
 
     if (date && time) {
         const selectedDateTime = new Date(date + 'T' + time);
         const now = new Date();
 
         if (selectedDateTime <= now) {
-            showError('timeError', '모임 시간은 현재 시간 이후로 설정해야 합니다.');
+            showError('meetingTimeError', '모임 시간은 현재 시간 이후로 설정해야 합니다.');
             return false;
         }
     }
 
-    clearError('dateError');
-    clearError('timeError');
+    clearError('meetingDateError');
+    clearError('meetingTimeError');
     return true;
 }
 
@@ -263,14 +563,14 @@ function validateDateTime() {
  * 최대 인원 유효성 검사
  */
 function validateMaxCapacity() {
-    const capacity = parseInt(document.getElementById('maxCapacity').value);
+    const capacity = parseInt(document.getElementById('maxParticipants').value);
 
     if (capacity < 2 || capacity > 10) {
-        showError('maxCapacityError', '최대 인원은 2명 이상 10명 이하로 설정해주세요.');
+        showError('maxParticipantsError', '최대 인원은 2명 이상 10명 이하로 설정해주세요.');
         return false;
     }
 
-    clearError('maxCapacityError');
+    clearError('maxParticipantsError');
     return true;
 }
 
@@ -353,7 +653,7 @@ async function saveMeeting() {
 }
 
 /**
- * FormData 생성
+ * FormData 생성 (3단계 지역 포함)
  */
 function createFormData() {
     const formData = new FormData();
@@ -361,11 +661,12 @@ function createFormData() {
     // 텍스트 데이터
     formData.append('title', document.getElementById('title').value.trim());
     formData.append('bookTitle', document.getElementById('bookTitle').value.trim());
-    formData.append('bookAuthor', document.getElementById('author').value.trim());
+    formData.append('bookAuthor', document.getElementById('bookAuthor').value.trim());
     formData.append('genre', document.getElementById('genre').value);
-    formData.append('region', document.getElementById('province').value);
+    formData.append('region', document.getElementById('region').value);
     formData.append('city', document.getElementById('city').value);
-    formData.append('maxParticipants', document.getElementById('maxCapacity').value);
+    formData.append('district', document.getElementById('district').value);
+    formData.append('maxParticipants', document.getElementById('maxParticipants').value);
 
     // description 필드 추가
     const description = document.getElementById('description').value.trim();
@@ -380,14 +681,14 @@ function createFormData() {
     }
 
     // 날짜/시간 조합
-    const date = document.getElementById('date').value;
-    const time = document.getElementById('time').value;
+    const date = document.getElementById('meetingDate').value;
+    const time = document.getElementById('meetingTime').value;
     const meetingTime = date + 'T' + time;
     formData.append('meetingTime', meetingTime);
 
     // 이미지 파일
     if (selectedImageFile) {
-        formData.append('imageFile', selectedImageFile);
+        formData.append('image', selectedImageFile);
     }
 
     return formData;

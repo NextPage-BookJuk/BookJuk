@@ -123,12 +123,6 @@ public class Meeting {
     @Comment("모임 정보 수정 시점")
     private LocalDateTime updatedAt;
 
-    // 모임 제목 변경 도메인 메서드, MeetingRepositoryTest 전용
-    public void changeTitle(String newTitle) {
-        this.title = newTitle;
-    }
-
-
     // 빌더 패턴을 사용한 생성자
     @Builder
     public Meeting(User host,
@@ -178,6 +172,7 @@ public class Meeting {
         this.meetingTime = request.getMeetingTime();
         this.region = request.getRegion();
         this.city = request.getCity();
+        this.district = request.getDistrict();
         this.detailAddress = request.getDetailAddress();
         this.maxParticipants = request.getMaxParticipants();
 
