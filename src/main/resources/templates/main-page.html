@@ -168,7 +168,7 @@
   // ====== 2) 상태 ======
   const state = {
     sort: "latest",
-    page: 1,        // API 예시가 1부터 시작하므로 1-based로 맞춥니다. :contentReference[oaicite:3]{index=3}
+    page: 0,        // API 예시가 1부터 시작하므로 1-based로 맞춥니다. :contentReference[oaicite:3]{index=3}
     size: 6,
     totalElements: 0,
     abortController: null
@@ -264,6 +264,7 @@
       page: state.page,                       // 1-based (API 예시) :contentReference[oaicite:4]{index=4}
       size: state.size
     };
+    console.log(params.status);
     const url = `${API_BASE_URL}/api/meetings?${qs(params)}`;
 
     showAlert("불러오는 중입니다...", "info");
@@ -298,7 +299,7 @@
 
   // ====== 7) 이벤트 ======
   document.getElementById("searchBtn").addEventListener("click", () => {
-    state.page = 1;
+    state.page = 0;
     fetchMeetings();
   });
 
@@ -308,7 +309,7 @@
       tab.classList.add("active");
       tab.setAttribute("aria-selected","true");
       state.sort = tab.dataset.sort; // latest/deadline/popular
-      state.page = 1;
+      state.page = 0;
       fetchMeetings();
     });
   });
