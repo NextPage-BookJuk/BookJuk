@@ -21,11 +21,8 @@ public class ReviewResponse {
     public static ReviewResponse from(MeetingReview review) {
         ReviewResponse response = ReviewResponse.builder()
                 .reviewId(review.getId())
-                // 유저 엔터티 생성 후 주석 제거
-                /*
                 .fromUserId(review.getReviewer().getId())
                 .toUserId(review.getReviewee().getId())
-                */
                 .createdAt(review.getCreatedAt())
                 .build();
 
