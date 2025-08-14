@@ -270,8 +270,39 @@ const regionData = {
 
 // 페이지 로드 완료 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
+    // 로그인 상태 확인
+    if (!checkLoginStatus()) {
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href = '/login';
+        return;
+    }
+    
     initializePage();
 });
+
+/**
+ * 로그인 상태 확인
+ * @returns {boolean} 로그인 여부
+ */
+function checkLoginStatus() {
+    const token = getJwtTokenFromCookie();
+    return token !== null && token.trim() !== '';
+}
+
+/**
+ * 쿠키에서 JWT 토큰 추출
+ * @returns {string|null} JWT 토큰 또는 null
+ */
+function getJwtTokenFromCookie() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [name, value] = cookie.trim().split('=');
+        if (name === 'jwt' || name === 'token' || name === 'authToken') {
+            return value;
+        }
+    }
+    return null;
+}
 
 /**
  * 페이지 초기화
@@ -612,8 +643,27 @@ function clearError(elementId) {
  * 모임 저장 (메인 함수)
  */
 async function saveMeeting() {
+    // 로그인 상태 재확인
+    if (!checkLoginStatus()) {
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href = '/login';
+        return;
+    }
+
     // 폼 유효성 검사
     if (!validateForm()) {
+        return;
+    }
+
+    // 이미지 파일 크기 검증 (10MB)
+    if (selectedImageFile && selectedImageFile.size > 10 * 1024 * 1024) {
+        alert('이미지 파일 크기는 10MB를 초과할 수 없습니다.');
+        return;
+    }
+
+    // 이미지 파일 타입 검증
+    if (selectedImageFile && !isValidImageFile(selectedImageFile)) {
+        alert('jpg, jpeg, png, gif, bmp, webp 형식의 이미지 파일만 업로드 가능합니다.');
         return;
     }
 
@@ -627,9 +677,18 @@ async function saveMeeting() {
         // FormData 생성
         const formData = createFormData();
 
+        // JWT 토큰 가져오기
+        const token = getJwtTokenFromCookie();
+        if (!token) {
+            throw new Error('인증 토큰이 없습니다.');
+        }
+
         // 서버에 전송
         const response = await fetch('/api/meetings', {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         });
 
@@ -639,17 +698,86 @@ async function saveMeeting() {
             // 모임 상세 페이지로 이동
             window.location.href = `/meetings/${result.meetingId}`;
         } else {
-            const error = await response.json();
-            alert(`모임 생성에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
+            // 에러 응답 처리
+            await handleErrorResponse(response);
         }
     } catch (error) {
         console.error('모임 생성 오류:', error);
-        alert('모임 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        if (error.message.includes('인증') || error.message.includes('로그인')) {
+            alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+            window.location.href = '/login';
+        } else {
+            alert('모임 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
     } finally {
         // 버튼 상태 복원
         submitBtn.disabled = false;
         submitText.textContent = '모임 만들기';
     }
+}
+
+/**
+ * 에러 응답 처리
+ * @param {Response} response - fetch 응답 객체
+ */
+async function handleErrorResponse(response) {
+    try {
+        const error = await response.json();
+        
+        // 상태 코드별 처리
+        switch (response.status) {
+            case 401:
+                alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
+                window.location.href = '/login';
+                break;
+            case 403:
+                alert('접근 권한이 없습니다.');
+                break;
+            case 400:
+                if (error.code === 'FILE_SIZE_EXCEEDED') {
+                    alert('파일 크기가 너무 큽니다. 10MB 이하의 파일을 업로드해주세요.');
+                } else if (error.code === 'INVALID_INPUT') {
+                    alert('입력값이 올바르지 않습니다. 이미지 파일인지 확인해주세요.');
+                } else {
+                    alert(`입력 오류: ${error.message || '올바르지 않은 입력값입니다.'}`);
+                }
+                break;
+            case 409:
+                alert('이미 존재하는 데이터입니다.');
+                break;
+            case 500:
+                alert('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+                break;
+            default:
+                alert(`모임 생성에 실패했습니다: ${error.message || '알 수 없는 오류'}`);
+        }
+    } catch (parseError) {
+        console.error('에러 응답 파싱 실패:', parseError);
+        alert('모임 생성에 실패했습니다. 다시 시도해주세요.');
+    }
+}
+
+/**
+ * 이미지 파일 유효성 검사
+ * @param {File} file - 검사할 파일
+ * @returns {boolean} 유효한 이미지 파일 여부
+ */
+function isValidImageFile(file) {
+    // 파일 확장자 검사
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.split('.').pop();
+    
+    if (!allowedExtensions.includes(fileExtension)) {
+        return false;
+    }
+    
+    // MIME 타입 검사
+    if (!file.type.startsWith('image/')) {
+        return false;
+    }
+    
+    return true;
 }
 
 /**
@@ -686,9 +814,9 @@ function createFormData() {
     const meetingTime = date + 'T' + time;
     formData.append('meetingTime', meetingTime);
 
-    // 이미지 파일
+    // 이미지 파일 (imageFile로 변경하여 백엔드와 일치시킴)
     if (selectedImageFile) {
-        formData.append('image', selectedImageFile);
+        formData.append('imageFile', selectedImageFile);
     }
 
     return formData;
