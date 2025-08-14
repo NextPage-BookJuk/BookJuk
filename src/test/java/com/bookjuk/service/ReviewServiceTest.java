@@ -7,6 +7,7 @@ import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
+import com.bookjuk.dto.review.ReviewRequest;
 import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
@@ -206,10 +207,10 @@ class ReviewServiceTest {
         // given
         Long meetingId =  m1.getId();
         Long reviewerId = u2.getId();
-        Long revieweeId = u3.getId();
+        ReviewRequest request = new ReviewRequest(u3.getId());
 
         // when
-        ReviewResponse response = reviewService.createReview(meetingId, reviewerId, revieweeId);
+        ReviewResponse response = reviewService.createReview(meetingId, reviewerId, request);
 
         // then
         System.out.println("response = " + response);
