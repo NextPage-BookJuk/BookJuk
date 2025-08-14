@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>북적북적 - 시작하기</title>
-    <!-- 외부 CSS 파일 연결 -->
-    <link rel="stylesheet" href="/static/css/auth.css">
+    <!-- 외부 CSS 파일 연결 (Thymeleaf 문법 사용) -->
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
 </head>
 <body>
     <!-- 알림 메시지가 표시될 컨테이너 -->
     <div id="toast-container"></div>
 
     <header class="header">
-        <h1 class="logo" onclick="window.location.href='/'">북적북적</h1>
-        <a href="/" class="back-btn">홈으로</a>
+        <h1 class="logo" th:onclick="|window.location.href='@{/}'|">북적북적</h1>
+        <a th:href="@{/}" class="back-btn">홈으로</a>
     </header>
 
     <div class="container">
@@ -82,7 +82,7 @@
         </form>
     </div>
 
-    <!-- 외부 JavaScript 파일 연결 (type="module" 필수) -->
-    <script type="module" src="/static/js/auth.js"></script>
+    <!-- 외부 JavaScript 파일 연결 (Thymeleaf 문법 사용) -->
+    <script type="module" th:src="@{/js/auth.js}"></script>
 </body>
 </html>
