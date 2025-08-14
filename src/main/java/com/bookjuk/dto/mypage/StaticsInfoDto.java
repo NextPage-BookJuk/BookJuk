@@ -17,10 +17,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class StaticsInfoDto {
 
-    private int receivedLikes;
+    private Long receivedLikes;
     private int participatedMeeting;
 
-    public static StaticsInfoDto of(int likes, int meetings) {
+    public static StaticsInfoDto of(Long likes, int meetings) {
         return StaticsInfoDto.builder()
                 .receivedLikes(likes)
                 .participatedMeeting(meetings)
