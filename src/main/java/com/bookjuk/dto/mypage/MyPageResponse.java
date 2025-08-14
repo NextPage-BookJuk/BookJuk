@@ -32,12 +32,12 @@ public class MyPageResponse {
 
 
     // 마이페이지 응답 dto로 바꾸는 정적 팩토리 메소드
-    public static MyPageResponse of(UserInfoDto profile, StaticsInfoDto statistics, List<MeetingInfoDto> meeting) {
+    public static MyPageResponse of(UserInfoDto profile, StaticsInfoDto statistics, List<MeetingInfoDto> meetings) {
 
         return MyPageResponse.builder()
                 .profile(profile)
                 .statistics(statistics)
-                .meetings(meeting)
+                .meetings(meetings)
                 .build();
     }
 }
