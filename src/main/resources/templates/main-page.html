@@ -1,329 +1,158 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8" />
-  <title>북적북적 - 모임 찾기</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    /* ====== Base ====== */
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background:#f8f8f8; color:#333; line-height:1.6; }
-    .container { max-width:1200px; margin:0 auto; padding: 24px; }
-    header.header { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; background:#fff; border-bottom:1px solid #eee; }
-    .logo { font-weight:700; font-size:22px; }
-    .nav a { text-decoration:none; color:#555; margin-left:16px; }
-    .nav .signup-btn { background:#333; color:#fff; padding:8px 12px; border-radius:8px; }
-
-    /* ====== Hero ====== */
-    .hero { background:#fff; border-radius:12px; padding:56px 24px; text-align:center; box-shadow:0 4px 8px rgba(0,0,0,.05); }
-    .hero h1 { font-size:32px; margin-bottom:8px; }
-    .hero p { color:#666; margin-bottom:20px; }
-    .start-btn { background:#5d5dff; color:#fff; border:0; padding:12px 22px; border-radius:8px; cursor:pointer; }
-
-    /* ====== Filters ====== */
-    .filters { margin-top:24px; background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 8px rgba(0,0,0,.05); }
-    .filters-row { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 140px; gap:12px; align-items:end; }
-    .filter-item label { display:block; font-size:13px; color:#888; margin-bottom:6px; }
-    .select-like, select, .search-btn { width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:8px; background:#fff; cursor:pointer; }
-    .search-btn { background:#333; color:#fff; border:0; display:flex; justify-content:center; align-items:center; gap:6px; }
-    .sort-tabs { display:flex; gap:8px; margin-top:12px; }
-    .sort-tab { padding:8px 12px; border-radius:999px; border:1px solid #d1d5db; background:#fff; cursor:pointer; font-size:14px; }
-    .sort-tab.active { background:#111827; color:#fff; border-color:#111827; }
-
-    /* ====== Alerts ====== */
-    .alert { margin-top:12px; padding:10px 12px; border-radius:8px; display:none; }
-    .alert.show { display:block; }
-    .alert.error { background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; }
-    .alert.info { background:#eff6ff; color:#1e3a8a; border:1px solid #bfdbfe; }
-
-    /* ====== Grid ====== */
-    .grid { margin-top:18px; display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; }
-    .card { background:#fff; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,.05); overflow:hidden; cursor:pointer; transition: transform .2s, box-shadow .2s; }
-    .card:hover { transform: translateY(-4px); box-shadow:0 10px 16px rgba(0,0,0,.08); }
-    .thumb { width:100%; aspect-ratio:16/9; object-fit:cover; background:#eee; }
-    .badge { position:absolute; top:12px; left:12px; background:#5d5dff; color:#fff; font-size:12px; padding:4px 8px; border-radius:6px; }
-    .badge.closed { background:#9ca3af; }
-    .genre { position:absolute; top:12px; right:12px; background:#111827; color:#fff; font-size:12px; padding:4px 8px; border-radius:6px; }
-    .body { padding:12px; }
-    .title { font-weight:700; font-size:16px; margin-bottom:6px; }
-    .row { display:flex; gap:6px; align-items:center; color:#555; font-size:14px; margin:3px 0; }
-    .row .icon { width:18px; text-align:center; }
-
-    /* ====== Pagination ====== */
-    .pagination { margin:18px 0 8px; display:flex; justify-content:center; align-items:center; gap:8px; }
-    .pagination button { padding:8px 12px; border:1px solid #d1d5db; border-radius:8px; background:#fff; cursor:pointer; }
-    .pagination button:disabled { opacity:.4; cursor:not-allowed; }
-    .pageinfo { font-size:14px; color:#555; }
-
-    @media (max-width: 900px) {
-      .filters-row { grid-template-columns: 1fr 1fr; }
-      .grid { grid-template-columns: 1fr; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적</title>
+    <!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+    <link rel="stylesheet" th:href="@{/css/main-page.css}">
 </head>
 <body>
-<header class="header">
-  <div class="logo">북적북적</div>
-  <nav class="nav">
-    <a href="#" class="login-btn">로그인</a>
-    <a href="#" class="signup-btn">회원가입</a>
-  </nav>
-</header>
+    <header class="header">
+        <h1 class="logo">북적북적</h1>
+        <nav class="nav">
+            <a href="#" class="login-btn">로그인</a>
+            <a href="#" class="signup-btn">회원가입</a>
+        </nav>
+    </header>
 
-<main class="container">
-  <!-- Hero -->
-  <section class="hero">
-    <h1>책과 사람이 만나는 곳</h1>
-    <p>따뜻한 오프라인 독서모임에서 새로운 인연과 깊은 이야기를 나누세요</p>
-    <button class="start-btn">지금 시작하기</button>
-  </section>
+    <main class="main-content">
+        <section class="hero-section">
+            <h2 class="hero-title">책과 사람이 만나는 곳</h2>
+            <p class="hero-subtitle">따뜻한 오프라인 독서모임에서 새로운 인연과 깊은 이야기를 나누세요</p>
+            <button class="start-btn">지금 시작하기</button>
+        </section>
 
-  <!-- Filters -->
-  <section class="filters" aria-label="검색 필터">
-    <div class="filters-row">
-      <div class="filter-item">
-        <label for="region">광역시/도</label>
-        <select id="region">
-          <option value="">전체</option>
-          <option value="서울특별시">서울특별시</option>
-          <option value="경기도">경기도</option>
-          <option value="부산광역시">부산광역시</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label for="city">시/군/구</label>
-        <select id="city">
-          <option value="">전체</option>
-          <option value="강남구">강남구</option>
-          <option value="서초구">서초구</option>
-          <option value="마포구">마포구</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label for="genre">장르</label>
-        <select id="genre">
-          <option value="">전체</option>
-          <option>소설</option>
-          <option>에세이</option>
-          <option>인문</option>
-          <option>자기계발</option>
-        </select>
-      </div>
-      <div class="filter-item">
-        <label for="status">모임 상태</label>
-        <select id="status">
-          <option value="">전체</option>
-          <option value="RECRUITING">모집 중</option>
-          <option value="CLOSED">모집 완료</option>
-        </select>
-      </div>
-      <button class="search-btn" id="searchBtn">내게 맞는 모임 찾기 🔍</button>
-    </div>
+        <section class="filter-section">
+            <div class="filter-container">
+                <div class="filter-item">
+                    <p>어디에서 만나세요?</p>
+                    <div class="filter-dropdown location-filter">
+                        <span class="dropdown-label">
+                            <span class="icon">📍</span>
+                            강남구
+                        </span>
+                        <ul class="dropdown-menu">
+                            <li>강남구</li>
+                            <li>강북구</li>
+                            <li>강서구</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="filter-item">
+                    <p>어떤 장르를 좋아하세요?</p>
+                    <div class="filter-dropdown genre-filter">
+                        <span class="dropdown-label">
+                            <span class="icon">📚</span>
+                            스릴러
+                        </span>
+                        <ul class="dropdown-menu">
+                            <li>소설</li>
+                            <li>에세이</li>
+                            <li>스릴러</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="filter-item">
+                    <p>어떤 모임 상태를 원하세요?</p>
+                    <div class="filter-dropdown status-filter">
+                        <span class="dropdown-label">
+                            <span class="icon">📖</span>
+                            모집 중
+                        </span>
+                        <ul class="dropdown-menu">
+                            <li>모집 중</li>
+                            <li>모집 완료</li>
+                        </ul>
+                    </div>
+                </div>
+                <button class="search-btn">
+                    내게 맞는 모임 찾기
+                    <span class="icon">🔍</span>
+                </button>
+            </div>
+        </section>
 
-    <!-- sort: latest / deadline / popular -->
-    <div class="sort-tabs" role="tablist" aria-label="정렬">
-      <button class="sort-tab active" data-sort="latest" role="tab" aria-selected="true">최신순</button>
-      <button class="sort-tab" data-sort="deadline" role="tab" aria-selected="false">마감 임박</button>
-      <button class="sort-tab" data-sort="popular" role="tab" aria-selected="false">인기순</button>
-    </div>
+        <section class="meeting-list">
+            <div class="meeting-card">
+                <div class="card-image"> <!-- style="background-image: url('placeholder.png');"-->
+                    <span class="status-tag ongoing">모집 중</span>
+                    <span class="genre-tag">소설</span>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">따뜻한 겨울 소설 읽기</h3>
+                    <p class="card-info">
+                        <span>📖</span>
+                        <span>논픽션 소설 · 김영하</span>
+                    </p>
+                    <p class="card-date">
+                        <span>🗓️</span>
+                        <span>2025.08.05 19:00</span>
+                    </p>
+                    <p class="card-location">
+                        <span>📍</span>
+                        <span>강남구 · 5/8명</span>
+                    </p>
+                    <p class="card-author">
+                        <span>🙋‍♂️</span>
+                        <span>도도뇽</span>
+                    </p>
+                </div>
+            </div>
+            <div class="meeting-card">
+                <div class="card-image"> <!-- style="background-image: url('placeholder.png');"-->
+                    <span class="status-tag ongoing">모집 중</span>
+                    <span class="genre-tag">소설</span>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">자기계발서 나눔 모집</h3>
+                    <p class="card-info">
+                        <span>📖</span>
+                        <span>아토믹 해빗 · 제임스 클리어</span>
+                    </p>
+                    <p class="card-date">
+                        <span>🗓️</span>
+                        <span>2025.08.05 19:00</span>
+                    </p>
+                    <p class="card-location">
+                        <span>📍</span>
+                        <span>강남구 · 5/8명</span>
+                    </p>
+                    <p class="card-author">
+                        <span>🙋‍♂️</span>
+                        <span>도도뇽</span>
+                    </p>
+                </div>
+            </div>
+            <div class="meeting-card">
+                <div class="card-image"> <!-- style="background-image: url('placeholder.png');"-->
+                    <span class="status-tag">모집완료</span>
+                    <span class="genre-tag">소설</span>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">따뜻한 겨울 소설 읽기</h3>
+                    <p class="card-info">
+                        <span>📖</span>
+                        <span>논픽션 소설 · 김영하</span>
+                    </p>
+                    <p class="card-date">
+                        <span>🗓️</span>
+                        <span>2025.08.05 19:00</span>
+                    </p>
+                    <p class="card-location">
+                        <span>📍</span>
+                        <span>강남구 · 5/8명</span>
+                    </p>
+                    <p class="card-author">
+                        <span>🙋‍♂️</span>
+                        <span>도도뇽</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
 
-    <div id="alert" class="alert"></div>
-  </section>
-
-  <!-- Grid -->
-  <section id="grid" class="grid" aria-live="polite"></section>
-
-  <!-- Pagination -->
-  <nav class="pagination" aria-label="페이지네이션">
-    <button id="prevBtn" disabled>이전</button>
-    <span class="pageinfo" id="pageInfo">1 / 1</span>
-    <button id="nextBtn" disabled>다음</button>
-  </nav>
-</main>
-
-<template id="cardTpl">
-  <article class="card">
-    <div style="position:relative;">
-      <img class="thumb" alt="모임 이미지" />
-      <span class="badge">모집 중</span>
-      <span class="genre">장르</span>
-    </div>
-    <div class="body">
-      <div class="title"></div>
-      <div class="row"><span class="icon">📖</span><span class="book"></span></div>
-      <div class="row"><span class="icon">🗓️</span><span class="date"></span></div>
-      <div class="row"><span class="icon">📍</span><span class="loc"></span></div>
-      <div class="row"><span class="icon">🙋‍♂️</span><span class="host"></span></div>
-    </div>
-  </article>
-</template>
-
-<script>
-  // ====== 1) 설정 ======
-  const API_BASE_URL = "http://localhost:9000"; // 실제 주소로 교체
-  // API 계약: GET /api/meetings?region=&city=&genre=&status=&sort=&page=&size=
-  // 응답 스키마: content[{ meetingId, host{...}, title, imageUrl, bookTitle, bookAuthor, genre, meetingTime, region, city, maxParticipants, currentParticipants, status, ... }], page, size, totalElements
-  // (모두 업로드된 API 명세에 근거)  ← 참고: 모임리스트API.txt :contentReference[oaicite:2]{index=2}
-
-  // ====== 2) 상태 ======
-  const state = {
-    sort: "latest",
-    page: 0,        // API 예시가 1부터 시작하므로 1-based로 맞춥니다. :contentReference[oaicite:3]{index=3}
-    size: 6,
-    totalElements: 0,
-    abortController: null
-  };
-
-  // ====== 3) DOM 참조 ======
-  const $ = (sel) => document.querySelector(sel);
-  const grid = $("#grid");
-  const alertBox = $("#alert");
-  const pageInfo = $("#pageInfo");
-  const prevBtn = $("#prevBtn");
-  const nextBtn = $("#nextBtn");
-  const cardTpl = $("#cardTpl");
-  const sortTabs = [...document.querySelectorAll(".sort-tab")];
-
-  // ====== 4) 유틸 ======
-  const qs = (obj) => new URLSearchParams(
-          Object.entries(obj).filter(([,v]) => v !== undefined && v !== null && v !== "")
-  ).toString();
-
-  function showAlert(msg, type="info") {
-    if (!msg) { alertBox.className = "alert"; alertBox.textContent = ""; return; }
-    alertBox.className = `alert show ${type}`;
-    alertBox.textContent = msg;
-  }
-
-  function formatDate(iso) {
-    const d = new Date(iso);
-    if (String(d) === "Invalid Date") return iso ?? "";
-    const pad = (n) => n.toString().padStart(2,"0");
-    return `${d.getFullYear()}.${pad(d.getMonth()+1)}.${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-
-  // ====== 5) 렌더러 ======
-  function renderList(content = []) {
-    grid.innerHTML = "";
-    if (content.length === 0) {
-      showAlert("조건에 맞는 모임이 없어요. 필터를 바꿔보세요!", "info");
-      return;
-    }
-    showAlert(""); // clear
-    content.forEach(item => {
-      const node = cardTpl.content.cloneNode(true);
-      const img = node.querySelector(".thumb");
-      const badge = node.querySelector(".badge");
-      const genre = node.querySelector(".genre");
-      const title = node.querySelector(".title");
-      const book = node.querySelector(".book");
-      const date = node.querySelector(".date");
-      const loc = node.querySelector(".loc");
-      const host = node.querySelector(".host");
-
-      img.src = item.imageUrl || "";
-      img.alt = `${item.title || "모임"} 이미지`;
-      badge.textContent = item.status === "RECRUITING" ? "모집 중" : "모집 완료";
-      badge.classList.toggle("closed", item.status !== "RECRUITING");
-      genre.textContent = item.genre || "-";
-      title.textContent = item.title || "-";
-      book.textContent = `${item.bookTitle ?? "-"} · ${item.bookAuthor ?? "-"}`;
-      date.textContent = formatDate(item.meetingTime);
-      loc.textContent = `${item.region ?? ""} ${item.city ?? ""} · ${item.currentParticipants ?? 0}/${item.maxParticipants ?? 0}명`;
-      host.textContent = `${item.host?.username ?? "-"}${item.host?.introduction ? " · " + item.host.introduction : ""}`;
-
-      node.querySelector(".card").addEventListener("click", () => {
-        // 실제 상세 라우팅으로 교체하세요.
-        // location.href = `/meeting-detail.html?id=${item.meetingId}`;
-        alert(`모임 상세로 이동: ID=${item.meetingId}`);
-      });
-
-      grid.appendChild(node);
-    });
-  }
-
-  function renderPagination(page, size, totalElements) {
-    const totalPages = Math.max(1, Math.ceil((totalElements || 0) / size));
-    pageInfo.textContent = `${page} / ${totalPages}`;
-    prevBtn.disabled = page <= 1;
-    nextBtn.disabled = page >= totalPages;
-  }
-
-  // ====== 6) 데이터 요청 ======
-  async function fetchMeetings() {
-    // 기존 요청 취소
-    if (state.abortController) state.abortController.abort();
-    state.abortController = new AbortController();
-
-    const params = {
-      region: $("#region").value,
-      city: $("#city").value,
-      genre: $("#genre").value,
-      status: $("#status").value,             // RECRUITING, CLOSED
-      sort: state.sort,                       // latest, deadline, popular
-      page: state.page,                       // 1-based (API 예시) :contentReference[oaicite:4]{index=4}
-      size: state.size
-    };
-    console.log(params.status);
-    const url = `${API_BASE_URL}/api/meetings?${qs(params)}`;
-
-    showAlert("불러오는 중입니다...", "info");
-    try {
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Accept": "application/json" },
-        // 세션/쿠키 인증 시 필요:
-        // credentials: "include",
-        signal: state.abortController.signal
-      });
-      if (!res.ok) {
-        // 서버 에러만 간단 대응 (요구사항 반영)
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `서버 오류가 발생했습니다. (HTTP ${res.status})`);
-      }
-      const data = await res.json();
-      // data.content, data.page, data.size, data.totalElements 사용  :contentReference[oaicite:5]{index=5}
-      renderList(data.content || []);
-      state.totalElements = data.totalElements ?? 0;
-      renderPagination(state.page, state.size, state.totalElements);
-      if (!data.content || data.content.length === 0) {
-        showAlert("조건에 맞는 모임이 없어요. 필터를 바꿔보세요!", "info");
-      }
-    } catch (e) {
-      if (e.name === "AbortError") return;
-      console.error(e);
-      renderList([]); // 비워두기
-      showAlert(e.message || "네트워크 오류가 발생했습니다.", "error");
-    }
-  }
-
-  // ====== 7) 이벤트 ======
-  document.getElementById("searchBtn").addEventListener("click", () => {
-    state.page = 0;
-    fetchMeetings();
-  });
-
-  sortTabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      sortTabs.forEach(t => { t.classList.remove("active"); t.setAttribute("aria-selected","false"); });
-      tab.classList.add("active");
-      tab.setAttribute("aria-selected","true");
-      state.sort = tab.dataset.sort; // latest/deadline/popular
-      state.page = 0;
-      fetchMeetings();
-    });
-  });
-
-  prevBtn.addEventListener("click", () => { if (state.page > 1) { state.page--; fetchMeetings(); } });
-  nextBtn.addEventListener("click", () => { state.page++; fetchMeetings(); });
-
-  // 간단한 내비게이션 (예시)
-  document.querySelector(".start-btn").addEventListener("click", () => alert("회원가입으로 이동(예시)"));
-  document.querySelector(".login-btn").addEventListener("click", () => alert("로그인으로 이동(예시)"));
-  document.querySelector(".signup-btn").addEventListener("click", () => alert("회원가입으로 이동(예시)"));
-
-  // 초기 로드
-  fetchMeetings();
-</script>
+    <!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+    <script th:src="@{/js/main-page.js}"></script>
 </body>
 </html>
