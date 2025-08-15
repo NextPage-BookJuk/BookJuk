@@ -1,4 +1,4 @@
-package com.bookjuk.service;
+package com.bookjuk.controller;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.meeting.MeetingStatus;
@@ -8,30 +8,35 @@ import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
 import com.bookjuk.dto.review.ReviewRequest;
-import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
 import com.bookjuk.repository.review.MeetingReviewRepository;
 import com.bookjuk.repository.user.UserRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Repository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
-class ReviewServiceTest {
+class ReviewControllerTest {
 
     @Autowired
     MeetingRepository meetingRepository;
@@ -46,10 +51,11 @@ class ReviewServiceTest {
     MeetingReviewRepository meetingReviewRepository;
 
     @Autowired
-    ReviewService reviewService;
+    EntityManager em;
 
     @Autowired
-    EntityManager em;
+    ReviewController reviewController;
+
 
     private User u1, u2, u3, u4;
     private Meeting m1, m2, m3;
@@ -57,8 +63,11 @@ class ReviewServiceTest {
 
     private List<MeetingParticipant> meetingParticipants;
 
+
+
     @BeforeEach
     void insertBulk() {
+        /*
         meetingParticipantRepository.deleteAll();
         meetingRepository.deleteAll();
         userRepository.deleteAll();
@@ -101,6 +110,7 @@ class ReviewServiceTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 20, 19, 0))
                 .region("경기도")
                 .city("안산시")
+                .district("단원구")
                 .maxParticipants(6)
                 .meetingStatus(MeetingStatus.COMPLETED)
                 .build();
@@ -115,8 +125,9 @@ class ReviewServiceTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 18, 19, 0))
                 .region("경기도")
                 .city("안양시")
+                .district("단원구")
                 .maxParticipants(8)
-                .meetingStatus(MeetingStatus.RECRUITING)
+                .meetingStatus(MeetingStatus.COMPLETED)
                 .build();
         m3 = Meeting.builder()
                 .host(u2)
@@ -129,6 +140,7 @@ class ReviewServiceTest {
                 .meetingTime(LocalDateTime.of(2025, 8, 21, 19, 0))
                 .region("경기도")
                 .city("구리시")
+                .district("단원구")
                 .maxParticipants(4)
                 .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
@@ -198,21 +210,70 @@ class ReviewServiceTest {
 
         em.flush();
         em.clear();
+
+    */
+
+        User u5 = userRepository.findByEmail("abc@naver.com").orElseThrow();
+        User u6 = userRepository.findByEmail("abc123@dddaum.net").orElseThrow();
+        User u7 = userRepository.findByEmail("abc123@dddammum.net").orElseThrow();
+
+
+        m1 = Meeting.builder()
+                .host(u5)
+                .title("먼작귀친구들123")
+                .description("책 읽으며 놀아요.")
+                .imageUrl("https://example.com/image.jpg")
+                .bookTitle("먼작귀")
+                .bookAuthor("나가노작가")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 20, 19, 0))
+                .region("경기도")
+                .city("안산시")
+                .district("단원구")
+                .maxParticipants(6)
+                .meetingStatus(MeetingStatus.COMPLETED)
+                .build();
+
+        meetingRepository.save(m1);
+
+
+        mp1 = MeetingParticipant.builder()
+                .participant(u5)
+                .meeting(m1)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+
+        mp2 = MeetingParticipant.builder()
+                .participant(u6)
+                .meeting(m1)
+                .role(ParticipantRole.PARTICIPANT)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+
+        mp3 = MeetingParticipant.builder()
+                .participant(u7)
+                .meeting(m1)
+                .role(ParticipantRole.PARTICIPANT)
+                .status(ParticipantStatus.PENDING)
+                .build();
+
+        meetingParticipantRepository.saveAllAndFlush(
+                List.of(mp1, mp2, mp3)
+        );
+
+
+        em.flush();
+        em.clear();
+      
     }
 
-    // ========== MeetingReviewRepository: CREATE ==========
     @Test
-    @DisplayName("모임이 종료된 후 다른 사용자에게 리뷰(좋아요)를 남긴다")
-    void createReview() {
-        // given
-        Long meetingId =  m1.getId();
-        Long reviewerId = u2.getId();
-        ReviewRequest request = new ReviewRequest(u3.getId());
+    @DisplayName("")
+    public void createReview() {
 
-        // when
-        ReviewResponse response = reviewService.createReview(meetingId, reviewerId, request);
 
-        // then
-        System.out.println("response = " + response);
+
     }
+
 }

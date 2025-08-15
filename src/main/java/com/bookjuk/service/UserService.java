@@ -93,4 +93,15 @@ public class UserService {
         // existsByEmail의 결과를 반전시켜 "사용 가능 여부"를 반환
         return !userRepository.existsByEmail(email);
     }
+
+    /**
+     * jwt 인증 정보로 가져온 사용자 이메일로 사용자 객체 반환
+     * @param email 확인할 이메일
+     * @return 유저 정보가 있으면 해당 유저 객체 반환, 없으면 커스텀 에러 발생
+     */
+    public User findUser(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(ErrorCode.USER_NOT_FOUND)
+        );
+    }
 }
