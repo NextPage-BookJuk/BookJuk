@@ -53,6 +53,7 @@ public class SecurityConfig {
                                         , "/signup"
                                         , "/meetings/list"
                                         , "/meetings/create"
+                                        , "/mypage"
                                 ).permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
                                 .requestMatchers("/api/users/**").permitAll()
@@ -63,7 +64,7 @@ public class SecurityConfig {
 
                                 // 기타 경로
                                 // 모든 다른 요청은 인증이 필요하다
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
 
 

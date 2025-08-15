@@ -214,8 +214,26 @@ class ReviewControllerTest {
     */
 
         User u5 = userRepository.findByEmail("abc@naver.com").orElseThrow();
+        User u6 = User.builder()
+                .username("치이카와")
+                .email("abc123dd@naver.com")
+                .password("abc123")
+                .build();
+
+        User u7 = User.builder()
+                .username("쿠리링")
+                .email("abc123@naver.com")
+                .password("abc123")
+                .build();
+
+        userRepository.saveAllAndFlush(
+                List.of(u6, u7)
+        );
+        /*
         User u6 = userRepository.findByEmail("abc123@dddaum.net").orElseThrow();
         User u7 = userRepository.findByEmail("abc123@dddammum.net").orElseThrow();
+
+
 
 
         m1 = Meeting.builder()
@@ -262,9 +280,27 @@ class ReviewControllerTest {
                 List.of(mp1, mp2, mp3)
         );
 
+        MeetingReview rv1 = MeetingReview.builder()
+                .meeting(m1)
+                .reviewer(u6)
+                .reviewee(u5)
+                .build();
+
+        MeetingReview rv2 = MeetingReview.builder()
+                .meeting(m1)
+                .reviewer(u7)
+                .reviewee(u5)
+                .build();
+
+        meetingReviewRepository.saveAllAndFlush(
+                List.of(rv1, rv2)
+        );
+
 
         em.flush();
         em.clear();
+
+         */
       
     }
 
