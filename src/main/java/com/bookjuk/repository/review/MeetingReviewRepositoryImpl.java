@@ -24,4 +24,14 @@ public class MeetingReviewRepositoryImpl implements MeetingReviewCustom {
                 .fetchOne() != null ? true : false;
 
     }
+
+    @Override
+    public Long countReviewByUserId(Long id) {
+        return factory
+                .select(meetingReview.reviewee.count())
+                .from(meetingReview)
+                .where(meetingReview.reviewee.id.eq(id))
+                .fetchOne()
+                ;
+    }
 }

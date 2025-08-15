@@ -52,6 +52,9 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/"
                                         , "/auth"
+                                        , "/login"
+                                        , "/signup"
+                                        , "/meetings/list"
                                         , "/meetings/create"
                                 ).permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
