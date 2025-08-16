@@ -116,6 +116,29 @@ public class MeetingController {
     }
 
     /**
+     * 임시 사용자 생성 또는 조회 메서드
+     * 실제 데이터베이스에 저장된 사용자를 반환합니다.
+     * 모임 목록 조회 API (동적 쿼리)
+     * GET /api/meetings
+     */
+    @GetMapping("/api/meetings")
+    public ResponseEntity<?> getMeetings(MeetingListSearchRequest request) {
+        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}");
+
+        // 요청 → 검색조건 + 페이지로 변환
+        MeetingRepositoryCustom.MeetingSearchCondition condition = request.toCondition();
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+
+        // 서비스 호출 (MeetingListResponse)
+        MeetingListResponse response = meetingService.getMeetingList(condition, pageable);
+
+        // 공통 응답 포맷으로 감싸기
+        return ResponseEntity.ok(
+                ApiResponse.success("모임 정보 목록이 조회되었습니다.", response)
+        );
+    }
+
+    /**
      * 모임 상세 정보를 조회합니다.
      * @param id 모임 ID
      * @return 모임 상세 정보
@@ -208,26 +231,5 @@ public class MeetingController {
             return "";
         }
         return filename.substring(lastDotIndex + 1);
-    }
-
-    /**
-     * 모임 목록 조회 API (동적 쿼리)
-     * GET /api/meetings
-     */
-    @GetMapping("/api/meetings")
-    public ResponseEntity<?> getMeetings(MeetingListSearchRequest request) {
-        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}");
-
-        // 요청 → 검색조건 + 페이지로 변환
-        MeetingRepositoryCustom.MeetingSearchCondition condition = request.toCondition();
-        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-
-        // 서비스 호출 (MeetingListResponse)
-        MeetingListResponse response = meetingService.getMeetingList(condition, pageable);
-
-        // 공통 응답 포맷으로 감싸기
-        return ResponseEntity.ok(
-                ApiResponse.success("모임 정보 목록이 조회되었습니다.", response)
-        );
     }
 }
