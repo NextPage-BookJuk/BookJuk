@@ -3,6 +3,8 @@ package com.bookjuk.routes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.ui.Model;
 
 /**
  * 페이지 전환 렌더링용 컨트롤러
@@ -39,5 +41,12 @@ public class PageController {
     @GetMapping("/editProfile")
     public String editProfile() {
         return "edit-profile";
+    }
+
+    // 모임 상세 페이지 (Thymeleaf)
+    @GetMapping("/meetings/{id}")
+    public String meetingDetail(@PathVariable("id") Long id, Model model) {
+        model.addAttribute("meetingId", id);
+        return "meeting-detail";
     }
 }
