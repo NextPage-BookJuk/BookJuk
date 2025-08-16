@@ -133,9 +133,7 @@ public class MeetingController {
         MeetingListResponse response = meetingService.getMeetingList(condition, pageable);
 
         // 공통 응답 포맷으로 감싸기
-        return ResponseEntity.ok(
-                ApiResponse.success("모임 정보 목록이 조회되었습니다.", response)
-        );
+        return ResponseEntity.ok(response);
     }
 
     /**
