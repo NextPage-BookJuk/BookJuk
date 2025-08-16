@@ -53,8 +53,8 @@ public class MeetingListTest {
     EntityManager em;
 
     private User u1, u2, u3, u4;
-    private Meeting m1, m2, m3, m4;
-    private MeetingParticipant mp1, mp2, mp3, mp4, mp5, mp6, mp7;
+    private Meeting m1, m2, m3, m4, m5 ,m6, m7, m8, m9;
+    private MeetingParticipant mp1, mp2, mp3, mp4, mp5, mp6, mp7, mp8, mp9, mp10, mp11, mp12;
 
     private List<MeetingParticipant> meetingParticipants;
 
@@ -138,7 +138,82 @@ public class MeetingListTest {
                 .build();
         m4 = Meeting.builder()
                 .host(u3)
-                .title("뽀롱롱")
+                .title("뽀롱롱1")
+                .description("언제나 즐거운 친구들")
+                .imageUrl("https://example.com/image4.jpg")
+                .bookTitle("뽀로로")
+                .bookAuthor("무적친구뽀로로")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 19, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
+                .region("서울특별시")
+                .city("중랑구")
+                .district("abc")
+                .maxParticipants(8)
+                .build();
+        m5 = Meeting.builder()
+                .host(u4)
+                .title("뽀롱롱2")
+                .description("언제나 즐거운 친구들")
+                .imageUrl("https://example.com/image4.jpg")
+                .bookTitle("뽀로로")
+                .bookAuthor("무적친구뽀로로")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 19, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
+                .region("서울특별시")
+                .city("중랑구")
+                .district("abc")
+                .maxParticipants(8)
+                .build();
+        m6 = Meeting.builder()
+                .host(u4)
+                .title("뽀롱롱3")
+                .description("언제나 즐거운 친구들")
+                .imageUrl("https://example.com/image4.jpg")
+                .bookTitle("뽀로로")
+                .bookAuthor("무적친구뽀로로")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 19, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
+                .region("서울특별시")
+                .city("중랑구")
+                .district("abc")
+                .maxParticipants(8)
+                .build();
+        m7 = Meeting.builder()
+                .host(u4)
+                .title("뽀롱롱4")
+                .description("언제나 즐거운 친구들")
+                .imageUrl("https://example.com/image4.jpg")
+                .bookTitle("뽀로로")
+                .bookAuthor("무적친구뽀로로")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 19, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
+                .region("서울특별시")
+                .city("중랑구")
+                .district("abc")
+                .maxParticipants(8)
+                .build();
+        m8 = Meeting.builder()
+                .host(u4)
+                .title("뽀롱롱5")
+                .description("언제나 즐거운 친구들")
+                .imageUrl("https://example.com/image4.jpg")
+                .bookTitle("뽀로로")
+                .bookAuthor("무적친구뽀로로")
+                .genre("동화")
+                .meetingTime(LocalDateTime.of(2025, 8, 19, 19, 0))
+                .meetingStatus(MeetingStatus.RECRUITING)
+                .region("서울특별시")
+                .city("중랑구")
+                .district("abc")
+                .maxParticipants(8)
+                .build();
+        m9 = Meeting.builder()
+                .host(u4)
+                .title("뽀롱롱6")
                 .description("언제나 즐거운 친구들")
                 .imageUrl("https://example.com/image4.jpg")
                 .bookTitle("뽀로로")
@@ -153,7 +228,7 @@ public class MeetingListTest {
                 .build();
 
         List<Meeting> meetings = meetingRepository.saveAllAndFlush(
-                List.of(m1, m2, m3, m4)
+                List.of(m1, m2, m3, m4, m5 ,m6, m7, m8, m9)
         );
 
         // 참가자 정보 만들기
@@ -199,10 +274,40 @@ public class MeetingListTest {
                 .role(ParticipantRole.HOST)
                 .status(ParticipantStatus.APPROVED)
                 .build();
+        mp8 = MeetingParticipant.builder()
+                .participant(u4)
+                .meeting(m5)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+        mp9 = MeetingParticipant.builder()
+                .participant(u4)
+                .meeting(m6)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+        mp10 = MeetingParticipant.builder()
+                .participant(u4)
+                .meeting(m7)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+        mp11 = MeetingParticipant.builder()
+                .participant(u4)
+                .meeting(m8)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
+        mp12 = MeetingParticipant.builder()
+                .participant(u4)
+                .meeting(m9)
+                .role(ParticipantRole.HOST)
+                .status(ParticipantStatus.APPROVED)
+                .build();
 
 
         meetingParticipants = meetingParticipantRepository.saveAllAndFlush(
-                List.of(mp1, mp2, mp3, mp4, mp5, mp6, mp7)
+                List.of(mp1, mp2, mp3, mp4, mp5, mp6, mp7, mp8, mp9, mp10, mp11, mp12)
         );
 
         // 좋아요 정보 생성
