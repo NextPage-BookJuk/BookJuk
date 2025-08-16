@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -51,14 +52,16 @@ public class MeetingController {
      * @return 모임 생성 템플릿 또는 로그인 페이지 리다이렉트
      */
     @GetMapping("/meetings/create")
-    public String createMeetingPage(HttpServletRequest request) {
+    public String createMeetingPage(HttpServletRequest request, Model model) {
         log.info("모임 생성 페이지 요청");
 
         // JWT 토큰 검증
         User currentUser = getCurrentUserFromToken(request);
         if (currentUser == null) {
             log.warn("로그인하지 않은 사용자의 모임 생성 페이지 접근 시도");
-            return "redirect:/login"; // 로그인 페이지로 리다이렉트
+            model.addAttribute("loginRequired", true);
+            model.addAttribute("message", "모임을 생성하려면 로그인이 필요합니다.");
+            return "auth"; // 로그인 페이지에 메시지와 함께 이동
         }
 
         log.info("로그인 사용자의 모임 생성 페이지 접근: {}", currentUser.getEmail());
@@ -73,18 +76,27 @@ public class MeetingController {
 
     /**
      * 새로운 모임을 생성합니다.
+     *
+     * 이미지 업로드 제한사항:
+     * - 선택사항 (없어도 모임 생성 가능)
+     * - 최대 1장만 업로드 가능
+     * - 허용 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
+     * - 최대 크기: 10MB
+     *
      * @param request 모임 생성 요청 데이터
-     * @param imageFile 모임 대표 이미지 파일 (선택적)
+     * @param imageFile 모임 대표 이미지 파일 (선택적, 최대 1장)
      * @return 생성된 모임의 상세 정보
      */
     @PostMapping("/api/meetings")
     @ResponseBody
     public ResponseEntity<MeetingDetailResponse> createMeeting(
-            @Valid @ModelAttribute MeetingCreateRequest request,
-            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+        // 수업 시간 때 배운 RequestPart를 사용하여 json, Image를 동시에 보내는 api를 생성
+            @Valid @RequestPart("meeting") MeetingCreateRequest request,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             HttpServletRequest httpRequest) {
 
-        log.info("모임 생성 요청 - 제목: {}, 도서: {}", request.getTitle(), request.getBookTitle());
+        log.info("모임 생성 요청 - 제목: {}, 도서: {}, 최대참여자: {}",
+                 request.getTitle(), request.getBookTitle(), request.getMaxParticipants());
 
         // JWT 토큰에서 현재 사용자 정보 가져오기
         User currentUser = getCurrentUserFromToken(httpRequest);
@@ -124,6 +136,18 @@ public class MeetingController {
         return ResponseEntity.ok(
                 ApiResponse.success("모임 정보 목록이 조회되었습니다.", response)
         );
+    }
+
+    /**
+     * 모임 상세 정보를 조회합니다.
+     * @param id 모임 ID
+     * @return 모임 상세 정보
+     */
+    @GetMapping("/api/meetings/{id}")
+    @ResponseBody
+    public ResponseEntity<MeetingDetailResponse> getMeetingDetail(@PathVariable("id") Long id) {
+        MeetingDetailResponse detail = meetingService.getMeetingDetail(id);
+        return ResponseEntity.ok(detail);
     }
 
     /**
@@ -208,4 +232,5 @@ public class MeetingController {
         }
         return filename.substring(lastDotIndex + 1);
     }
+
 }
