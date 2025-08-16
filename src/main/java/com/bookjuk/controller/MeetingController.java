@@ -123,7 +123,7 @@ public class MeetingController {
      */
     @GetMapping("/api/meetings")
     public ResponseEntity<?> getMeetings(MeetingListSearchRequest request) {
-        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}");
+        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}", request.getPage(), request.getSize());
 
         // 요청 → 검색조건 + 페이지로 변환
         MeetingRepositoryCustom.MeetingSearchCondition condition = request.toCondition();
