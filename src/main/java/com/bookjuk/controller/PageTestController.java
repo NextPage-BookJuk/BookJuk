@@ -5,7 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 // 테스트용 간단 페이지 라우팅 컨트롤러
-@Controller
+//@Controller
 @RequestMapping
 public class PageTestController {
 
