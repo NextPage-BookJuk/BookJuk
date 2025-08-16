@@ -211,8 +211,6 @@ public class MeetingController {
     }
 
     /**
-     * 임시 사용자 생성 또는 조회 메서드
-     * 실제 데이터베이스에 저장된 사용자를 반환합니다.
      * 모임 목록 조회 API (동적 쿼리)
      * GET /api/meetings
      */
