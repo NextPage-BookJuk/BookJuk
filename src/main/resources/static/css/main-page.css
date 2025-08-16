@@ -156,3 +156,5 @@ body { background-color: #f8f8f8; color: #333; line-height: 1.6; }
 
 /* 터치 하이라이트 제거 */
 * { -webkit-tap-highlight-color: transparent; }
+/*브라우저 자동 앵커링 비활성화*/
+.meeting-list { overflow-anchor: none; }

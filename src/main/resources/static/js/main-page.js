@@ -19,7 +19,12 @@ const regionData = {
   "제주특별자치도": ["제주시","서귀포시"]
 };
 
-// ===== 공통 드롭다운 초기화 (장르/상태/지역/정렬 공통) =====
+// ===== 전역 상태 =====
+const PAGE_SIZE = 6;
+let currentPage = 0;
+let lastQuery = null;
+
+// ===== 공통 드롭다운 초기화 =====
 function initDropdowns() {
   const dropdowns = document.querySelectorAll('.filter-dropdown');
 
@@ -68,7 +73,7 @@ function initRegionMenus() {
 
   if (!region1Filter || !region2Filter || !region1Menu || !region2Menu) return;
 
-  // 시/도 목록 구성
+  // 시/도 목록
   Object.keys(regionData).forEach(siDo => {
     const li = document.createElement('li');
     li.textContent = siDo;
@@ -76,7 +81,7 @@ function initRegionMenus() {
     region1Menu.appendChild(li);
   });
 
-  // 시/도 선택 → 구/군 목록 갱신 & 활성화
+  // 시/도 선택 → 구/군 갱신
   region1Menu.addEventListener('click', (e) => {
     const item = e.target.closest('li');
     if (!item) return;
@@ -98,7 +103,6 @@ function initRegionMenus() {
     region2Filter.classList.remove('disabled');
   });
 
-  // 구/군 선택 (라벨/값 동기화는 공통 핸들러가 처리)
   region2Menu.addEventListener('click', (e) => {
     const item = e.target.closest('li');
     if (!item) return;
@@ -106,57 +110,230 @@ function initRegionMenus() {
   });
 }
 
-// ===== 검색 버튼 액션 =====
-function initActions() {
-  document.querySelectorAll('.meeting-card').forEach(card => {
-    card.addEventListener('click', () => {
-      alert('모임 상세 페이지로 이동합니다.');
-      // location.href = 'meeting-detail.html?id=123';
-    });
+// ===== 유틸: 상태/텍스트/클래스 매핑 =====
+function mapStatusToTextKorean(status) {
+  switch (status) {
+    case 'RECRUITING': return '모집중';
+    case 'COMPLETED':  return '종료';
+    case 'CANCELLED':  return '취소';
+    default:           return status || '';
+  }
+}
+function mapStatusToClass(status) {
+  switch (status) {
+    case 'RECRUITING': return 'ongoing';
+    case 'COMPLETED':  return 'closed';
+    case 'CANCELLED':  return 'cancelled';
+    default:           return '';
+  }
+}
+function formatDateTime(dtStr) {
+  if (!dtStr) return '';
+  const d = new Date(dtStr);
+  if (isNaN(d)) return dtStr; // 백엔드 포맷 그대로
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  return `${y}.${m}.${day} ${hh}:${mm}`;
+}
+function escapeHtml(str) {
+  if (typeof str !== 'string') return str ?? '';
+  return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
+}
+
+// ===== ✅ 스크롤-프리즈(Delta 보정) 유틸 =====
+function withScrollFreeze(targetEl, mutateDom) {
+  if (!targetEl || typeof mutateDom !== 'function') return mutateDom?.();
+
+  const beforeTop = targetEl.getBoundingClientRect().top;
+  // DOM 갱신 수행
+  mutateDom();
+  // 다음 페인트 타이밍에 상대 위치만큼 보정
+  requestAnimationFrame(() => {
+    const afterTop = targetEl.getBoundingClientRect().top;
+    const delta = afterTop - beforeTop;
+    if (delta !== 0) {
+      window.scrollBy({ top: delta, left: 0, behavior: 'auto' });
+    }
+  });
+}
+
+// 🔸 새로 추가: 목록 높이 잠금
+function lockListHeight(listEl) {
+  if (!listEl) return () => {};
+  const prevH = listEl.offsetHeight;
+  // 이전 렌더 높이가 0이면(초기 상태) 잠금 생략
+  if (!prevH) return () => {};
+  const prevMin = listEl.style.minHeight;
+  listEl.style.minHeight = `${prevH}px`;
+  return () => { listEl.style.minHeight = prevMin || ''; };
+}
+
+// ===== API 호출 (빈 값은 파라미터에서 제외, sortBy 사용) =====
+async function fetchMeetings(query, page=0, size=PAGE_SIZE) {
+  const params = new URLSearchParams();
+  if (query.region) params.set('region', query.region);
+  if (query.city)   params.set('city', query.city);
+  if (query.genre)  params.set('genre', query.genre);
+  if (query.status) params.set('status', query.status);
+  if (query.sortBy) params.set('sortBy', query.sortBy);
+  params.set('page', page);
+  params.set('size', size);
+
+  const url = `/api/meetings?${params.toString()}`;
+  const res = await fetch(url, { headers: { 'Accept':'application/json' } });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`목록 조회 실패 (${res.status})\n${text}`);
+  }
+  return res.json();
+}
+
+// ===== 렌더링 =====
+function renderMeetings(data) {
+  const listEl = document.querySelector('.meeting-list');
+  const pagerEl = document.querySelector('.pagination');
+  if (!listEl) return;
+
+  const items = data?.content ?? [];
+  const total = data?.totalElements ?? items.length;
+  const page  = data?.page ?? currentPage;
+  const size  = data?.size ?? PAGE_SIZE;
+  currentPage = page;
+
+  // 🔒 목록 DOM 교체: 스크롤-프리즈로 감싸기
+  withScrollFreeze(listEl, () => {
+    if (items.length === 0) {
+      listEl.innerHTML = `<p class="empty">조건에 맞는 모임이 없어요. 필터를 바꿔보세요 🙂</p>`;
+    } else {
+      listEl.innerHTML = items.map(it => {
+        const id   = it.meetingId ?? it.id;
+        const img  = it.imageUrl ?? '';
+        const status = it.status ?? '';
+        const genre  = it.genre ?? '';
+        const title  = it.title ?? '';
+        const desc   = it.description ?? '';
+        const when   = it.meetingTime ?? '';
+        const city   = it.city ?? it.region ?? '';
+        const curr   = it.currentParticipants ?? it.currParticipants ?? it.participantsCount ?? 0;
+        const max    = it.maxParticipants ?? it.capacity ?? it.limit ?? 0;
+        const host   = (it.host && (it.host.username || it.host.name)) || it.hostUsername || '';
+
+        const statusText = mapStatusToTextKorean(status);
+        const statusClass = mapStatusToClass(status);
+
+        return `
+        <div class="meeting-card" data-id="${id ?? ''}" role="button" tabindex="0">
+          <div class="card-image" style="${img ? `background-image:url('${img}');` : ''}">
+            <span class="status-tag ${statusClass}">${statusText}</span>
+            <span class="genre-tag">${genre ?? ''}</span>
+          </div>
+          <div class="card-content">
+            <h3 class="card-title">${escapeHtml(title)}</h3>
+            <p class="card-info"><span>📖</span><span>${escapeHtml(desc)}</span></p>
+            <p class="card-date"><span>🗓️</span><span>${formatDateTime(when)}</span></p>
+            <p class="card-location"><span>📍</span><span>${escapeHtml(city)} · ${curr}/${max}명</span></p>
+            <p class="card-author"><span>🙋‍♂️</span><span>${escapeHtml(host)}</span></p>
+          </div>
+        </div>`;
+      }).join('');
+    }
   });
 
+  // 🔒 페이지네이션 DOM 교체도(선택) 프리즈 적용
+  if (pagerEl) {
+    const totalPages = Math.max(1, Math.ceil(total / size));
+    const prevDisabled = page <= 0 ? 'disabled' : '';
+    const nextDisabled = page >= totalPages - 1 ? 'disabled' : '';
+
+    const start = Math.max(0, page - 2);
+    const end   = Math.min(totalPages - 1, page + 2);
+    const buttons = [];
+    for (let p = start; p <= end; p++) {
+      buttons.push(`<button class="page-btn ${p===page?'active':''}" data-page="${p}">${p+1}</button>`);
+    }
+
+    withScrollFreeze(pagerEl, () => {
+      pagerEl.innerHTML = `
+        <button class="prev-btn" data-page="${page-1}" ${prevDisabled}>이전</button>
+        ${start > 0 ? `<button class="page-btn" data-page="0">1</button><span class="gap">…</span>` : ''}
+        ${buttons.join('')}
+        ${end < totalPages-1 ? `<span class="gap">…</span><button class="page-btn" data-page="${totalPages-1}">${totalPages}</button>` : ''}
+        <button class="next-btn" data-page="${page+1}" ${nextDisabled}>다음</button>
+      `;
+    });
+
+    pagerEl.querySelectorAll('button[data-page]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const target = Number(btn.getAttribute('data-page'));
+        if (isNaN(target) || target === page) return;
+        runSearch(target).catch(console.error);
+      });
+    });
+  }
+}
+
+// ===== 검색 실행 =====
+async function runSearch(page = 0) {
+  const siDo   = document.querySelector('.region1-filter')?.getAttribute('data-value') || '';
+  const guGun  = document.querySelector('.region2-filter')?.getAttribute('data-value') || '';
+  const genre  = document.querySelector('.genre-filter')?.getAttribute('data-value')  || '';
+  const status = document.querySelector('.status-filter')?.getAttribute('data-value') || '';
+  const sortUi = document.querySelector('.sort-filter')?.getAttribute('data-value')  || 'latest';
+
+  const SORT_MAP = { latest: 'latest', deadline: 'deadline', popular: 'popular' };
+  const sortBy = SORT_MAP[sortUi] || 'latest';
+
+  const query = { region: siDo, city: guGun, genre, status, sortBy };
+  lastQuery = query;
+
+  const listEl = document.querySelector('.meeting-list');
+  // 🔒 높이 잠금 + 로딩 표시도 프리즈로 교체
+  let unlock = () => {};
+  if (listEl) {
+    unlock = lockListHeight(listEl);
+    withScrollFreeze(listEl, () => {
+      listEl.innerHTML = `<p class="loading">불러오는 중…</p>`;
+    });
+  }
+
+  try {
+    const data = await fetchMeetings(query, page, PAGE_SIZE);
+    renderMeetings(data);
+  } catch (e) {
+    console.error(e);
+    if (listEl) {
+      withScrollFreeze(listEl, () => {
+        listEl.innerHTML = `<p class="error">목록을 불러오지 못했습니다.<br/>${escapeHtml(e.message)}</p>`;
+      });
+    }
+  } finally {
+    // 렌더가 끝난 다음 프레임에서 높이 잠금 해제 (두 프레임 뒤에 풀면 더 안전)
+    requestAnimationFrame(() => requestAnimationFrame(() => unlock()));
+  }
+}
+
+// ===== 기타 UI 액션 =====
+function initActions() {
   document.querySelector('.start-btn')?.addEventListener('click', () => alert('회원가입 페이지로 이동합니다.'));
   document.querySelector('.login-btn')?.addEventListener('click', () => alert('로그인 페이지로 이동합니다.'));
   document.querySelector('.signup-btn')?.addEventListener('click', () => alert('회원가입 페이지로 이동합니다.'));
-
-  document.querySelector('.search-btn')?.addEventListener('click', () => {
-    const siDo   = document.querySelector('.region1-filter')?.getAttribute('data-value') || '';
-    const guGun  = document.querySelector('.region2-filter')?.getAttribute('data-value') || '';
-    const genre  = document.querySelector('.genre-filter')?.getAttribute('data-value')  || '';
-    const status = document.querySelector('.status-filter')?.getAttribute('data-value') || '';
-    const sortUi = document.querySelector('.sort-filter')?.getAttribute('data-value')  || 'latest';
-
-    // 🔁 UI -> API 매핑 (필요 시 여기만 DTO/컨트롤러 규칙에 맞게 수정)
-    // 예시 A) 문자열 사용: latest | deadline | popular
-    // 예시 B) Enum 사용: LATEST | DEADLINE | POPULAR
-    const SORT_MAP = {
-      latest:   'latest',   // 또는 'LATEST'
-      deadline: 'deadline', // 또는 'DEADLINE'
-      popular:  'popular'   // 또는 'POPULAR'
-    };
-    const sort = SORT_MAP[sortUi] || 'latest';
-
-    const params = new URLSearchParams({
-      region1: siDo,
-      region2: guGun,
-      genre,
-      status,
-      sort
-    });
-
-    console.log('[검색 파라미터]', params.toString());
-    alert(
-      `검색 파라미터\n- 시/도: ${siDo}\n- 구/군: ${guGun}\n- 장르: ${genre}\n- 상태: ${status}\n- 정렬: ${sort}`
-    );
-
-    // 실제 호출 예)
-    // location.href = `/api/meetings?${params.toString()}`;
+  document.querySelector('.search-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    runSearch(0).catch(console.error);
   });
 }
 
 // ===== 페이지 로드 =====
 document.addEventListener('DOMContentLoaded', () => {
-  initDropdowns();    // 공통 드롭다운
-  initRegionMenus();  // 지역(시/도→구/군)
-  initActions();      // 버튼/카드
+  initDropdowns();
+  initRegionMenus();
+  initActions();
+  const listEl = document.querySelector('.meeting-list');
+  if (listEl) listEl.innerHTML = `<p class="empty">상단의 조건을 선택하고 "찾기"를 눌러주세요.</p>`;
 });
