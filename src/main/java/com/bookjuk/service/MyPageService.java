@@ -6,6 +6,7 @@ import com.bookjuk.dto.mypage.MeetingInfoDto;
 import com.bookjuk.dto.mypage.MyPageResponse;
 import com.bookjuk.dto.mypage.StaticsInfoDto;
 import com.bookjuk.dto.mypage.UserInfoDto;
+import com.bookjuk.dto.mypage.request.UpdateProfileRequest;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.repository.meeting.MeetingRepository;
@@ -14,8 +15,11 @@ import com.bookjuk.repository.review.MeetingReviewRepository;
 import com.bookjuk.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class MyPageService {
 
     // 의존 객체 주입
@@ -30,6 +35,7 @@ public class MyPageService {
     private final MeetingRepository meetingRepository;
     private final MeetingReviewRepository meetingReviewRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
+    private final LocalFileService localFileService;
 
     /**
      * 마이페이지 진입 정보 조회(디폴트) 로직입니다.
@@ -54,6 +60,33 @@ public class MyPageService {
         StaticsInfoDto stats = getStatsByUserId(userId, meetingCount);
 
         return MyPageResponse.of(profile, stats, meetings);
+
+    }
+
+    public void updateProfile(UpdateProfileRequest request, String email, MultipartFile file) {
+
+        // 1. 사용자 정보로 유저 정보 가져오기
+        User updatedUser = getUserByEmail(email);
+
+        // 2. 프로필 이미지 업로드
+        if (file != null && !file.isEmpty()) {
+            try {
+                // 이미지 파일이 아닌 것은 스킵
+                if(file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+                    throw new CustomException();
+                }
+
+
+                String profileImage = localFileService.uploadFile(file);
+                log.info("이미지 업로드 성공: {}", profileImage);
+
+            } catch (Exception e) {
+
+                log.error("이미지 업로드 실패: {}", e.getMessage());
+                throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED);
+
+            }
+        }
 
     }
 
@@ -96,4 +129,5 @@ public class MyPageService {
         Long reviewCount = meetingReviewRepository.countReviewByUserId(id);
         return StaticsInfoDto.of(reviewCount, count);
     }
+
 }
