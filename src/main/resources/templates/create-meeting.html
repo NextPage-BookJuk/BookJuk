@@ -159,13 +159,14 @@
             <h2 class="section-title">🖼️ 모임 이미지</h2>
 
             <div class="form-group">
-                <label class="form-label">대표 이미지 (선택)</label>
+                <label class="form-label">대표 이미지 (선택사항, 최대 1장)</label>
                 <div class="file-upload-area" onclick="document.getElementById('meetingImage').click()">
                     <div class="upload-icon">📷</div>
                     <div class="upload-text">클릭하여 이미지 업로드</div>
-                    <div class="upload-subtext">JPG, PNG 파일 (최대 10MB)</div>
+                    <div class="upload-subtext">JPG, JPEG, PNG, GIF, BMP, WEBP 파일 (최대 10MB, 1장만 가능)</div>
                 </div>
-                <input type="file" class="file-input" id="meetingImage" name="meetingImage" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+                <input type="file" class="file-input" id="meetingImage" name="meetingImage" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" onchange="previewImage(this)">
+                <div class="helper-text">이미지는 선택사항이며, 업로드하지 않아도 모임을 생성할 수 있습니다.</div>
                 <div class="image-preview" id="imagePreview"></div>
                 <div class="error-message" id="imageError" style="display: none;"></div>
             </div>
