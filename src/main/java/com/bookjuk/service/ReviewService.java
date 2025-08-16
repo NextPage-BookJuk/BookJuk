@@ -35,11 +35,15 @@ public class ReviewService {
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final UserRepository userRepository;
 
+
     /**
-     * 좋아요 남기기 로직
-     *
+     * 모임 종료 후 다른 참여자에게 리뷰(좋아요)를 남길 수 있는 기능입니다.
+     * @param meetingId - 모임 id
+     * @param reviewerId - 리뷰를 남기려는 유저 본인 id
+     * @param request -  api 로 응답받은 다른 참가자 정보
+     * @return
      */
-    public ReviewResponse createReview(Long meetingId, Long reviewerId, Long revieweeId) {
+    public ReviewResponse createReview(Long meetingId, Long reviewerId, ReviewRequest request) {
 
         // 1. 미팅 정보 확인
         // 미팅 id로 해당 미팅이 존재하는지 확인
@@ -57,6 +61,7 @@ public class ReviewService {
         // 3. 유저(reviewer, reviewee) 가 미팅에 참여한 유저인지 확인
         // reviewerId 와 revieweeId 가 같은 지 확인
         // 자기 자신에게는 리뷰를 남길 수 없게 함
+        Long revieweeId = request.getToUserId();
         if(reviewerId.equals(revieweeId)) throw new CustomException(ErrorCode.LIKE_SELF_NOT_ALLOWED);
 
         List<User> users = meetingParticipantRepository.findMeetingParticipantsByMeetingId(meetingId);

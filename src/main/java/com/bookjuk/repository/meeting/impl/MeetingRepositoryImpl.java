@@ -32,7 +32,7 @@ public class MeetingRepositoryImpl implements MeetingRepositoryCustom {
     private final JPAQueryFactory factory;
 
     @Override
-    public Page<Meeting> getTripList(MeetingSearchCondition condition, Pageable pageable) {
+    public Page<Meeting> getMeetingList(MeetingSearchCondition condition, Pageable pageable) {
 
         log.info("\ngetTripList call by QueryDSL");
 

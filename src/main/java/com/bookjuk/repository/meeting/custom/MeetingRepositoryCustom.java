@@ -2,7 +2,6 @@ package com.bookjuk.repository.meeting.custom;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.meeting.MeetingStatus;
-import com.bookjuk.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -13,8 +12,8 @@ import org.springframework.data.domain.Pageable;
  */
 public interface MeetingRepositoryCustom {
 
-    // 동적 쿼리로 검색 조건별 여행 목록 조회 메서드 (페이징 포함)
-    Page<Meeting> getTripList(MeetingSearchCondition condition, Pageable pageable);
+    // 동적 쿼리로 검색 조건별 모임 목록 조회 메서드 (페이징 포함)
+    Page<Meeting> getMeetingList(MeetingSearchCondition condition, Pageable pageable);
 
     /**
      * 모임 검색 조건들을 담는 클래스
@@ -24,7 +23,7 @@ public interface MeetingRepositoryCustom {
     class MeetingSearchCondition {
 
         private String region; // 시/도로 검색
-        private String city;   // 시/구/군으로 검색
+        private String city;   // 시/군으로 검색
         private String genre;  // 모임 장르로 검색
 
         // 상태값 ( RECRUITING(모집), COMPLETED(종료), CANCELLED(취소) )

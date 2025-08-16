@@ -3,6 +3,7 @@ package com.bookjuk.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
+@Transactional
 public class LocalFileService implements FileService{
 
     // application.yml에 설정한 'file.upload.location' 값을 자동으로 주입받습니다.

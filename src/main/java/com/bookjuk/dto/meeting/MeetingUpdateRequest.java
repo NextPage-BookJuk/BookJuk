@@ -35,9 +35,13 @@ public class MeetingUpdateRequest {
     @Size(max = 20, message = "시/도는 20자를 넘을 수 없습니다.")
     private String region;
 
-    @NotEmpty(message = "시/구/군을 입력해주세요.")
-    @Size(max = 30, message = "시/구/군은 30자를 넘을 수 없습니다.")
+    @NotEmpty(message = "시/군을 입력해주세요.")
+    @Size(max = 30, message = "시/군은 30자를 넘을 수 없습니다.")
     private String city;
+
+    @NotEmpty(message = "구/군을 입력해주세요.")
+    @Size(max = 30, message = "구/군은 30자를 넘을 수 없습니다.")
+    private String district;
 
     @Size(max = 255, message = "상세 주소는 255자를 넘을 수 없습니다.")
     private String detailAddress;
