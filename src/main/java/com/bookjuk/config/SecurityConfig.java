@@ -62,11 +62,12 @@ public class SecurityConfig {
 
                                 // 인증 및 권한이 필요한 경로
 //                                .requestMatchers("/api/premium/**").hasAnyAuthority("VIP", "GOLD")
-                                .requestMatchers("/api/**").authenticated()
+//                                .requestMatchers("/api/**").authenticated()
 
                                 // 기타 경로
                                 // 모든 다른 요청은 인증이 필요하다
-                                .anyRequest().authenticated()
+                                // .anyRequest().authenticated() // 원본
+                                .anyRequest().permitAll() // 테스트용
                 )
 
 

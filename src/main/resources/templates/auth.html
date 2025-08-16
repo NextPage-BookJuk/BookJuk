@@ -11,6 +11,12 @@
     <!-- 알림 메시지가 표시될 컨테이너 -->
     <div id="toast-container"></div>
 
+    <!-- 로그인 필요 알림 메시지 -->
+    <div th:if="${loginRequired}" class="alert alert-warning" style="margin: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+        <strong>⚠️ 로그인 필요</strong><br>
+        <span th:text="${message}">모임을 생성하려면 로그인이 필요합니다.</span>
+    </div>
+
     <header class="header">
         <h1 class="logo" th:onclick="|window.location.href='@{/}'|">북적북적</h1>
         <a th:href="@{/}" class="back-btn">홈으로</a>
