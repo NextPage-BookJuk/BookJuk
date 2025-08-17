@@ -206,7 +206,31 @@ function renderMeetings(data) {
   // 🔒 목록 DOM 교체: 스크롤-프리즈로 감싸기
   withScrollFreeze(listEl, () => {
     if (items.length === 0) {
-      listEl.innerHTML = `<p class="empty">조건에 맞는 모임이 없어요. 필터를 바꿔보세요 🙂</p>`;
+      // 현재 필터 요약용 chip 텍스트 만들기
+      const q = lastQuery || {};
+      const chips = [
+        q.region ? `시/도: ${q.region}` : null,
+        q.city   ? `구/군: ${q.city}`   : null,
+        q.genre  ? `장르: ${q.genre}`   : null,
+        q.status ? `상태: ${q.status}`  : null,
+        `정렬: ${q.sortBy === 'latest' ? '최신순' : q.sortBy === 'deadline' ? '마감임박순' : '인기순'}`
+      ].filter(Boolean);
+
+      listEl.innerHTML = `
+        <div class="empty-state" role="status" aria-live="polite">
+          <div class="icon" aria-hidden="true">📭</div>
+          <h3>조건에 맞는 모임이 없어요</h3>
+          <p class="hint">필터를 조금 완화하거나 다른 정렬을 시도해보세요.</p>
+          <div class="chips">
+            ${chips.map(c => `<span class="chip">${c}</span>`).join('')}
+          </div>
+          <div class="empty-actions">
+            <button class="btn primary reset-filters">필터 초기화</button>
+            <button class="btn outline reload">최신 모임 보기</button>
+          </div>
+          <p class="sub">Tip: 지역을 넓히거나 장르 선택을 해제하면 결과가 늘어날 수 있어요.</p>
+        </div>
+      `;
     } else {
       listEl.innerHTML = items.map(it => {
         const id   = it.meetingId ?? it.id;
@@ -275,6 +299,22 @@ function renderMeetings(data) {
       });
     });
   }
+
+  // === Empty State 액션 바인딩 ===
+  const resetBtn = document.querySelector('.reset-filters');
+  const reloadBtn = document.querySelector('.reload');
+  resetBtn?.addEventListener('click', () => {
+    clearFilters();
+    runSearch(0).catch(console.error);
+  });
+  reloadBtn?.addEventListener('click', () => {
+    // ✅ 모든 필터 초기화 + 최신순으로 재검색
+    clearFilters();
+    document.querySelector('.sort-filter')?.setAttribute('data-value', 'latest');
+    const sortLabel = document.querySelector('.sort-filter .dropdown-label');
+    if (sortLabel) sortLabel.innerHTML = `<span class="icon">↕️</span>최신순`;
+    runSearch(0).catch(console.error);
+  });
 }
 
 // ===== 검색 실행 =====
@@ -329,11 +369,55 @@ function initActions() {
   });
 }
 
+// ===== 필터 초기화 =====
+function clearFilters() {
+  // 시/도
+  const r1 = document.querySelector('.region1-filter');
+  if (r1) {
+    r1.setAttribute('data-value', '');
+    const l = r1.querySelector('.dropdown-label');
+    if (l) l.innerHTML = `<span class="icon">📍</span>시 / 도`;
+  }
+  // 구/군
+  const r2 = document.querySelector('.region2-filter');
+  if (r2) {
+    r2.setAttribute('data-value', '');
+    r2.classList.add('disabled');
+    const l = r2.querySelector('.dropdown-label');
+    if (l) l.innerHTML = `<span class="icon">📍</span>구 / 군`;
+    // 목록도 비워줌
+    const m = document.getElementById('region2-menu');
+    if (m) m.innerHTML = '';
+  }
+  // 장르
+  const g = document.querySelector('.genre-filter');
+  if (g) {
+    g.setAttribute('data-value', '');
+    const l = g.querySelector('.dropdown-label');
+    if (l) l.innerHTML = `<span class="icon">📚</span>장르 선택`;
+  }
+  // 상태
+  const s = document.querySelector('.status-filter');
+  if (s) {
+    s.setAttribute('data-value', '');
+    const l = s.querySelector('.dropdown-label');
+    if (l) l.innerHTML = `<span class="icon">📖</span>상태 선택`;
+  }
+  // 정렬(최신)
+  const sort = document.querySelector('.sort-filter');
+  if (sort) {
+    sort.setAttribute('data-value', 'latest');
+    const l = sort.querySelector('.dropdown-label');
+    if (l) l.innerHTML = `<span class="icon">↕️</span>최신순`;
+  }
+}
+
 // ===== 페이지 로드 =====
 document.addEventListener('DOMContentLoaded', () => {
   initDropdowns();
   initRegionMenus();
   initActions();
-  const listEl = document.querySelector('.meeting-list');
-  if (listEl) listEl.innerHTML = `<p class="empty">상단의 조건을 선택하고 "찾기"를 눌러주세요.</p>`;
+
+  // 페이지 로드 시 최신순, page=0, size=6 기준으로 바로 불러오기
+  runSearch(0).catch(console.error);
 });
