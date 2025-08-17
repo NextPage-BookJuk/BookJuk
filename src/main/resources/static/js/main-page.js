@@ -484,11 +484,41 @@ function clearFilters() {
   }
 }
 
+// ===== 상세 페이지 URL 빌더 =====
+// 필요 시 라우팅 규칙만 바꾸면 됩니다. (예: /meeting/{id} 또는 /meetings/detail?id=)
+function buildDetailUrl(id) {
+  return `/meetings/${encodeURIComponent(id)}`;
+}
+
+// ===== 카드 클릭/키보드 네비게이션 (이벤트 위임) =====
+function initCardNavigation() {
+  const list = document.querySelector('.meeting-list');
+  if (!list) return;
+
+  // 마우스 클릭
+  list.addEventListener('click', (e) => {
+    const card = e.target.closest('.meeting-card');
+    if (!card) return;
+
+    const id = card.getAttribute('data-id');
+    if (!id) return;
+
+    // Ctrl/Cmd 클릭 시 새 탭 열기 UX 지원
+    const url = buildDetailUrl(id);
+    if (e.metaKey || e.ctrlKey) {
+      window.open(url, '_blank');
+    } else {
+      window.location.href = url;
+    }
+  });
+}
+
 // ===== 페이지 로드 =====
 document.addEventListener('DOMContentLoaded', () => {
   initDropdowns();
   initRegionMenus();
   initActions();
+  initCardNavigation();
 
   // 페이지 로드 시 최신순, page=0, size=6 기준으로 바로 불러오기
   runSearch(0).catch(console.error);
