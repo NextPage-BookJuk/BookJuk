@@ -4,10 +4,7 @@ import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.meeting.MeetingStatus;
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -19,7 +16,7 @@ import java.util.Map;
  * 사용자가 참여한 모임 정보를 포함합니다.
  *
  */
-@Getter
+@Getter @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

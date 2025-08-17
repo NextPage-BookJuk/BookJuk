@@ -20,7 +20,7 @@ import java.util.Map;
  *
  */
 @Getter
-@Builder
+@Builder @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 public class MyPageResponse {

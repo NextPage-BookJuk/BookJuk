@@ -3,6 +3,7 @@ package com.bookjuk.domain.user;
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.review.MeetingReview;
+import com.bookjuk.dto.mypage.request.UpdateProfileRequest;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -81,5 +82,17 @@ public class User {
         this.introduction = introduction;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    // 프로필 수정 편의 메소드
+    public void updateProfile(UpdateProfileRequest request, String profileImage) {
+        this.username = request.getUsername();
+        this.introduction = request.getIntroduction();
+        this.preferredGenre = request.getPreferredGenre();
+
+        // 이미지 URL 이 null 이 아닌 경우에만 업데이트
+        if (profileImage != null) {
+            this.profileImage = profileImage;
+        }
     }
 }

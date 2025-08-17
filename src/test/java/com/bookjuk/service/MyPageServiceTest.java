@@ -1,4 +1,4 @@
-package com.bookjuk.controller;
+package com.bookjuk.service;
 
 import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.meeting.MeetingStatus;
@@ -7,7 +7,10 @@ import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
-import com.bookjuk.dto.review.ReviewRequest;
+import com.bookjuk.dto.mypage.MyPageResponse;
+import com.bookjuk.dto.mypage.request.UpdateProfileRequest;
+import com.bookjuk.dto.mypage.response.UpdateProfileResponse;
+import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
 import com.bookjuk.repository.review.MeetingReviewRepository;
@@ -17,27 +20,20 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @Transactional
 @Rollback(value = false)
-class ReviewControllerTest {
-
+class MyPageServiceTest {
     @Autowired
     MeetingRepository meetingRepository;
 
@@ -51,11 +47,10 @@ class ReviewControllerTest {
     MeetingReviewRepository meetingReviewRepository;
 
     @Autowired
-    EntityManager em;
+    MyPageService myPageService;
 
     @Autowired
-    ReviewController reviewController;
-
+    EntityManager em;
 
     private User u1, u2, u3, u4;
     private Meeting m1, m2, m3;
@@ -63,11 +58,9 @@ class ReviewControllerTest {
 
     private List<MeetingParticipant> meetingParticipants;
 
-
-
+    /*
     @BeforeEach
     void insertBulk() {
-        /*
         meetingParticipantRepository.deleteAll();
         meetingRepository.deleteAll();
         userRepository.deleteAll();
@@ -127,7 +120,7 @@ class ReviewControllerTest {
                 .city("안양시")
                 .district("단원구")
                 .maxParticipants(8)
-                .meetingStatus(MeetingStatus.COMPLETED)
+                .meetingStatus(MeetingStatus.RECRUITING)
                 .build();
         m3 = Meeting.builder()
                 .host(u2)
@@ -210,106 +203,40 @@ class ReviewControllerTest {
 
         em.flush();
         em.clear();
-
+    }
     */
 
-        User u5 = userRepository.findByEmail("abc@naver.com").orElseThrow();
-        User u6 = User.builder()
-                .username("치이카와")
-                .email("abc123dd@naver.com")
-                .password("abc123")
-                .build();
-
-        User u7 = User.builder()
-                .username("쿠리링")
-                .email("abc123@naver.com")
-                .password("abc123")
-                .build();
-
-        userRepository.saveAllAndFlush(
-                List.of(u6, u7)
-        );
-        /*
-        User u6 = userRepository.findByEmail("abc123@dddaum.net").orElseThrow();
-        User u7 = userRepository.findByEmail("abc123@dddammum.net").orElseThrow();
-
-
-
-
-        m1 = Meeting.builder()
-                .host(u5)
-                .title("먼작귀친구들123")
-                .description("책 읽으며 놀아요.")
-                .imageUrl("https://example.com/image.jpg")
-                .bookTitle("먼작귀")
-                .bookAuthor("나가노작가")
-                .genre("동화")
-                .meetingTime(LocalDateTime.of(2025, 8, 20, 19, 0))
-                .region("경기도")
-                .city("안산시")
-                .district("단원구")
-                .maxParticipants(6)
-                .meetingStatus(MeetingStatus.COMPLETED)
-                .build();
-
-        meetingRepository.save(m1);
-
-
-        mp1 = MeetingParticipant.builder()
-                .participant(u5)
-                .meeting(m1)
-                .role(ParticipantRole.HOST)
-                .status(ParticipantStatus.APPROVED)
-                .build();
-
-        mp2 = MeetingParticipant.builder()
-                .participant(u6)
-                .meeting(m1)
-                .role(ParticipantRole.PARTICIPANT)
-                .status(ParticipantStatus.APPROVED)
-                .build();
-
-        mp3 = MeetingParticipant.builder()
-                .participant(u7)
-                .meeting(m1)
-                .role(ParticipantRole.PARTICIPANT)
-                .status(ParticipantStatus.PENDING)
-                .build();
-
-        meetingParticipantRepository.saveAllAndFlush(
-                List.of(mp1, mp2, mp3)
-        );
-
-        MeetingReview rv1 = MeetingReview.builder()
-                .meeting(m1)
-                .reviewer(u6)
-                .reviewee(u5)
-                .build();
-
-        MeetingReview rv2 = MeetingReview.builder()
-                .meeting(m1)
-                .reviewer(u7)
-                .reviewee(u5)
-                .build();
-
-        meetingReviewRepository.saveAllAndFlush(
-                List.of(rv1, rv2)
-        );
-
-
-        em.flush();
-        em.clear();
-
-         */
-      
-    }
-
+    // ========== 마이페이지 정보 조회 ==========
     @Test
-    @DisplayName("")
-    public void createReview() {
+    @DisplayName("마이페이지에서 내 정보를 확인한다.")
+    void getMyPage() {
+        // given
+        String email = "dsfsdfs@email.com";
 
+        // when
+        MyPageResponse response = myPageService.getMyPage(email);
 
-
+        // then
+        System.out.println("response = " + response);
     }
 
+    // ========== 마이페이지 정보 수정 ==========
+    @Test
+    @DisplayName("마이페이지에서 내 정보를 수정한다.")
+    void updateInfo() {
+        // given
+        String email = "abc123@naver.com";
+        User user = userRepository.findByEmail(email).orElseThrow();
+        UpdateProfileRequest req = UpdateProfileRequest.builder()
+                .username(user.getUsername())
+                .preferredGenre("소설")
+                .introduction("안녕하세요")
+                .build();
+
+        // when
+        UpdateProfileResponse response = myPageService.updateProfile(req, email, null);
+        // then
+        System.out.println("response = " + response);
+
+    }
 }

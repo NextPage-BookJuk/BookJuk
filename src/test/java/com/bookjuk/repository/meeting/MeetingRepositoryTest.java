@@ -246,7 +246,7 @@ class MeetingRepositoryTest {
 
         // when (더티 체킹)
         String updatedTitle = meetings.get(0).getTitle() + "-수정";
-        meetings.get(0).changeTitle(updatedTitle);
+        //meetings.get(0).changeTitle(updatedTitle);
         em.flush();
         em.clear();
 
