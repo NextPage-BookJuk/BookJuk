@@ -43,5 +43,12 @@ public interface MeetingParticipantRepository extends JpaRepository<MeetingParti
     boolean existsMemberWithAccess(@Param("meetingId") Long meetingId,
                                    @Param("userId") Long userId);
 
+    /**
+     * 주어진 모임 ID를 기반으로 해당 모임에 참여 중인 사용자 수를 반환한다.
+     *
+     * @param meetingId 참여 중인 사용자를 확인할 모임의 ID
+     * @return 해당 모임에 참여 중인 사용자 수
+     */
+    int countByMeetingId(Long meetingId);
 }
 

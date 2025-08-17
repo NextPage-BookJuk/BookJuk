@@ -33,17 +33,22 @@ public class MeetingListSearchRequest {
      * - status는 Enum 변환 시 오류가 나면 무시(null)
      */
     public MeetingRepositoryCustom.MeetingSearchCondition toCondition() {
+        // 1) 문자열 → Enum 변환 (대소문자/유효성 방어)
         MeetingStatus enumStatus = null;
         if (status != null && !status.trim().isEmpty()) {
             try {
                 enumStatus = MeetingStatus.valueOf(status.trim().toUpperCase());
             } catch (IllegalArgumentException ignore) {
                 // 무시: 잘못된 값은 필터에서 제외
+                enumStatus = null; // 안전하게 null 처리
             }
         }
 
+        // 2) 변환 결과 기준으로 디폴트 적용 (핵심!)
+        MeetingStatus safeStatus = (enumStatus != null) ? enumStatus : MeetingStatus.RECRUITING;
+
         return MeetingRepositoryCustom.MeetingSearchCondition.builder()
-                .status(enumStatus)
+                .status(safeStatus)
                 .region(region)
                 .city(city)
                 .genre(genre)

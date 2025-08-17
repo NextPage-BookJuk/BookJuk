@@ -1,17 +1,24 @@
 package com.bookjuk.controller;
 
 import com.bookjuk.domain.user.User;
+import com.bookjuk.dto.common.ApiResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.jwt.JwtProvider;
 import com.bookjuk.repository.user.UserRepository;
+import com.bookjuk.dto.meeting.request.MeetingListItemDto;
+import com.bookjuk.dto.meeting.request.MeetingListSearchRequest;
+import com.bookjuk.dto.meeting.response.MeetingListResponse;
+import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
 import com.bookjuk.service.MeetingService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -61,15 +68,21 @@ public class MeetingController {
         return "create-meeting"; // templates/create-meeting.html 반환
     }
 
+    @GetMapping("/meetings/list")
+    public String meetingListPage() {
+        log.info("모임 목록 페이지 요청");
+        return "main-page";
+    }
+
     /**
      * 새로운 모임을 생성합니다.
-     * 
+     *
      * 이미지 업로드 제한사항:
      * - 선택사항 (없어도 모임 생성 가능)
      * - 최대 1장만 업로드 가능
      * - 허용 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
      * - 최대 크기: 10MB
-     * 
+     *
      * @param request 모임 생성 요청 데이터
      * @param imageFile 모임 대표 이미지 파일 (선택적, 최대 1장)
      * @return 생성된 모임의 상세 정보
@@ -82,7 +95,7 @@ public class MeetingController {
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             HttpServletRequest httpRequest) {
 
-        log.info("모임 생성 요청 - 제목: {}, 도서: {}, 최대참여자: {}", 
+        log.info("모임 생성 요청 - 제목: {}, 도서: {}, 최대참여자: {}",
                  request.getTitle(), request.getBookTitle(), request.getMaxParticipants());
 
         // JWT 토큰에서 현재 사용자 정보 가져오기
@@ -99,6 +112,27 @@ public class MeetingController {
         MeetingDetailResponse response = meetingService.createMeeting(request, currentUser, imageFile);
 
         log.info("모임 생성 완료 - ID: {}", response.getMeetingId());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 임시 사용자 생성 또는 조회 메서드
+     * 실제 데이터베이스에 저장된 사용자를 반환합니다.
+     * 모임 목록 조회 API (동적 쿼리)
+     * GET /api/meetings
+     */
+    @GetMapping("/api/meetings")
+    public ResponseEntity<?> getMeetings(MeetingListSearchRequest request) {
+        log.info("모임 목록 조회 API 호출 - 페이지: {}, 크기: {}", request.getPage(), request.getSize());
+
+        // 요청 → 검색조건 + 페이지로 변환
+        MeetingRepositoryCustom.MeetingSearchCondition condition = request.toCondition();
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+
+        // 서비스 호출 (MeetingListResponse)
+        MeetingListResponse response = meetingService.getMeetingList(condition, pageable);
+
+        // 공통 응답 포맷으로 감싸기
         return ResponseEntity.ok(response);
     }
 

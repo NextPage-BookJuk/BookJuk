@@ -182,5 +182,9 @@ public class Meeting {
         }
     }
 
+
+    public void changeTitle(String updatedTitle) {
+        this.title = updatedTitle;
+    }
 }
 
