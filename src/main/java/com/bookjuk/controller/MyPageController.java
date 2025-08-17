@@ -28,12 +28,15 @@ public class MyPageController {
         return ResponseEntity.ok(ApiResponse.success("마이페이지 정보 조회를 성공했습니다.", response));
     }
 
+
     @PutMapping("/profile")
+    @ResponseBody
     public ResponseEntity<?> updateProfile(
             @RequestPart("profile") @Valid UpdateProfileRequest request
             ,@AuthenticationPrincipal String email
             ,@RequestPart(value = "imageFile", required = false) MultipartFile imageFile
             ) {
+
         UpdateProfileResponse response = myPageService.updateProfile(request, email, imageFile);
         log.info("사용자 정보 수정 완료: {}", response.getUsername());
         return ResponseEntity.ok(ApiResponse.success("프로필이 수정되었습니다", response));
