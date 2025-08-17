@@ -25,4 +25,5 @@ public class PostUpdateRequest {
     // 게시글에 첨부할 이미지 URL( null 값 허용)
     private String imageUrl;
 
+
 }

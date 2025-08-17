@@ -196,4 +196,45 @@ public class MeetingController {
         }
         return filename.substring(lastDotIndex + 1);
     }
+
+    /**
+     * 특정 모임의 참가자 목록을 조회합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param status 참가자 상태 필터 (선택사항: PENDING, APPROVED, REJECTED 등)
+     * @return 참가자 목록 (200 OK)
+     */
+    @GetMapping("/{meetingId}/participants")
+    public ResponseEntity<List<com.bookjuk.dto.participant.ParticipantResponse>> getParticipants(
+            @PathVariable Long meetingId,
+            @RequestParam(required = false) String status) {
+
+        log.info("참가자 목록 조회 요청 - meetingId: {}, status: {}", meetingId, status);
+
+        List<com.bookjuk.dto.participant.ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
+
+        log.info("참가자 목록 조회 완료 - meetingId: {}, count: {}", meetingId, participants.size());
+        return ResponseEntity.ok(participants);
+    }
+
+    /**
+     * 모임에 참가 신청을 합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param userId JWT에서 추출한 사용자 ID
+     * @return 성공 응답 (200 OK)
+     * @throws com.bookjuk.exception.CustomException 이미 신청한 경우, 모집 완료된 경우 등
+     */
+    @PostMapping("/{meetingId}/apply")
+    public ResponseEntity<Void> applyToMeeting(
+            @PathVariable Long meetingId,
+            @RequestAttribute("userId") Long userId) {
+
+        log.info("모임 신청 요청 - meetingId: {}, userId: {}", meetingId, userId);
+
+        meetingService.applyToMeeting(meetingId, userId);
+
+        log.info("모임 신청 완료 - meetingId: {}, userId: {}", meetingId, userId);
+        return ResponseEntity.ok().build();
+    }
 }

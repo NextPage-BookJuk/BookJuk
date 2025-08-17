@@ -130,4 +130,36 @@ public class Post {
     public boolean hasImage() {
         return this.imageUrl != null && !this.imageUrl.trim().isEmpty();
     }
+
+    /**
+     * 게시물의 제목을 업데이트합니다.
+     *
+     * 입력된 제목 문자열의 양 끝 공백을 제거한 후,
+     * null이 아니거나 비어있지 않고 기존 제목과 다를 경우에만 제목을 업데이트합니다.
+     *
+     * @param title 새로 업데이트할 제목 문자열
+     */
+    public void updateTitle(String title) {
+        if (title == null) return;
+        String t = title.trim();
+        if (!t.isEmpty() && !t.equals(this.title)) {
+            this.title = t;
+        }
+    }
+
+    /**
+     * 게시물의 내용을 업데이트합니다.
+     *
+     * 입력된 내용 문자열의 양 끝 공백을 제거한 후,
+     * null이 아니거나 비어있지 않고 기존 내용과 다를 경우에만 내용을 업데이트합니다.
+     *
+     * @param content 새로 업데이트할 내용 문자열
+     */
+    public void updateContent(String content) {
+        if (content == null) return;
+        String c = content.trim();
+        if (!c.isEmpty() && !c.equals(this.content)) {
+            this.content = c;
+        }
+    }
 }

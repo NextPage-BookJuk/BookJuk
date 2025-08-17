@@ -90,4 +90,19 @@ public class MeetingParticipant {
     public void changeRole(ParticipantRole role) {
         this.role = role;
     }
+
+    // 상태가 PENDING일 때만 승인/거절 허용
+    public void approve() {
+        if (this.status != ParticipantStatus.PENDING) {
+            throw new IllegalStateException("현재 상태에서는 승인할 수 없습니다.");
+        }
+        this.status = ParticipantStatus.APPROVED;
+    }
+
+    public void reject() {
+        if (this.status != ParticipantStatus.PENDING) {
+            throw new IllegalStateException("현재 상태에서는 거절할 수 없습니다.");
+        }
+        this.status = ParticipantStatus.REJECTED;
+    }
 }

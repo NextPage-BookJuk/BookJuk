@@ -99,12 +99,19 @@ public interface PostRepository extends JpaRepository<Post, Long> {
      * @param pageable 페이징 정보
      * @return 검색된 게시글 페이지 객체
      */
-    @Query("SELECT p FROM Post p WHERE p.meetingId = :meetingId AND " +
-            "(LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
-            "LOWER(p.content) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
-            "ORDER BY p.createdAt DESC")
+    @Query("""
+            SELECT p FROM Post p
+            WHERE p.meetingId = :meetingId AND (
+                LOWER(p.title)   LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(CAST(p.content AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            )
+            ORDER BY p.createdAt DESC
+            """)
     Page<Post> findByMeetingIdAndTitleOrContentContainingIgnoreCase(
             @Param("meetingId") Long meetingId,
             @Param("keyword") String keyword,
             Pageable pageable);
+
+    @Query("select p.meetingId from Post p where p.postId = :postId")
+    Optional<Long> findMeetingIdByPostId(@Param("postId") Long postId);
 }

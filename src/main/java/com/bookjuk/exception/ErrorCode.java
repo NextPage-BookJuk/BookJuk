@@ -50,6 +50,7 @@ public enum ErrorCode {
     POST_ACCESS_DENIED("POST_ACCESS_DENIED", "게시글 작성 권한이 없습니다.", 403),
     POST_MODIFY_ACCESS_DENIED("POST_MODIFY_ACCESS_DENIED", "게시글 수정/삭제 권한이 없습니다.", 403),
     FILE_SIZE_EXCEEDED("FILE_SIZE_EXCEEDED", "파일 크기가 제한을 초과했습니다.", 400),
+    INVALID_STATUS_TRANSITION("INVALID_STATUS_TRANSITION", "현재 상태에서 수행할 수 없는 작업입니다.", 400),
 
     // =========================
     // 💬 댓글 관련

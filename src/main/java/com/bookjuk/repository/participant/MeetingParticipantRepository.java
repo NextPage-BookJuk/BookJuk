@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -43,5 +44,40 @@ public interface MeetingParticipantRepository extends JpaRepository<MeetingParti
     boolean existsMemberWithAccess(@Param("meetingId") Long meetingId,
                                    @Param("userId") Long userId);
 
+    /**
+     * 특정 모임의 특정 상태 참가자 수를 카운트합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param status 참가자 상태
+     * @return 해당 상태의 참가자 수
+     */
+    Integer countByMeeting_IdAndStatus(Long meetingId, ParticipantStatus status);
+
+    /**
+     * 특정 모임의 특정 상태 참가자 목록을 조회합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param status 참가자 상태
+     * @return 참가자 목록
+     */
+    List<MeetingParticipant> findByMeeting_IdAndStatus(Long meetingId, ParticipantStatus status);
+
+    /**
+     * 특정 모임의 여러 상태 참가자 목록을 조회합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param statuses 참가자 상태 목록
+     * @return 참가자 목록
+     */
+    List<MeetingParticipant> findByMeeting_IdAndStatusIn(Long meetingId, List<ParticipantStatus> statuses);
+
+    /**
+     * 특정 사용자가 특정 모임에 이미 신청했는지 확인합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param userId 사용자 ID
+     * @return 신청 여부
+     */
+    boolean existsByMeeting_IdAndParticipant_Id(Long meetingId, Long userId);
 }
 

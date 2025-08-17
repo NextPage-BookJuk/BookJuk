@@ -63,5 +63,17 @@ public class MeetingDetailResponse {
         return dto;
     }
 
+    /**
+     * 호스트 정보 내부 클래스
+     */
+    @Getter
+    @Builder
+    public static class HostInfo {
+        private Long id;
+        private String username;
+        private Integer likesCount;
+        private Integer hostedMeetingsCount;
+    }
+
 
 }
