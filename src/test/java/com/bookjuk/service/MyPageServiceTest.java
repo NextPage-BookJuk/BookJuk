@@ -8,6 +8,8 @@ import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
 import com.bookjuk.dto.mypage.MyPageResponse;
+import com.bookjuk.dto.mypage.request.UpdateProfileRequest;
+import com.bookjuk.dto.mypage.response.UpdateProfileResponse;
 import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
@@ -24,6 +26,7 @@ import org.springframework.test.annotation.Rollback;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +58,7 @@ class MyPageServiceTest {
 
     private List<MeetingParticipant> meetingParticipants;
 
+    /*
     @BeforeEach
     void insertBulk() {
         meetingParticipantRepository.deleteAll();
@@ -200,6 +204,7 @@ class MyPageServiceTest {
         em.flush();
         em.clear();
     }
+    */
 
     // ========== 마이페이지 정보 조회 ==========
     @Test
@@ -215,4 +220,23 @@ class MyPageServiceTest {
         System.out.println("response = " + response);
     }
 
+    // ========== 마이페이지 정보 수정 ==========
+    @Test
+    @DisplayName("마이페이지에서 내 정보를 수정한다.")
+    void updateInfo() {
+        // given
+        String email = "abc123@naver.com";
+        User user = userRepository.findByEmail(email).orElseThrow();
+        UpdateProfileRequest req = UpdateProfileRequest.builder()
+                .username(user.getUsername())
+                .preferredGenre("소설")
+                .introduction("안녕하세요")
+                .build();
+
+        // when
+        UpdateProfileResponse response = myPageService.updateProfile(req, email, null);
+        // then
+        System.out.println("response = " + response);
+
+    }
 }
