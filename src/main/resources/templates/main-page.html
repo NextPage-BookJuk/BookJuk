@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>북적북적</title>
+    <link href="./main-page.css" rel="stylesheet" th:href="@{/css/main-page.css}"/>
+</head>
+<body>
+<header class="header">
+    <h1 class="logo">북적북적</h1>
+    <nav class="nav">
+        <a class="login-btn" href="#">로그인</a>
+        <a class="signup-btn" href="#">회원가입</a>
+    </nav>
+</header>
+<main class="main-content">
+    <section class="hero-section">
+        <h2 class="hero-title">책과 사람이 만나는 곳</h2>
+        <p class="hero-subtitle">따뜻한 오프라인 독서모임에서 새로운 인연과 깊은 이야기를 나누세요</p>
+        <button class="start-btn">지금 시작하기</button>
+    </section>
+    <section class="filter-section">
+        <div class="filter-container">
+            <!-- 시/도 (0.6) -->
+            <div class="filter-item fr-0_6">
+                <p>어디에서 만나세요?</p>
+                <div aria-label="시/도 선택" class="filter-dropdown region1-filter" data-value="" role="button"
+                     tabindex="0">
+                    <span class="dropdown-label">
+                        <span class="icon">📍</span>
+                        시 / 도
+                    </span>
+                    <ul aria-label="시/도 목록" class="dropdown-menu" id="region1-menu" role="listbox"></ul>
+                </div>
+            </div>
+            <!-- 구/군 (0.6) -->
+            <div class="filter-item fr-0_6">
+                <p>&nbsp;</p>
+                <div aria-label="구/군 선택" class="filter-dropdown region2-filter disabled" data-value="" role="button"
+                     tabindex="0">
+                    <span class="dropdown-label">
+                        <span class="icon">📍</span>
+                        구 / 군
+                    </span>
+                    <ul aria-label="구/군 목록" class="dropdown-menu" id="region2-menu" role="listbox"></ul>
+                </div>
+            </div>
+            <!-- 장르 (1) -->
+            <div class="filter-item fr-1">
+                <p>어떤 장르를 좋아하세요?</p>
+                <div class="filter-dropdown genre-filter" data-value="" role="button" tabindex="0">
+                    <span class="dropdown-label">
+                        <span class="icon">📚</span>
+                        장르 선택
+                    </span>
+                    <ul aria-label="장르 목록" class="dropdown-menu" role="listbox">
+                        <li data-value="">전체</li>
+                        <li data-value="소설">소설</li>
+                        <li data-value="에세이">에세이</li>
+                        <li data-value="자기계발">자기계발</li>
+                        <li data-value="역사">역사</li>
+                        <li data-value="과학">과학</li>
+                        <li data-value="철학">철학</li>
+                        <li data-value="경제/경영">경제/경영</li>
+                        <li data-value="종교">종교</li>
+                        <li data-value="예술">예술</li>
+                        <li data-value="기타">기타</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- 상태 (1) -->
+            <div class="filter-item fr-1">
+                <p>어떤 모임 상태를 원하세요?</p>
+                <div class="filter-dropdown status-filter" data-value="" role="button" tabindex="0">
+                    <span class="dropdown-label">
+                        <span class="icon">📖</span>
+                        상태 선택
+                    </span>
+                    <ul aria-label="상태 목록" class="dropdown-menu" role="listbox">
+                        <li data-value="">전체</li>
+                        <li data-value="RECRUITING">모집중</li>
+                        <li data-value="COMPLETED">종료</li>
+                        <li data-value="CANCELLED">취소</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- 정렬 (1) -->
+            <div class="filter-item fr-1">
+                <p>어떻게 정렬 해드릴까요?</p>
+                <div class="filter-dropdown sort-filter" data-value="latest" role="button" tabindex="0">
+                    <span class="dropdown-label">
+                        <span class="icon">↕️</span>
+                        최신순
+                    </span>
+                    <ul aria-label="정렬 조건 목록" class="dropdown-menu" role="listbox">
+                        <li data-value="latest">최신순</li>
+                        <li data-value="deadline">마감임박순</li>
+                        <li data-value="popular">인기순</li>
+                    </ul>
+                </div>
+            </div>
+            <!-- 검색 버튼 -->
+            <div class="filter-actions">
+                <button class="search-btn" type="button">
+                    찾기
+                    <span class="icon">🔍</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- 예시 리스트 -->
+    <section class="meeting-list"></section>
+    <div class="pagination"></div>
+</main>
+<script src="./main-page.js" th:src="@{/js/main-page.js}"></script>
+</body>
+</html>

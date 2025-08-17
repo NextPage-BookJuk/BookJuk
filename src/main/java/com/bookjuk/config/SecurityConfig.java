@@ -58,7 +58,7 @@ public class SecurityConfig {
                                         , "/meetings/create"
                                         , "/mypage"
                                 ).permitAll()
-                                .requestMatchers("/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                                 .requestMatchers("/api/users/**").permitAll()
 
                                 // 인증 및 권한이 필요한 경로
