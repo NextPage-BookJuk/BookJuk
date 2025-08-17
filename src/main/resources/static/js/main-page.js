@@ -294,17 +294,18 @@ function renderMeetings(data) {
       `;
     } else {
       listEl.innerHTML = items.map(it => {
-        const id   = it.meetingId ?? it.id;
-        const img  = it.imageUrl ?? '';
+        const id = it.meetingId ?? it.id;
+        const img = it.imageUrl ?? '';
         const status = it.status ?? '';
-        const genre  = it.genre ?? '';
-        const title  = it.title ?? '';
-        const desc   = it.description ?? '';
+        const genre = it.genre ?? '';
+        const title = it.title ?? '';
+        const desc = it.description ?? '';
         const when   = it.meetingTime ?? '';
-        const city   = it.city ?? it.region ?? '';
+        const city = it.city ?? it.region ?? '';
         const curr   = it.currentParticipants ?? it.currParticipants ?? it.participantsCount ?? 0;
-        const max    = it.maxParticipants ?? it.capacity ?? it.limit ?? 0;
-        const host   = (it.host && (it.host.username || it.host.name)) || it.hostUsername || '';
+        const max = it.maxParticipants ?? it.capacity ?? it.limit ?? 0;
+        const host = (it.host && (it.host.username || it.host.name)) || it.hostUsername || '';
+        const hostProfile = (it.host && it.host.profileImage) || '';
 
         const statusText = mapStatusToTextKorean(status);
         const statusClass = mapStatusToClass(status);
@@ -320,7 +321,17 @@ function renderMeetings(data) {
             <p class="card-info"><span>📖</span><span>${escapeHtml(desc)}</span></p>
             <p class="card-date"><span>🗓️</span><span>${formatDateTime(when)}</span></p>
             <p class="card-location"><span>📍</span><span>${escapeHtml(city)} · ${curr}/${max}명</span></p>
-            <p class="card-author"><span>🙋‍♂️</span><span>${escapeHtml(host)}</span></p>
+            <p class="card-author">
+              <span class="author">
+                ${hostProfile
+                  ? `<img class="avatar" src="${escapeHtml(hostProfile)}"
+                             alt="${escapeHtml(host)} 프로필"
+                             loading="lazy"
+                             onerror="this.src='/images/defaultProfile.png';this.onerror=null;">`
+                  : `<img class="avatar" src="/images/defaultProfile.png" alt="기본 프로필" loading="lazy">`
+                }
+                <span class="name">${escapeHtml(host)}</span>
+            </p>
           </div>
         </div>`;
       }).join('');

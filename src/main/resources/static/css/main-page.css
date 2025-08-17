@@ -225,6 +225,29 @@ body { background-color: #f8f8f8; color: #333; line-height: 1.6; }
     color: #9498b8;
 }
 
+/* ===== Author Avatar ===== */
+.card-author .author {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-author .author .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #f2f3ff;              /* 로딩 중 비어보이지 않도록 */
+    border: 1px solid #e0e3ff;
+    box-shadow: 0 0 0 2px #fff;       /* 이미지 가장자리 하얀 링 */
+}
+
+.card-author .author .name {
+    font-weight: 600;
+    color: #4a4d7a;
+}
+
+
 /* ===== Pagination ===== */
 .pagination {
     display: flex;
