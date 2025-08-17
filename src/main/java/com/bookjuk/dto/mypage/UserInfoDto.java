@@ -1,12 +1,9 @@
 package com.bookjuk.dto.mypage;
 
 import com.bookjuk.domain.user.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Getter
+@Getter @ToString
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

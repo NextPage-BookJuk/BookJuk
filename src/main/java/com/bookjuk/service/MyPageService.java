@@ -6,6 +6,8 @@ import com.bookjuk.dto.mypage.MeetingInfoDto;
 import com.bookjuk.dto.mypage.MyPageResponse;
 import com.bookjuk.dto.mypage.StaticsInfoDto;
 import com.bookjuk.dto.mypage.UserInfoDto;
+import com.bookjuk.dto.mypage.request.UpdateProfileRequest;
+import com.bookjuk.dto.mypage.response.UpdateProfileResponse;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.repository.meeting.MeetingRepository;
@@ -14,8 +16,12 @@ import com.bookjuk.repository.review.MeetingReviewRepository;
 import com.bookjuk.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class MyPageService {
 
     // 의존 객체 주입
@@ -30,11 +37,12 @@ public class MyPageService {
     private final MeetingRepository meetingRepository;
     private final MeetingReviewRepository meetingReviewRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
+    private final LocalFileService localFileService;
 
     /**
      * 마이페이지 진입 정보 조회(디폴트) 로직입니다.
      * @param email - 로그인한 유저가 제시한 토큰에서 파싱한 이메일 정보
-     *
+     * @return - 프론트 단에 전달할 유저 정보, 유저 모임 정보, 유저의 모임 참여, 좋아요 통계 정보를 반환합니다.
      */
     public MyPageResponse getMyPage(String email) {
 
@@ -44,8 +52,8 @@ public class MyPageService {
         // 조회된 유저 정보를 마이페이지 응답에 필요한 dto 로 변경
         UserInfoDto profile = UserInfoDto.from(user);
 
-        // 2. 유저가 참여한 미팅 정보 가져오기
-        // meeting_participant 에 유저 id로 참여 미팅 id를 리스트로 반환
+        // 2. 유저가 참여한 모임 정보 가져오기
+        // meeting_participant 에 유저 id로 참여 모임 id를 리스트로 반환
         Long userId = user.getId();
         List<MeetingInfoDto> meetings = getMeetingsByUserId(userId);
 
@@ -54,6 +62,46 @@ public class MyPageService {
         StaticsInfoDto stats = getStatsByUserId(userId, meetingCount);
 
         return MyPageResponse.of(profile, stats, meetings);
+
+    }
+
+    /**
+     * 마이페이지 프로필 수정 로직입니다.
+     * @param request - 사용자가 수정하고자 입력한 내용 dto
+     * @param email - 로그인한 유저가 제시한 토큰에서 파싱한 이메일 정보
+     * @param file - 사용자가 업로드한 프로필 이미지
+     * @return - 프론트 단에 전달할 유저가 수정한 내용 dto
+     */
+    public UpdateProfileResponse updateProfile(UpdateProfileRequest request, String email, MultipartFile file) {
+
+        // 1. 사용자 정보로 유저 정보 가져오기
+        User user = getUserByEmail(email);
+
+        // 2. 프로필 이미지 업로드
+        String newImage = null;
+
+        if (file != null && !file.isEmpty()) {
+
+            try {
+                // 이미지 파일이 아닌 것은 스킵
+                if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+                    throw new CustomException();
+                }
+                newImage = localFileService.uploadFile(file);
+                log.info("이미지 업로드 성공: {}", newImage);
+
+            } catch (Exception e) {
+                log.error("이미지 업로드 실패: {}", e.getMessage());
+                throw new CustomException(ErrorCode.FILE_SIZE_EXCEEDED);
+            }
+        }
+
+        // 3. 유저 객체에 정보 수정
+        user.updateProfile(request, newImage);
+
+        // 4. 수정된 유저정보 업데이트
+        User updatedUser = userRepository.save(user);
+        return UpdateProfileResponse.from(updatedUser);
 
     }
 
@@ -96,4 +144,5 @@ public class MyPageService {
         Long reviewCount = meetingReviewRepository.countReviewByUserId(id);
         return StaticsInfoDto.of(reviewCount, count);
     }
+
 }
