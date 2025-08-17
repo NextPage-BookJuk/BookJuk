@@ -49,10 +49,41 @@ function initDropdowns() {
     menuEl.addEventListener('click', (e) => {
       const item = e.target.closest('li');
       if (!item) return;
-      const code = item.getAttribute('data-value') || item.textContent.trim();
+      const code = item.getAttribute('data-value') ?? item.textContent.trim();
       const icon = labelEl.querySelector('.icon')?.textContent ?? '';
-      labelEl.innerHTML = `<span class="icon">${icon}</span>${item.textContent.trim()}`;
-      dropdown.setAttribute('data-value', code);
+
+      // ✅ '전체'(빈 값) 선택 시 각 드롭다운 별 기본 라벨 복구
+      if (code === '') {
+        if (dropdown.classList.contains('region1-filter')) {
+          labelEl.innerHTML = `<span class="icon">${icon || '📍'}</span>시 / 도`;
+          dropdown.setAttribute('data-value', '');
+          // 시/도 초기화 시 구/군도 함께 초기화/비활성
+          const r2 = document.querySelector('.region2-filter');
+          const r2Label = r2?.querySelector('.dropdown-label');
+          if (r2 && r2Label) {
+            r2.setAttribute('data-value','');
+            r2.classList.add('disabled');
+            r2Label.innerHTML = `<span class="icon">📍</span>구 / 군`;
+            const r2Menu = document.getElementById('region2-menu');
+            if (r2Menu) r2Menu.innerHTML = '';
+          }
+        } else if (dropdown.classList.contains('region2-filter')) {
+          labelEl.innerHTML = `<span class="icon">${icon || '📍'}</span>구 / 군`;
+          dropdown.setAttribute('data-value', '');
+        } else if (dropdown.classList.contains('genre-filter')) {
+          labelEl.innerHTML = `<span class="icon">${icon || '📚'}</span>장르 선택`;
+          dropdown.setAttribute('data-value', '');
+        } else if (dropdown.classList.contains('status-filter')) {
+          labelEl.innerHTML = `<span class="icon">${icon || '📖'}</span>상태 선택`;
+          dropdown.setAttribute('data-value', '');
+        } else {
+          dropdown.setAttribute('data-value', '');
+        }
+      } else {
+        // 일반 선택: 선택한 항목 텍스트로 라벨 반영
+        labelEl.innerHTML = `<span class="icon">${icon}</span>${item.textContent.trim()}`;
+        dropdown.setAttribute('data-value', code);
+      }
       menuEl.classList.remove('active');
     });
   });
@@ -73,7 +104,12 @@ function initRegionMenus() {
 
   if (!region1Filter || !region2Filter || !region1Menu || !region2Menu) return;
 
-  // 시/도 목록
+  // 시/도 목록: '전체' 먼저 추가
+  const all1 = document.createElement('li');
+  all1.textContent = '전체';
+  all1.dataset.value = '';
+  region1Menu.appendChild(all1);
+  // 실제 시/도 항목들
   Object.keys(regionData).forEach(siDo => {
     const li = document.createElement('li');
     li.textContent = siDo;
@@ -87,10 +123,27 @@ function initRegionMenus() {
     if (!item) return;
 
     const siDo = item.dataset.value;
+    // '전체' 선택 시: 시/도 초기화 + 구/군 비활성
+    if (siDo === '') {
+      region1Filter.setAttribute('data-value', '');
+      region1Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>시 / 도`;
+      region2Menu.innerHTML = '';
+      region2Filter.setAttribute('data-value', '');
+      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>구 / 군`;
+      region2Filter.classList.add('disabled');
+      return;
+    }
+
     region1Filter.setAttribute('data-value', siDo);
     region1Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>${siDo}`;
 
+    // 구/군 목록 갱신: '전체' 먼저 추가
     region2Menu.innerHTML = '';
+    const all2 = document.createElement('li');
+    all2.textContent = '전체';
+    all2.dataset.value = '';
+    region2Menu.appendChild(all2);
+
     (regionData[siDo] || []).forEach(guGun => {
       const subLi = document.createElement('li');
       subLi.textContent = guGun;
@@ -106,7 +159,15 @@ function initRegionMenus() {
   region2Menu.addEventListener('click', (e) => {
     const item = e.target.closest('li');
     if (!item) return;
-    region2Filter.setAttribute('data-value', item.dataset.value);
+    const guGun = item.dataset.value;
+    if (guGun === '') {
+      // '전체' → 구/군 초기화(시/도는 유지)
+      region2Filter.setAttribute('data-value', '');
+      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>구 / 군`;
+    } else {
+      region2Filter.setAttribute('data-value', guGun);
+      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>${guGun}`;
+    }
   });
 }
 
