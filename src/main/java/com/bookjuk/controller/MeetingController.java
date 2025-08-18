@@ -233,12 +233,9 @@ public class MeetingController {
 
     /**
      * 특정 모임의 참가자 목록을 조회합니다.
-     *
-     * @param meetingId 모임 ID
-     * @param status 참가자 상태 필터 (선택사항: PENDING, APPROVED, REJECTED 등)
-     * @return 참가자 목록 (200 OK)
      */
-    @GetMapping("/{meetingId}/participants")
+    @GetMapping("/api/meetings/{meetingId}/participants")
+    @ResponseBody
     public ResponseEntity<List<com.bookjuk.dto.participant.ParticipantResponse>> getParticipants(
             @PathVariable Long meetingId,
             @RequestParam(required = false) String status) {
@@ -253,13 +250,9 @@ public class MeetingController {
 
     /**
      * 모임에 참가 신청을 합니다.
-     *
-     * @param meetingId 모임 ID
-     * @param userId JWT에서 추출한 사용자 ID
-     * @return 성공 응답 (200 OK)
-     * @throws com.bookjuk.exception.CustomException 이미 신청한 경우, 모집 완료된 경우 등
      */
-    @PostMapping("/{meetingId}/apply")
+    @PostMapping("/api/meetings/{meetingId}/apply")
+    @ResponseBody
     public ResponseEntity<Void> applyToMeeting(
             @PathVariable Long meetingId,
             @RequestAttribute("userId") Long userId) {
