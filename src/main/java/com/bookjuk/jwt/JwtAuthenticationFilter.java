@@ -1,5 +1,7 @@
 package com.bookjuk.jwt;
 
+import com.bookjuk.domain.user.User;
+import com.bookjuk.repository.user.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Optional;
 
 /**
  * JWT 인증 필터
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,6 +40,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
                 // 토큰에서 이메일을 추출
                 String email = jwtProvider.getEmailFromToken(token);
+
+                //  사용자 ID를 request attribute에 설정 추가
+                userRepository.findByEmail(email).ifPresent(user -> {
+                    request.setAttribute("userId", user.getId());
+                    log.debug("Request에 userId 설정: {}", user.getId());
+                });
 
                 // 시큐리티에게 알려줄 인증정보(사용자명, 권한) 생성
                 UsernamePasswordAuthenticationToken auth
