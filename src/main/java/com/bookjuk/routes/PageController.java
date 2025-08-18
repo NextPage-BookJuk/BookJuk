@@ -16,7 +16,7 @@ public class PageController {
     // 메인페이지(모임리스트)로 이동
     @GetMapping("/")
     public String home() {
-        return "meeting-list";
+        return "main-page";
     }
 
     // 로그인/회원가입 페이지로 이동
