@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 로그인 상태 확인
     if (!checkLoginStatus()) {
         alert('로그인이 필요한 서비스입니다.');
-        window.location.href = '/login';
+        window.location.href = '/auth';
         return;
     }
     
@@ -281,362 +281,134 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * 페이지 초기화
+ */
+function initializePage() {
+    // 시/도 선택 이벤트 리스너 추가
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) {
+        regionSelect.addEventListener('change', updateCityOptions);
+    }
+
+    // 현재 날짜와 시간 설정
+    setMinDateTime();
+}
+
+/**
+ * 시/도 선택에 따른 시/군 옵션 업데이트
+ */
+function updateCityOptions() {
+    const regionSelect = document.getElementById('region');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+
+    if (!regionSelect || !citySelect || !districtSelect) return;
+
+    const selectedRegion = regionSelect.value;
+
+    // 시/군 초기화
+    citySelect.innerHTML = '<option value="">시/군을 먼저 선택해주세요</option>';
+    citySelect.disabled = true;
+
+    // 구/군 초기화
+    districtSelect.innerHTML = '<option value="">구/군을 먼저 선택해주세요</option>';
+    districtSelect.disabled = true;
+
+    // 시/도가 선택되지 않았으면 리턴
+    if (!selectedRegion || !regionData[selectedRegion]) {
+        return;
+    }
+
+    // 선택된 시/도의 시/군 옵션들을 추가
+    citySelect.innerHTML = '<option value="">시/군을 선택해주세요</option>';
+    const cities = Object.keys(regionData[selectedRegion]);
+
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
+
+    citySelect.disabled = false;
+
+    // 시/군 선택 이벤트 리스너 추가
+    citySelect.addEventListener('change', updateDistrictOptions);
+}
+
+/**
+ * 시/군 선택에 따른 구/군 옵션 업데이트
+ */
+function updateDistrictOptions() {
+    const regionSelect = document.getElementById('region');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+
+    if (!regionSelect || !citySelect || !districtSelect) return;
+
+    const selectedRegion = regionSelect.value;
+    const selectedCity = citySelect.value;
+
+    // 구/군 초기화
+    districtSelect.innerHTML = '<option value="">구/군을 선택해주세요</option>';
+    districtSelect.disabled = true;
+
+    // 시/도나 시/군이 선택되지 않았으면 리턴
+    if (!selectedRegion || !selectedCity || !regionData[selectedRegion] || !regionData[selectedRegion][selectedCity]) {
+        return;
+    }
+
+    // 선택된 시/군의 구/군 옵션들을 추가
+    const districts = regionData[selectedRegion][selectedCity];
+
+    districts.forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
+
+    districtSelect.disabled = false;
+}
+
+/**
+ * 최소 날짜/시간 설정
+ */
+function setMinDateTime() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().slice(0, 5);
+
+    const dateInput = document.getElementById('meetingDate');
+    const timeInput = document.getElementById('meetingTime');
+
+    if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+    }
+
+    if (timeInput) {
+        timeInput.value = currentTime;
+    }
+}
+
+
+/**
  * 로그인 상태 확인
  * @returns {boolean} 로그인 여부
  */
 function checkLoginStatus() {
-    const token = getJwtTokenFromCookie();
+    const token = getJwtTokenFromLocalStorage();
     return token !== null && token.trim() !== '';
 }
 
 /**
- * 쿠키에서 JWT 토큰 추출
+ * 로컬스토리지에서 JWT 토큰 추출 (키: authToken)
  * @returns {string|null} JWT 토큰 또는 null
  */
-function getJwtTokenFromCookie() {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-        const [name, value] = cookie.trim().split('=');
-        if (name === 'jwt' || name === 'token' || name === 'authToken') {
-            return value;
-        }
-    }
-    return null;
-}
-
-/**
- * 페이지 초기화
- */
-function initializePage() {
-    setMinDate();
-    setupEventListeners();
-    initializeSelects();
-}
-
-/**
- * 오늘 이후 날짜만 선택 가능하도록 설정
- */
-function setMinDate() {
-    const dateInput = document.getElementById('meetingDate');
-    const today = new Date();
-    const minDate = today.toISOString().split('T')[0];
-    dateInput.min = minDate;
-}
-
-/**
- * 선택박스들을 초기 비활성화 상태로 설정
- */
-function initializeSelects() {
-    const citySelect = document.getElementById('city');
-    const districtSelect = document.getElementById('district');
-
-    citySelect.disabled = true;
-    districtSelect.disabled = true;
-}
-
-/**
- * 이벤트 리스너 설정
- */
-function setupEventListeners() {
-    // 파일 드래그 앤 드롭 이벤트
-    const uploadArea = document.querySelector('.file-upload-area');
-    if (uploadArea) {
-        uploadArea.addEventListener('dragover', handleDragOver);
-        uploadArea.addEventListener('dragleave', handleDragLeave);
-        uploadArea.addEventListener('drop', handleDrop);
-    }
-}
-
-/**
- * 시/도 변경 시 시/군 업데이트
- */
-function updateCities() {
-    console.log('updateCities 함수 호출됨');
-
-    const regionSelect = document.getElementById('region');
-    const citySelect = document.getElementById('city');
-    const districtSelect = document.getElementById('district');
-    const selectedRegion = regionSelect.value;
-
-    console.log('선택된 지역:', selectedRegion);
-
-    // 시/군과 구/군 초기화
-    citySelect.innerHTML = '<option value="">시/군 선택</option>';
-    districtSelect.innerHTML = '<option value="">구/군 선택</option>';
-    districtSelect.disabled = true;
-
-    if (selectedRegion && regionData[selectedRegion]) {
-        console.log('지역 데이터 발견:', regionData[selectedRegion]);
-
-        // 선택된 시/도에 해당하는 시/군 목록 추가
-        Object.keys(regionData[selectedRegion]).forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
-        });
-
-        // 시/군 선택 활성화
-        citySelect.disabled = false;
-        console.log('시/군 선택 활성화됨');
-    } else {
-        // 시/도가 선택되지 않은 경우 비활성화
-        citySelect.disabled = true;
-        citySelect.innerHTML = '<option value="">시/도를 먼저 선택해주세요</option>';
-        console.log('시/군 선택 비활성화됨');
-    }
-}
-
-/**
- * 시/군 변경 시 구/군 업데이트
- */
-function updateDistricts() {
-    console.log('updateDistricts 함수 호출됨');
-
-    const regionSelect = document.getElementById('region');
-    const citySelect = document.getElementById('city');
-    const districtSelect = document.getElementById('district');
-    const selectedRegion = regionSelect.value;
-    const selectedCity = citySelect.value;
-
-    console.log('선택된 시/군:', selectedCity);
-
-    // 구/군 초기화
-    districtSelect.innerHTML = '<option value="">구/군 선택</option>';
-
-    if (selectedRegion && selectedCity && regionData[selectedRegion] && regionData[selectedRegion][selectedCity]) {
-        console.log('구/군 데이터 발견:', regionData[selectedRegion][selectedCity]);
-
-        // 선택된 시/군에 해당하는 구/군 목록 추가
-        regionData[selectedRegion][selectedCity].forEach(district => {
-            const option = document.createElement('option');
-            option.value = district;
-            option.textContent = district;
-            districtSelect.appendChild(option);
-        });
-
-        // 구/군 선택 활성화
-        districtSelect.disabled = false;
-        console.log('구/군 선택 활성화됨');
-    } else {
-        // 시/군이 선택되지 않은 경우 비활성화
-        districtSelect.disabled = true;
-        districtSelect.innerHTML = '<option value="">시/군을 먼저 선택해주세요</option>';
-        console.log('구/군 선택 비활성화됨');
-    }
-}
-
-/**
- * 이미지 미리보기
- */
-function previewImage(input) {
-    const file = input.files[0];
-    if (file) {
-        if (validateImageFile(file)) {
-            selectedImageFile = file;
-            showImagePreview(file);
-            clearError('imageError');
-        } else {
-            input.value = '';
-            selectedImageFile = null;
-        }
-    }
-}
-
-/**
- * 이미지 파일 유효성 검사
- */
-function validateImageFile(file) {
-    // 파일 크기 검사 (10MB)
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-        showError('imageError', '이미지 크기는 10MB를 초과할 수 없습니다.');
-        return false;
-    }
-
-    // 파일 형식 검사
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedTypes.includes(file.type)) {
-        showError('imageError', 'JPG, PNG 형식의 이미지만 업로드할 수 있습니다.');
-        return false;
-    }
-
-    return true;
-}
-
-/**
- * 이미지 미리보기 표시
- */
-function showImagePreview(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const previewDiv = document.getElementById('imagePreview');
-        previewDiv.innerHTML = `
-            <img src="${e.target.result}" class="preview-image" alt="미리보기">
-            <button type="button" class="remove-image" onclick="removeImage()">이미지 제거</button>
-        `;
-    };
-    reader.readAsDataURL(file);
-}
-
-/**
- * 이미지 제거
- */
-function removeImage() {
-    document.getElementById('meetingImage').value = '';
-    document.getElementById('imagePreview').innerHTML = '';
-    selectedImageFile = null;
-    clearError('imageError');
-}
-
-/**
- * 드래그 오버 이벤트
- */
-function handleDragOver(e) {
-    e.preventDefault();
-    e.currentTarget.classList.add('dragover');
-}
-
-/**
- * 드래그 리브 이벤트
- */
-function handleDragLeave(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('dragover');
-}
-
-/**
- * 드롭 이벤트
- */
-function handleDrop(e) {
-    e.preventDefault();
-    e.currentTarget.classList.remove('dragover');
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-        const file = files[0];
-        if (validateImageFile(file)) {
-            selectedImageFile = file;
-            showImagePreview(file);
-            clearError('imageError');
-        }
-    }
-}
-
-/**
- * 폼 유효성 검사
- */
-function validateForm() {
-    let isValid = true;
-
-    // 필수 필드 검사 (3단계 지역 구조 포함)
-    const requiredFields = [
-        { id: 'title', name: '모임 제목' },
-        { id: 'bookTitle', name: '책 제목' },
-        { id: 'bookAuthor', name: '저자' },
-        { id: 'genre', name: '장르' },
-        { id: 'meetingDate', name: '날짜' },
-        { id: 'meetingTime', name: '시간' },
-        { id: 'region', name: '시/도' },
-        { id: 'city', name: '시/군' },
-        { id: 'district', name: '구/군' },
-        { id: 'maxParticipants', name: '최대 인원' }
-    ];
-
-    requiredFields.forEach(field => {
-        const element = document.getElementById(field.id);
-        const value = element.value.trim();
-
-        if (!value) {
-            showError(field.id + 'Error', `${field.name}을(를) 입력해주세요.`);
-            isValid = false;
-        } else {
-            clearError(field.id + 'Error');
-        }
-    });
-
-    // 날짜/시간 검사
-    if (isValid && !validateDateTime()) {
-        isValid = false;
-    }
-
-    // 최대 인원 검사
-    if (isValid && !validateMaxCapacity()) {
-        isValid = false;
-    }
-
-    return isValid;
-}
-
-/**
- * 날짜/시간 유효성 검사
- */
-function validateDateTime() {
-    const date = document.getElementById('meetingDate').value;
-    const time = document.getElementById('meetingTime').value;
-
-    if (date && time) {
-        const selectedDateTime = new Date(date + 'T' + time);
-        const now = new Date();
-
-        if (selectedDateTime <= now) {
-            showError('meetingTimeError', '모임 시간은 현재 시간 이후로 설정해야 합니다.');
-            return false;
-        }
-    }
-
-    clearError('meetingDateError');
-    clearError('meetingTimeError');
-    return true;
-}
-
-/**
- * 최대 인원 유효성 검사
- */
-function validateMaxCapacity() {
-    const capacity = parseInt(document.getElementById('maxParticipants').value);
-
-    if (capacity < 2 || capacity > 10) {
-        showError('maxParticipantsError', '최대 인원은 2명 이상 10명 이하로 설정해주세요.');
-        return false;
-    }
-
-    clearError('maxParticipantsError');
-    return true;
-}
-
-/**
- * 에러 메시지 표시
- */
-function showError(elementId, message) {
-    const errorElement = document.getElementById(elementId);
-    if (errorElement) {
-        errorElement.textContent = message;
-        errorElement.style.display = 'block';
-
-        // 해당 입력 필드에 에러 스타일 추가
-        const inputElement = document.getElementById(elementId.replace('Error', ''));
-        if (inputElement) {
-            inputElement.classList.add('error');
-        }
-    }
-}
-
-/**
- * 에러 메시지 지우기
- */
-function clearError(elementId) {
-    const errorElement = document.getElementById(elementId);
-    if (errorElement) {
-        errorElement.style.display = 'none';
-        errorElement.textContent = '';
-
-        // 해당 입력 필드의 에러 스타일 제거
-        const inputElement = document.getElementById(elementId.replace('Error', ''));
-        if (inputElement) {
-            inputElement.classList.remove('error');
-        }
-    }
+function getJwtTokenFromLocalStorage() {
+    const token = localStorage.getItem('authToken');
+    return token && token.trim() !== '' ? token : null;
 }
 
 /**
@@ -646,7 +418,7 @@ async function saveMeeting() {
     // 로그인 상태 재확인
     if (!checkLoginStatus()) {
         alert('로그인이 필요한 서비스입니다.');
-        window.location.href = '/login';
+        window.location.href = '/auth';
         return;
     }
 
@@ -678,7 +450,7 @@ async function saveMeeting() {
         const formData = createFormData();
 
         // JWT 토큰 가져오기
-        const token = getJwtTokenFromCookie();
+        const token = getJwtTokenFromLocalStorage();
         if (!token) {
             throw new Error('인증 토큰이 없습니다.');
         }
@@ -705,7 +477,7 @@ async function saveMeeting() {
         console.error('모임 생성 오류:', error);
         if (error.message.includes('인증') || error.message.includes('로그인')) {
             alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-            window.location.href = '/login';
+            window.location.href = '/auth';
         } else {
             alert('모임 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
         }
@@ -728,7 +500,7 @@ async function handleErrorResponse(response) {
         switch (response.status) {
             case 401:
                 alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-                window.location.href = '/login';
+                window.location.href = '/auth';
                 break;
             case 403:
                 alert('접근 권한이 없습니다.');
@@ -781,40 +553,43 @@ function isValidImageFile(file) {
 }
 
 /**
- * FormData 생성 (3단계 지역 포함)
+ * FormData 생성 (백엔드 @RequestPart에 맞게 수정)
  */
 function createFormData() {
     const formData = new FormData();
 
-    // 텍스트 데이터
-    formData.append('title', document.getElementById('title').value.trim());
-    formData.append('bookTitle', document.getElementById('bookTitle').value.trim());
-    formData.append('bookAuthor', document.getElementById('bookAuthor').value.trim());
-    formData.append('genre', document.getElementById('genre').value);
-    formData.append('region', document.getElementById('region').value);
-    formData.append('city', document.getElementById('city').value);
-    formData.append('district', document.getElementById('district').value);
-    formData.append('maxParticipants', document.getElementById('maxParticipants').value);
+    // JSON 데이터를 객체로 만들어서 'meeting' part로 전송
+    const meetingData = {
+        title: document.getElementById('title').value.trim(),
+        bookTitle: document.getElementById('bookTitle').value.trim(),
+        bookAuthor: document.getElementById('bookAuthor').value.trim(),
+        genre: document.getElementById('genre').value,
+        region: document.getElementById('region').value,
+        city: document.getElementById('city').value,
+        district: document.getElementById('district').value,
+        maxParticipants: document.getElementById('maxParticipants').value,
+        meetingTime: document.getElementById('meetingDate').value + 'T' + document.getElementById('meetingTime').value
+    };
 
-    // description 필드 추가
+    // description 필드 추가 (선택사항)
     const description = document.getElementById('description').value.trim();
     if (description) {
-        formData.append('description', description);
+        meetingData.description = description;
     }
 
-    // 선택적 필드
+    // detailAddress 필드 추가 (선택사항)
     const detailAddress = document.getElementById('detailAddress').value.trim();
     if (detailAddress) {
-        formData.append('detailAddress', detailAddress);
+        meetingData.detailAddress = detailAddress;
     }
 
-    // 날짜/시간 조합
-    const date = document.getElementById('meetingDate').value;
-    const time = document.getElementById('meetingTime').value;
-    const meetingTime = date + 'T' + time;
-    formData.append('meetingTime', meetingTime);
+    // JSON 데이터를 Blob으로 변환하여 'meeting' part로 추가
+    const meetingBlob = new Blob([JSON.stringify(meetingData)], {
+        type: 'application/json'
+    });
+    formData.append('meeting', meetingBlob);
 
-    // 이미지 파일 (imageFile로 변경하여 백엔드와 일치시킴)
+    // 이미지 파일 추가 (imageFile part)
     if (selectedImageFile) {
         formData.append('imageFile', selectedImageFile);
     }
@@ -843,4 +618,158 @@ function goHome() {
  */
 function goMyPage() {
     window.location.href = '/mypage';
+}
+
+/**
+ * 이미지 미리보기
+ * @param {HTMLInputElement} input - 파일 입력 요소
+ */
+function previewImage(input) {
+    const imagePreview = document.getElementById('imagePreview');
+    const imageError = document.getElementById('imageError');
+
+    // 에러 메시지 숨기기
+    if (imageError) {
+        imageError.style.display = 'none';
+        imageError.textContent = '';
+    }
+
+    // 기존 미리보기 초기화
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+    }
+
+    // 파일이 선택되지 않았으면 리턴
+    if (!input.files || !input.files[0]) {
+        selectedImageFile = null;
+        return;
+    }
+
+    const file = input.files[0];
+
+    // 파일 크기 검증 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showImageError('파일 크기는 10MB 이하여야 합니다.');
+        input.value = '';
+        selectedImageFile = null;
+        return;
+    }
+
+    // 파일 타입 검증
+    if (!isValidImageFile(file)) {
+        showImageError('JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 업로드 가능합니다.');
+        input.value = '';
+        selectedImageFile = null;
+        return;
+    }
+
+    // 파일 저장
+    selectedImageFile = file;
+
+    // 미리보기 생성
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        if (imagePreview) {
+            imagePreview.innerHTML = `
+                <div class="preview-container">
+                    <img src="${e.target.result}" alt="미리보기" class="preview-image">
+                    <button type="button" class="remove-image-btn" onclick="removeImage()">×</button>
+                    <div class="preview-info">
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)}MB</span>
+                    </div>
+                </div>
+            `;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 이미지 제거
+ */
+function removeImage() {
+    const imageInput = document.getElementById('meetingImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageError = document.getElementById('imageError');
+
+    // 파일 입력 초기화
+    if (imageInput) {
+        imageInput.value = '';
+    }
+
+    // 미리보기 초기화
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+    }
+
+    // 에러 메시지 숨기기
+    if (imageError) {
+        imageError.style.display = 'none';
+        imageError.textContent = '';
+    }
+
+    // 전역 변수 초기화
+    selectedImageFile = null;
+}
+
+/**
+ * 이미지 에러 표시
+ * @param {string} message - 에러 메시지
+ */
+function showImageError(message) {
+    const imageError = document.getElementById('imageError');
+    if (imageError) {
+        imageError.textContent = message;
+        imageError.style.display = 'block';
+    }
+}
+
+/**
+ * 폼 유효성 검사
+ * @returns {boolean} 유효성 검사 통과 여부
+ */
+function validateForm() {
+    // 필수 필드 검증
+    const requiredFields = [
+        { id: 'title', name: '모임 제목' },
+        { id: 'bookTitle', name: '도서 제목' },
+        { id: 'bookAuthor', name: '저자' },
+        { id: 'genre', name: '장르' },
+        { id: 'region', name: '시/도' },
+        { id: 'city', name: '시/군' },
+        { id: 'district', name: '구/군' },
+        { id: 'meetingDate', name: '모임 날짜' },
+        { id: 'meetingTime', name: '모임 시간' },
+        { id: 'maxParticipants', name: '최대 인원' }
+    ];
+
+    for (const field of requiredFields) {
+        const element = document.getElementById(field.id);
+        if (!element || !element.value.trim()) {
+            alert(`${field.name}을(를) 입력해주세요.`);
+            element?.focus();
+            return false;
+        }
+    }
+
+    // 최대 인원 검증
+    const maxParticipants = parseInt(document.getElementById('maxParticipants').value);
+    if (maxParticipants < 2 || maxParticipants > 10) {
+        alert('최대 인원은 2명 이상 10명 이하로 설정해주세요.');
+        return false;
+    }
+
+    // 날짜/시간 검증
+    const meetingDate = document.getElementById('meetingDate').value;
+    const meetingTime = document.getElementById('meetingTime').value;
+    const meetingDateTime = new Date(meetingDate + 'T' + meetingTime);
+    const now = new Date();
+
+    if (meetingDateTime <= now) {
+        alert('모임 시간은 현재 시간보다 미래여야 합니다.');
+        return false;
+    }
+
+    return true;
 }
