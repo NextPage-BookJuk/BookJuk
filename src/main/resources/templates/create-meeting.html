@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <link rel="stylesheet" href="/css/create-meeting.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적 - 모임 만들기</title>
+    <!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+    <link rel="stylesheet" th:href="@{/css/create-meeting.css}">
+</head>
+<body>
+<header class="header">
+    <h1 class="logo" onclick="goHome()">북적북적</h1>
+    <nav class="nav">
+        <a href="#" onclick="goHome()">홈</a>
+        <a href="#" onclick="goMyPage()">마이페이지</a>
+        <a href="#" onclick="goHome()" class="back-btn">뒤로가기</a>
+    </nav>
+</header>
+
+<div class="container">
+    <div class="page-header">
+        <div class="mode-indicator" id="modeIndicator">새 모임 만들기</div>
+        <h1 class="page-title">📚 독서모임을 만들어보세요</h1>
+        <p class="page-subtitle">책을 통해 사람들과 소통하고 성장할 수 있는 모임을 만들어주세요</p>
+    </div>
+
+    <form class="form-container" id="meetingForm">
+        <!-- 기본 정보 -->
+        <div class="form-section">
+            <h2 class="section-title">📋 기본 정보</h2>
+
+            <div class="form-group">
+                <label class="form-label">모임 제목 <span class="required">*</span></label>
+                <input type="text" class="form-input" id="title" name="title" placeholder="예) 따뜻한 겨울 소설 읽기" maxlength="255">
+                <div class="helper-text">최대 255자까지 입력 가능합니다</div>
+                <div class="error-message" id="titleError" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">모임 설명</label>
+                <textarea class="form-textarea" id="description" name="description" placeholder="모임에 대한 상세한 설명을 입력해주세요" maxlength="2000"></textarea>
+                <div class="helper-text">어떤 모임인지 자세히 알려주세요 (최대 2000자)</div>
+                <div class="error-message" id="descriptionError" style="display: none;"></div>
+            </div>
+
+            <div class="input-group">
+                <div class="form-group" style="flex: 2;">
+                    <label class="form-label">책 제목 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="bookTitle" name="bookTitle" placeholder="읽을 책 제목을 입력하세요" maxlength="255">
+                    <div class="error-message" id="bookTitleError" style="display: none;"></div>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label class="form-label">저자 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="bookAuthor" name="bookAuthor" placeholder="저자명" maxlength="100">
+                    <div class="error-message" id="bookAuthorError" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">장르 <span class="required">*</span></label>
+                <select class="form-select" id="genre" name="genre">
+                    <option value="">장르를 선택하세요</option>
+                    <option value="소설">소설</option>
+                    <option value="에세이">에세이</option>
+                    <option value="자기계발">자기계발</option>
+                    <option value="역사">역사</option>
+                    <option value="과학">과학</option>
+                    <option value="철학">철학</option>
+                    <option value="경제/경영">경제/경영</option>
+                    <option value="종교">종교</option>
+                    <option value="예술">예술</option>
+                    <option value="기타">기타</option>
+                </select>
+                <div class="error-message" id="genreError" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 일시 및 장소 -->
+        <div class="form-section">
+            <h2 class="section-title">📅 일시 및 장소</h2>
+
+            <div class="datetime-group">
+                <div class="form-group">
+                    <label class="form-label">날짜 <span class="required">*</span></label>
+                    <input type="date" class="form-input" id="meetingDate" name="meetingDate" min="">
+                    <div class="error-message" id="meetingDateError" style="display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">시간 <span class="required">*</span></label>
+                    <input type="time" class="form-input" id="meetingTime" name="meetingTime">
+                    <div class="error-message" id="meetingTimeError" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- 3단계 지역 선택: 시/도 → 시/군 → 구/군 -->
+            <div class="location-group">
+                <div class="form-group">
+                    <label class="form-label">시/도 <span class="required">*</span></label>
+                    <select class="form-select" id="region" name="region" onchange="updateCities()">
+                        <option value="">시/도 선택</option>
+                        <option value="서울특별시">서울특별시</option>
+                        <option value="부산광역시">부산광역시</option>
+                        <option value="대구광역시">대구광역시</option>
+                        <option value="인천광역시">인천광역시</option>
+                        <option value="광주광역시">광주광역시</option>
+                        <option value="대전광역시">대전광역시</option>
+                        <option value="울산광역시">울산광역시</option>
+                        <option value="세종특별자치시">세종특별자치시</option>
+                        <option value="경기도">경기도</option>
+                        <option value="강원도">강원도</option>
+                        <option value="충청북도">충청북도</option>
+                        <option value="충청남도">충청남도</option>
+                        <option value="전라북도">전라북도</option>
+                        <option value="전라남도">전라남도</option>
+                        <option value="경상북도">경상북도</option>
+                        <option value="경상남도">경상남도</option>
+                        <option value="제주특별자치도">제주특별자치도</option>
+                    </select>
+                    <div class="error-message" id="regionError" style="display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">시/군 <span class="required">*</span></label>
+                    <select class="form-select" id="city" name="city" disabled onchange="updateDistricts()">
+                        <option value="">시/도를 먼저 선택해주세요</option>
+                    </select>
+                    <div class="error-message" id="cityError" style="display: none;"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">구/군 <span class="required">*</span></label>
+                    <select class="form-select" id="district" name="district" disabled>
+                        <option value="">시/군을 먼저 선택해주세요</option>
+                    </select>
+                    <div class="error-message" id="districtError" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">상세 주소 (선택)</label>
+                <input type="text" class="form-input" id="detailAddress" name="detailAddress" placeholder="상세 주소를 입력하세요 (예: 강남역 2번 출구 앞 카페 ○○○)" maxlength="255">
+                <div class="helper-text">구체적인 만남 장소를 알려주세요</div>
+            </div>
+        </div>
+
+        <!-- 모집 정보 -->
+        <div class="form-section">
+            <h2 class="section-title">👥 모집 정보</h2>
+
+            <div class="form-group">
+                <label class="form-label">최대 인원 <span class="required">*</span></label>
+                <input type="number" class="form-input capacity-input" id="maxParticipants" name="maxParticipants" min="2" max="10" placeholder="2">
+                <div class="helper-text">호스트 포함 2명 ~ 10명까지 설정 가능합니다</div>
+                <div class="error-message" id="maxParticipantsError" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- 이미지 업로드 -->
+        <div class="form-section">
+            <h2 class="section-title">🖼️ 모임 이미지</h2>
+
+            <div class="form-group">
+                <label class="form-label">대표 이미지 (선택사항, 최대 1장)</label>
+                <div class="file-upload-area" onclick="document.getElementById('meetingImage').click()">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">클릭하여 이미지 업로드</div>
+                    <div class="upload-subtext">JPG, JPEG, PNG, GIF, BMP, WEBP 파일 (최대 10MB, 1장만 가능)</div>
+                </div>
+                <input type="file" class="file-input" id="meetingImage" name="meetingImage" accept=".jpg,.jpeg,.png,.gif,.bmp,.webp" onchange="previewImage(this)">
+                <div class="helper-text">이미지는 선택사항이며, 업로드하지 않아도 모임을 생성할 수 있습니다.</div>
+                <div class="image-preview" id="imagePreview"></div>
+                <div class="error-message" id="imageError" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="goBack()">취소</button>
+            <button type="button" class="btn btn-primary" onclick="saveMeeting()" id="submitBtn">
+                <span id="submitText">모임 만들기</span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 수정: Thymeleaf 문법으로 경로 변경 -->
+<script th:src="@{/js/create-meeting.js}"></script>
+</body>
+</html>

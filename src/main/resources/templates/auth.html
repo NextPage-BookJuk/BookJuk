@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>북적북적 - 시작하기</title>
+    <!-- 외부 CSS 파일 연결 (Thymeleaf 문법 사용) -->
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body>
+    <!-- 알림 메시지가 표시될 컨테이너 -->
+    <div id="toast-container"></div>
+
+    <!-- 로그인 필요 알림 메시지 -->
+    <div th:if="${loginRequired}" class="alert alert-warning" style="margin: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+        <strong>⚠️ 로그인 필요</strong><br>
+        <span th:text="${message}">모임을 생성하려면 로그인이 필요합니다.</span>
+    </div>
+
+    <header class="header">
+        <h1 class="logo" th:onclick="|window.location.href='@{/}'|">북적북적</h1>
+        <a th:href="@{/}" class="back-btn">홈으로</a>
+    </header>
+
+    <div class="container">
+        <div class="auth-tabs">
+            <button id="login-tab-btn" class="auth-tab active">로그인</button>
+            <button id="signup-tab-btn" class="auth-tab">회원가입</button>
+        </div>
+
+        <!-- 로그인 폼 -->
+        <form id="login-form" class="auth-form">
+            <div class="form-group">
+                <label class="form-label" for="login-email">이메일 <span class="required">*</span></label>
+                <input type="email" class="form-input" id="login-email" placeholder="이메일을 입력하세요" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="login-password">비밀번호 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="login-password" placeholder="비밀번호를 입력하세요" required>
+            </div>
+            <button type="submit" class="submit-btn">로그인</button>
+        </form>
+
+        <!-- 회원가입 폼 -->
+        <form id="signup-form" class="auth-form hidden">
+            <div class="form-group">
+                <label class="form-label" for="signup-username">사용자명 <span class="required">*</span></label>
+                <input type="text" class="form-input" id="signup-username" placeholder="사용자명을 입력하세요" required>
+                <div class="helper-text">다른 사용자와 중복될 수 있습니다.</div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="signup-email">이메일 <span class="required">*</span></label>
+                <div class="input-group">
+                    <input type="email" class="form-input" id="signup-email" placeholder="이메일을 입력하세요" required>
+                    <button type="button" id="email-check-btn" class="check-btn">중복확인</button>
+                </div>
+                <div class="error-message" id="email-error"></div>
+                <div class="success-message" id="email-success"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="signup-password">비밀번호 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="signup-password" placeholder="영문+숫자 포함 6~20자" required>
+                <div class="helper-text">영문, 숫자를 포함하여 6~20자로 입력해주세요.</div>
+                <div class="error-message" id="password-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="signup-password-confirm">비밀번호 확인 <span class="required">*</span></label>
+                <input type="password" class="form-input" id="signup-password-confirm" placeholder="비밀번호를 다시 입력하세요" required>
+                <div class="error-message" id="password-confirm-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">선호 장르 (하나만 선택)</label>
+                <div class="checkbox-group" id="genre-group">
+                    <!-- 장르 목록은 JS로 동적 생성됩니다 -->
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="signup-introduction">자기소개 (선택)</label>
+                <textarea class="form-textarea" id="signup-introduction" placeholder="간단한 자기소개를 작성해주세요"></textarea>
+            </div>
+
+            <button type="submit" id="signup-submit-btn" class="submit-btn" disabled>회원가입</button>
+        </form>
+    </div>
+
+    <!-- 외부 JavaScript 파일 연결 (Thymeleaf 문법 사용) -->
+    <script type="module" th:src="@{/js/auth.js}"></script>
+</body>
+</html>
