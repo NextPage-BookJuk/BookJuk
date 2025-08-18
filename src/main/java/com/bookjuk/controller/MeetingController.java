@@ -1,14 +1,13 @@
 package com.bookjuk.controller;
 
 import com.bookjuk.domain.user.User;
-import com.bookjuk.dto.common.ApiResponse;
+import com.bookjuk.dto.board.response.ParticipantResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.jwt.JwtProvider;
 import com.bookjuk.repository.user.UserRepository;
-import com.bookjuk.dto.meeting.request.MeetingListItemDto;
 import com.bookjuk.dto.meeting.request.MeetingListSearchRequest;
 import com.bookjuk.dto.meeting.response.MeetingListResponse;
 import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
@@ -236,13 +235,13 @@ public class MeetingController {
      */
     @GetMapping("/api/meetings/{meetingId}/participants")
     @ResponseBody
-    public ResponseEntity<List<com.bookjuk.dto.participant.ParticipantResponse>> getParticipants(
+    public ResponseEntity<List<ParticipantResponse>> getParticipants(
             @PathVariable Long meetingId,
             @RequestParam(required = false) String status) {
 
         log.info("참가자 목록 조회 요청 - meetingId: {}, status: {}", meetingId, status);
 
-        List<com.bookjuk.dto.participant.ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
+        List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
 
         log.info("참가자 목록 조회 완료 - meetingId: {}, count: {}", meetingId, participants.size());
         return ResponseEntity.ok(participants);
