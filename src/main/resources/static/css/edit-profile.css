@@ -218,6 +218,7 @@
             cursor: pointer;
             font-size: 12px;
             margin-left: 10px;
+            display: none;
         }
 
         .remove-image-btn:hover {
@@ -234,14 +235,14 @@
             margin-top: 5px;
         }
 
-        .checkbox-group {
+        .radio-group {
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
             margin-top: 10px;
         }
 
-        .checkbox-item {
+        .radio-item {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -253,23 +254,23 @@
             cursor: pointer;
         }
 
-        .checkbox-item:hover {
+        .radio-item:hover {
             background-color: #f0ede8;
         }
 
-        .checkbox-item.selected {
+        .radio-item.selected {
             background-color: #8b7355;
             color: white;
             border-color: #8b7355;
         }
 
-        .checkbox-item input[type="checkbox"] {
+        .radio-item input[type="radio"] {
             width: 16px;
             height: 16px;
             cursor: pointer;
         }
 
-        .checkbox-item label {
+        .radio-item label {
             font-size: 14px;
             cursor: pointer;
             margin: 0;
@@ -395,7 +396,7 @@
                 flex-direction: column;
             }
 
-            .checkbox-group {
+            .radio-group {
                 gap: 10px;
             }
         }

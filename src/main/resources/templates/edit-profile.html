@@ -38,7 +38,7 @@
                         <button type="button" class="remove-image-btn">
                             이미지 제거
                         </button>
-                        <input type="file" class="file-input" id="newImage" >
+                        <input type="file" class="file-input" id="newImage" accept="image/png, image/jpeg" />
                         <div class="image-info">JPG, PNG 파일 (최대 10MB)</div>
                         <div class="error-message" id="imageError" style="display: none;"></div>
                     </div>
@@ -51,14 +51,14 @@
                 
                 <div class="form-group">
                     <label class="form-label">닉네임 <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="nickname" value="도도뇽" placeholder="닉네임을 입력하세요" maxlength="20">
+                    <input type="text" class="form-input" id="username" value="도도뇽" placeholder="닉네임을 입력하세요" maxlength="20">
                     <div class="helper-text">최대 20자까지 입력 가능합니다 (중복 허용)</div>
                     <div class="error-message" id="nicknameError" style="display: none;"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">이메일</label>
-                    <input type="email" class="form-input" value="user@example.com" disabled>
+                    <input type="email" class="form-input" id="email" value="user@example.com" disabled>
                     <div class="helper-text">이메일은 수정할 수 없습니다</div>
                 </div>
 
@@ -75,45 +75,45 @@
                 
                 <div class="form-group">
                     <label class="form-label">관심 있는 장르를 선택해주세요 (선택)</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item selected" >
-                            <input type="checkbox" id="genre1" value="소설" checked>
+                    <div class="radio-group">
+                        <div class="radio-item" >
+                            <input type="radio" id="genre1" value="소설" name="genre">
                             <label for="genre1">소설</label>
                         </div>
-                        <div class="checkbox-item selected">
-                            <input type="checkbox" id="genre2" value="에세이" checked>
+                        <div class="radio-item">
+                            <input type="radio" id="genre2" value="에세이" name="genre">
                             <label for="genre2">에세이</label>
                         </div>
-                        <div class="checkbox-item selected" >
-                            <input type="checkbox" id="genre3" value="자기계발" checked>
+                        <div class="radio-item" >
+                            <input type="radio" id="genre3" value="자기계발" name="genre">
                             <label for="genre3">자기계발</label>
                         </div>
-                        <div class="checkbox-item" >
-                            <input type="checkbox" id="genre4" value="역사">
+                        <div class="radio-item">
+                            <input type="radio" id="genre4" value="역사" name="genre">
                             <label for="genre4">역사</label>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="genre5" value="과학">
+                        <div class="radio-item">
+                            <input type="radio" id="genre5" value="과학" name="genre">
                             <label for="genre5">과학</label>
                         </div>
-                        <div class="checkbox-item selected" >
-                            <input type="checkbox" id="genre6" value="철학" checked>
+                        <div class="radio-item" >
+                            <input type="radio" id="genre6" value="철학" name="genre">
                             <label for="genre6">철학</label>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="genre7" value="경제/경영">
+                        <div class="radio-item">
+                            <input type="radio" id="genre7" value="경제/경영" name="genre">
                             <label for="genre7">경제/경영</label>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="genre8" value="종교">
+                        <div class="radio-item">
+                            <input type="radio" id="genre8" value="종교" name="genre">
                             <label for="genre8">종교</label>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="genre9" value="예술">
+                        <div class="radio-item">
+                            <input type="radio" id="genre9" value="예술" name="genre">
                             <label for="genre9">예술</label>
                         </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="genre10" value="기타">
+                        <div class="radio-item">
+                            <input type="radio" id="genre10" value="기타" name="genre">
                             <label for="genre10">기타</label>
                         </div>
                     </div>
@@ -122,8 +122,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary">취소</button>
-                <button type="button" class="btn btn-primary" id="submitBtn">
+                <button class="btn btn-secondary" id="cancelBtn">취소</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <span id="submitText">프로필 저장</span>
                     <div class="loading-spinner" id="loadingSpinner"></div>
                 </button>

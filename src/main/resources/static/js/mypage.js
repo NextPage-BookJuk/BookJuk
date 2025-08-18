@@ -41,7 +41,6 @@ const viewMyPage = (myInfo) => {
     // 모임 정보 태그
     const $meetingList = document.querySelector('.meetings-list');
     const $meetingItem = document.querySelector(".meeting-item");
-    const $noMeetings = document.getElementById('emptyState');
 
     // 2. 랜더링 전 기존 정보 초기화
     $profileHeader.innerHTML = ` `;
@@ -53,17 +52,32 @@ const viewMyPage = (myInfo) => {
     // 3. 조회 값 랜더링
     // 개인 정보
     const profile = myInfo.data.profile;
+
+    // 자기소개 설정에 따른 노출 처리
+    let introduction = null;
+    let bioStyle = null;
+    if(profile.introduction) {
+        introduction = profile.introduction;
+        bioStyle = "display: block";
+    } else {
+        bioStyle = "display: none";
+    }
+
     $profileHeader.innerHTML = `
         <div class="profile-image" id="profileImage">
             <img src="${profile.profileImage}" alt="프로필 사진">
         </div>
         <div class="profile-name" id="profileName">${profile.username}</div>
         <div class="profile-email" id="profileEmail">${profile.email}</div>
-        <div class="profile-bio" id="profileBio">${profile.introduction}</div>
+        <div class="profile-bio" id="profileBio" style="${bioStyle}">${introduction}</div>
     `;
-    $genreTags.innerHTML = `
-       <span class="genre-tag">${profile.preferredGenre}</span>
-    `
+
+    // 설정된 선호 장르가 있을 때만 정보를 뿌림
+    if(profile.preferredGenre) {
+        $genreTags.innerHTML = `
+           <span class="genre-tag">${profile.preferredGenre}</span>
+        `;
+    }
 
     // 통계 정보
     const stat = myInfo.data.statistics;
@@ -71,14 +85,25 @@ const viewMyPage = (myInfo) => {
     $participatedMeetings.textContent = `${stat.participatedMeeting}`;
 
     // 미팅 정보
-    const meetings = myInfo.data.meetings;
+    const meetings = myInfo.data.meetings || [];
     if(meetings.length === 0) {
+        const $noMeeting = document.createElement('div');
+        $noMeeting.innerHTML = `
+            <div class="empty-state-icon">📖</div>
+            <div class="empty-state-title">아직 참여한 모임이 없어요</div>
+            <div class="empty-state-message">
+                다양한 독서모임에 참여해보세요!<br>
+                새로운 사람들과 함께 책을 읽는 즐거움을 경험할 수 있어요.
+            </div>
+            <button class="empty-state-button">
+                모임 찾기
+            </button>
+        `;
+        $noMeeting.className = 'empty-state';
+        $meetingList.append($noMeeting);
 
-        $noMeetings.style.display = 'block';
 
     } else {
-
-        $noMeetings.style.display = 'none';
         meetings.forEach(meeting => {
             const $meetingItem = document.createElement('div');
 
@@ -173,6 +198,11 @@ function goToEditProfile() {
     window.location.href = `/editProfile`;
 }
 
+// 모임 찾기 페이지로 이동
+function goToFindMeeting() {
+    window.location.href = `/`;
+}
+
 //=========== 서버 데이터 요청/응답 관련 함수 ============//
 const fetchGetMyPage = async () => {
     console.log("마이페이지 js");
@@ -194,6 +224,7 @@ const fetchGetMyPage = async () => {
 const addEventListeners = () => {
     const $editProfileBtn = document.querySelector('.btn-primary');
     const $meetingSection = document.querySelector('.activity-section');
+    const $findMeetingBtn = document.querySelector('.empty-state-button');
 
     // 수정 페이지 이동
     $editProfileBtn.addEventListener('click', e => {
@@ -210,6 +241,14 @@ const addEventListeners = () => {
             goToMeetingDetail(meetingId);
         }
     })
+
+    // 참여 모임 없을 시 모임 찾기 페이지 이동
+    $findMeetingBtn.addEventListener('click', e => {
+        e.preventDefault();
+        console.log('이동버튼 클릭!')
+        goToFindMeeting();
+    })
+
 }
 
 //=========== 메인 코드 실행 ============//
