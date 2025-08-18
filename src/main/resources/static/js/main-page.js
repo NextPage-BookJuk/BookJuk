@@ -232,10 +232,10 @@ function updateNavigationByLoginStatus() {
     if (userNav) {
       userNav.style.display = 'flex';
       userNav.innerHTML = `
-        <span style="color: #333; font-weight: 500;">안녕하세요, ${user.username || user.name || '사용자'}님!</span>
-        <a href="/mypage" style="color: #007bff; text-decoration: none;">마이페이지</a>
-        <a href="/createMeeting" style="color: #28a745; text-decoration: none; font-weight: bold;">모임 만들기</a>
-        <button onclick="logout()" style="background: none; border: 1px solid #dc3545; color: #dc3545; padding: 5px 10px; border-radius: 4px; cursor: pointer;">로그아웃</button>
+        <a href="/mypage" class="mypage-link">마이페이지</a>
+        <a href="/createMeeting" class="create-meeting-btn">모임 만들기</a>
+        <span style="color: #555; margin-right: 10px;">안녕하세요, ${user.username || user.name || '사용자'}님!</span>
+        <button onclick="logout()" class="logout-btn">로그아웃</button>
       `;
     }
   } else {
@@ -259,7 +259,7 @@ function logout() {
 // ===== 유틸: 상태/텍스트/클래스 매핑 =====
 function mapStatusToTextKorean(status) {
   switch (status) {
-    case 'RECRUITING': return '모집중';
+    case 'RECRUITING': return '모집 중';
     case 'COMPLETED':  return '종료';
     case 'CANCELLED':  return '취소';
     default:           return status || '';
