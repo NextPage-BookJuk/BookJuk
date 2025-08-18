@@ -121,7 +121,7 @@ async function getCurrentUser() {
  */
 async function loadMeetingDetail() {
     try {
-        console.log('모임 상세 정보 로드 시작, meetingId:', window.currentMeetingId);
+        console.log('모임 상세 정보 로드 시작', 'meetingId:', window.currentMeetingId);
 
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}`);
 
@@ -144,6 +144,7 @@ async function loadMeetingDetail() {
         alert('모임 정보를 불러오는데 실패했습니다.');
     }
 }
+
 /**
  * 사용자 역할 확인
  */
@@ -192,6 +193,7 @@ function checkUserRole(meeting) {
         updateElement('meeting-address', '참여 후 확인 가능');
     }
 }
+
 /**
  * 참여 상태 확인
  */
@@ -252,6 +254,7 @@ function updateParticipationUI(status) {
             applyBtn.className = 'btn btn-primary btn-full';
     }
 }
+
 /**
  * 역할별 UI 업데이트
  */
@@ -288,7 +291,7 @@ function updateUIByUserRole() {
             editBtn.style.display = 'inline-flex';
             editBtn.onclick = editMeeting;
         }
-        if (cancelBtn) {3
+        if (cancelBtn) {
             cancelBtn.style.display = 'inline-flex';
             cancelBtn.onclick = cancelMeeting;
         }
@@ -466,35 +469,6 @@ function updateMeetingInfo(meeting) {
     // 원본 모임 데이터를 전역 변수에 저장 (수정에서 사용)
     window.currentMeetingData = meeting;
 }
-/**
- * 사용자 역할 확인
- */
-function checkUserRole(meeting) {
-    console.log('사용자 역할 확인:', {
-        currentUserId: window.currentUserId,
-        hostId: meeting.hostId || meeting.host?.id,
-        userRole: window.userRole
-    });
-
-    const hostId = meeting.hostId || meeting.host?.id;
-
-    if (window.currentUserId && window.currentUserId === hostId) {
-        window.userRole = 'host';
-        console.log('호스트로 설정됨');
-    } else if (window.currentUserId) {
-        window.userRole = 'member';
-        console.log('멤버로 설정됨');
-    } else {
-        window.userRole = 'guest';
-        console.log('게스트로 설정됨');
-    }
-
-    updateUIByUserRole();
-
-    // meeting 객체를 전달하여 상세주소 업데이트
-    updateDetailAddress(meeting);
-}
-
 
 /**
  * 날짜 포맷팅 함수
@@ -597,7 +571,7 @@ async function confirmApply() {
     try {
         if (applyBtn) {
             applyBtn.disabled = true;
-            applyBtn.innerHTML = '<span>⳿</span> 신청 중...';
+            applyBtn.innerHTML = '<span>⚿</span> 신청 중...';
         }
 
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/apply`, {
@@ -917,6 +891,7 @@ function createPendingItem(participant) {
 
     return item;
 }
+
 /**
  * 참가자 승인
  */
@@ -927,19 +902,17 @@ async function approveParticipant(userId) {
             body: JSON.stringify({ action: 'APPROVE' })
         });
 
-        alert('참가자를 승인했습니다.');
+        if (response.ok) {
+            alert('참가자를 승인했습니다.');
 
-        // event.target 대신 userId로 해당 아이템 찾기
-        const pendingItem = document.querySelector(`button[onclick="approveParticipant(${userId})"]`)?.closest('.pending-item');
-        if (pendingItem) {
-            pendingItem.remove();
+            // 목록 새로고침
+            loadPendingRequests();
+            loadParticipants();
+            loadMeetingDetail();
+        } else {
+            const errorData = await response.text();
+            throw new Error(errorData || '승인 처리에 실패했습니다.');
         }
-
-        // 목록 새로고침
-        loadPendingRequests();
-        loadParticipants();
-        loadMeetingDetail();
-
     } catch (error) {
         console.error('승인 실패:', error);
         alert('승인 처리에 실패했습니다: ' + error.message);
@@ -958,17 +931,13 @@ async function rejectParticipant(userId) {
             body: JSON.stringify({ action: 'REJECT' })
         });
 
-        alert('참가신청을 거절했습니다.');
-
-        // event.target 대신 userId로 해당 아이템 찾기
-        const pendingItem = document.querySelector(`button[onclick="rejectParticipant(${userId})"]`)?.closest('.pending-item');
-        if (pendingItem) {
-            pendingItem.remove();
+        if (response.ok) {
+            alert('참가신청을 거절했습니다.');
+            loadPendingRequests();
+        } else {
+            const errorData = await response.text();
+            throw new Error(errorData || '거절 처리에 실패했습니다.');
         }
-
-        // 목록 새로고침
-        loadPendingRequests();
-
     } catch (error) {
         console.error('거절 실패:', error);
         alert('거절 처리에 실패했습니다: ' + error.message);
@@ -1036,7 +1005,7 @@ async function loadPosts() {
 }
 
 /**
- * 게시글 아이템 생성
+ * 게시글 아이템 생성 (위치 정보 제거)
  */
 function createPostItem(post) {
     const item = document.createElement('div');
@@ -1050,9 +1019,6 @@ function createPostItem(post) {
     const authorName = post.username || post.authorName || '작성자';
     const commentCount = post.commentCount || 0;
 
-    // 위치 정보 가져오기 (전역 변수에서)
-    const locationInfo = window.currentMeetingLocation || '위치 정보 없음';
-
     item.innerHTML = `
         <div class="post-header">
             <div>
@@ -1064,8 +1030,6 @@ function createPostItem(post) {
                     </div>
                     <span>•</span>
                     <span>${timeAgo}</span>
-                    <span>•</span>
-                    <span class="location-info">📍 ${locationInfo}</span>
                 </div>
             </div>
         </div>
@@ -1373,6 +1337,7 @@ function showEditModal() {
     fillEditForm();
     showModal('edit-modal');
 }
+
 /**
  * 수정 모달 생성
  */
@@ -1406,7 +1371,7 @@ function createEditModal() {
                                 <input type="text" id="edit-bookTitle" class="form-input" placeholder="책 제목">
                             </div>
                             <div class="form-group half-width">
-                                <label>✍️ 저자</label>
+                                <label>✏️ 저자</label>
                                 <input type="text" id="edit-bookAuthor" class="form-input" placeholder="저자명">
                             </div>
                         </div>
@@ -1636,8 +1601,9 @@ function fillEditForm() {
         document.getElementById('edit-meetingTime').value = localDateTime;
     }
 }
+
 /**
- * 수정 폼 제출
+ * 수정 폼 제출 (수정된 버전)
  */
 async function submitEditForm() {
     const title = document.getElementById('edit-title').value.trim();
@@ -1646,42 +1612,29 @@ async function submitEditForm() {
         return;
     }
 
-    // 원본 모임 데이터를 기반으로 수정
-    const originalData = window.currentMeetingData;
-    if (!originalData) {
-        alert('원본 모임 정보를 찾을 수 없습니다.');
-        return;
-    }
+    // 수정할 데이터만 전송 (필수 필드 + 수정된 필드)
+    const updateData = {
+        title: title,
+        description: document.getElementById('edit-description').value.trim(),
+        bookTitle: document.getElementById('edit-bookTitle').value.trim(),
+        bookAuthor: document.getElementById('edit-bookAuthor').value.trim(),
+        genre: document.getElementById('edit-genre').value,
+        maxParticipants: parseInt(document.getElementById('edit-maxParticipants').value) || window.currentMeetingData.maxParticipants,
+        meetingTime: document.getElementById('edit-meetingTime').value
+    };
 
-    // 위치 정보 처리
+    // 위치 정보 처리 (상세주소가 입력된 경우만)
     const detailAddress = document.getElementById('edit-detailAddress').value.trim();
-    let fullLocation = originalData.location;
-
-    if (detailAddress) {
-        // 기존 위치에서 마지막 부분(상세주소)만 교체
-        const parts = originalData.location.split(' ');
+    if (detailAddress && window.currentMeetingData && window.currentMeetingData.location) {
+        const parts = window.currentMeetingData.location.split(' ');
         if (parts.length >= 3) {
             parts[parts.length - 1] = detailAddress;
-            fullLocation = parts.join(' ');
+            updateData.location = parts.join(' ');
         } else {
-            fullLocation = `${window.currentMeetingLocation} ${detailAddress}`.trim();
+            updateData.location = `${window.currentMeetingLocation} ${detailAddress}`.trim();
         }
     }
 
-    // 원본 데이터 구조 유지하면서 수정할 부분만 변경
-    const updateData = {
-        ...originalData,  // 원본 데이터 전체 복사
-        title: title,
-        description: document.getElementById('edit-description').value || originalData.description,
-        bookTitle: document.getElementById('edit-bookTitle').value || originalData.bookTitle,
-        bookAuthor: document.getElementById('edit-bookAuthor').value || originalData.bookAuthor,
-        genre: document.getElementById('edit-genre').value || originalData.genre,
-        maxParticipants: parseInt(document.getElementById('edit-maxParticipants').value) || originalData.maxParticipants,
-        meetingTime: document.getElementById('edit-meetingTime').value || originalData.meetingTime,
-        location: fullLocation
-    };
-
-    console.log('원본 데이터:', originalData);
     console.log('수정 데이터:', updateData);
 
     try {
@@ -1692,7 +1645,7 @@ async function submitEditForm() {
         }
 
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}`, {
-            method: 'PATCH',  // PATCH로 변경
+            method: 'PUT',  // PUT으로 변경
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -1704,11 +1657,12 @@ async function submitEditForm() {
         if (response.ok) {
             alert('모임이 수정되었습니다.');
             closeModal();
+            // 페이지 새로고침하여 모든 정보 업데이트
             await loadMeetingDetail();
         } else {
             const errorText = await response.text();
             console.error('서버 에러 응답:', errorText);
-            throw new Error(`모임 수정에 실패했습니다 (${response.status})`);
+            throw new Error(`모임 수정에 실패했습니다 (${response.status}): ${errorText}`);
         }
     } catch (error) {
         console.error('모임 수정 실패:', error);
@@ -1721,6 +1675,7 @@ async function submitEditForm() {
         }
     }
 }
+
 function cancelMeeting() {
     if (!requireLogin('모임 취소')) return;
     if (window.userRole !== 'host') {
