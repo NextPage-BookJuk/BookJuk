@@ -45,7 +45,7 @@ https://api.bookjuk.com/api
 ## 2. 공통 응답 형식
 
 ### 2.1 성공 응답 (마이페이지 전용)
-```json
+```
 {
   "success": true,
   "message": "성공 메시지",
@@ -55,7 +55,7 @@ https://api.bookjuk.com/api
 ```
 
 ### 2.2 일반 성공 응답
-```json
+```
 {
   /* 직접 데이터 반환 */
 }
