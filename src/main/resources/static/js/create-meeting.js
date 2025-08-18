@@ -281,6 +281,119 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * 페이지 초기화
+ */
+function initializePage() {
+    // 시/도 선택 이벤트 리스너 추가
+    const regionSelect = document.getElementById('region');
+    if (regionSelect) {
+        regionSelect.addEventListener('change', updateCityOptions);
+    }
+
+    // 현재 날짜와 시간 설정
+    setMinDateTime();
+}
+
+/**
+ * 시/도 선택에 따른 시/군 옵션 업데이트
+ */
+function updateCityOptions() {
+    const regionSelect = document.getElementById('region');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+
+    if (!regionSelect || !citySelect || !districtSelect) return;
+
+    const selectedRegion = regionSelect.value;
+
+    // 시/군 초기화
+    citySelect.innerHTML = '<option value="">시/군을 먼저 선택해주세요</option>';
+    citySelect.disabled = true;
+
+    // 구/군 초기화
+    districtSelect.innerHTML = '<option value="">구/군을 먼저 선택해주세요</option>';
+    districtSelect.disabled = true;
+
+    // 시/도가 선택되지 않았으면 리턴
+    if (!selectedRegion || !regionData[selectedRegion]) {
+        return;
+    }
+
+    // 선택된 시/도의 시/군 옵션들을 추가
+    citySelect.innerHTML = '<option value="">시/군을 선택해주세요</option>';
+    const cities = Object.keys(regionData[selectedRegion]);
+
+    cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
+
+    citySelect.disabled = false;
+
+    // 시/군 선택 이벤트 리스너 추가
+    citySelect.addEventListener('change', updateDistrictOptions);
+}
+
+/**
+ * 시/군 선택에 따른 구/군 옵션 업데이트
+ */
+function updateDistrictOptions() {
+    const regionSelect = document.getElementById('region');
+    const citySelect = document.getElementById('city');
+    const districtSelect = document.getElementById('district');
+
+    if (!regionSelect || !citySelect || !districtSelect) return;
+
+    const selectedRegion = regionSelect.value;
+    const selectedCity = citySelect.value;
+
+    // 구/군 초기화
+    districtSelect.innerHTML = '<option value="">구/군을 선택해주세요</option>';
+    districtSelect.disabled = true;
+
+    // 시/도나 시/군이 선택되지 않았으면 리턴
+    if (!selectedRegion || !selectedCity || !regionData[selectedRegion] || !regionData[selectedRegion][selectedCity]) {
+        return;
+    }
+
+    // 선택된 시/군의 구/군 옵션들을 추가
+    const districts = regionData[selectedRegion][selectedCity];
+
+    districts.forEach(district => {
+        const option = document.createElement('option');
+        option.value = district;
+        option.textContent = district;
+        districtSelect.appendChild(option);
+    });
+
+    districtSelect.disabled = false;
+}
+
+/**
+ * 최소 날짜/시간 설정
+ */
+function setMinDateTime() {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    const currentTime = now.toTimeString().slice(0, 5);
+
+    const dateInput = document.getElementById('meetingDate');
+    const timeInput = document.getElementById('meetingTime');
+
+    if (dateInput) {
+        dateInput.min = today;
+        dateInput.value = today;
+    }
+
+    if (timeInput) {
+        timeInput.value = currentTime;
+    }
+}
+
+
+/**
  * 로그인 상태 확인
  * @returns {boolean} 로그인 여부
  */
