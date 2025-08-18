@@ -15,6 +15,7 @@ import com.bookjuk.dto.meeting.response.MeetingListResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
+import com.bookjuk.repository.review.MeetingReviewRepository;
 import com.bookjuk.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final FileService fileService;
+    private final MeetingReviewRepository meetingReviewRepository;
 
     /**
      * 모임을 생성합니다.
@@ -249,11 +251,12 @@ public class MeetingService {
         List<MeetingListItemDto> items = meetingPage.getContent().stream()
                 .map(m -> {
                     int curr = meetingParticipantRepository.countByMeetingId(m.getId());
-                    return MeetingListItemDto.from(m, curr);
+                    Long countHostReview = meetingReviewRepository.countReviewByUserId(m.getHost().getId());
+                    return MeetingListItemDto.from(m, curr, countHostReview);
                 })
                 .toList();
 
-        return MeetingListResponse.<MeetingListItemDto>builder()
+        return MeetingListResponse.builder()
                 .content(items)
                 .page(pageable.getPageNumber())
                 .size(pageable.getPageSize())
