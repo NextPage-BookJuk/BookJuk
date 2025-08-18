@@ -391,6 +391,8 @@ function renderMeetings(data) {
         const max = it.maxParticipants ?? it.capacity ?? it.limit ?? 0;
         const host = (it.host && (it.host.username || it.host.name)) || it.hostUsername || '';
         const hostProfile = (it.host && it.host.profileImage) || '';
+        // 좋아요 수 안전 추출
+        const hostLike = (it.host && it.host.hostLikeCount) ?? 0;
 
         const statusText = mapStatusToTextKorean(status);
         const statusClass = mapStatusToClass(status);
@@ -416,6 +418,7 @@ function renderMeetings(data) {
             : `<img class="avatar" src="/images/defaultProfile.png" alt="기본 프로필" loading="lazy">`
         }
                 <span class="name">${escapeHtml(host)}</span>
+                <span class="like-badge" title="방장 좋아요 수">❤️ ${hostLike}</span>
             </p>
           </div>
         </div>`;
