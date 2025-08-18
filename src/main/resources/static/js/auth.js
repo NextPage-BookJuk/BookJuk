@@ -59,7 +59,7 @@ export const api = {
         if (response.status === 401) {
             auth.logout();
             showToast('세션이 만료되었습니다. 다시 로그인해주세요.', 'error');
-            setTimeout(() => window.location.href = '/auth.html', 2000);
+            setTimeout(() => window.location.href = '/auth', 2000);
             throw new Error('Unauthorized');
         }
 
@@ -232,8 +232,8 @@ loginForm.addEventListener('submit', async (event) => {
 
     try {
         await auth.login(email, password);
-        showToast('로그인 성공! 메인 페이지로 이동합니다.', 'success');
-        setTimeout(() => window.location.href = '/', 1500); // 1.5초 후 메인으로
+        showToast('로그인 성공! 모임 목록으로 이동합니다.', 'success');
+        setTimeout(() => window.location.href = '/meetings/list', 1000); // 1초 후 모임 목록으로
     } catch (error) {
         showToast(error.detail || '로그인에 실패했습니다.', 'error');
     }
