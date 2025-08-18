@@ -553,40 +553,43 @@ function isValidImageFile(file) {
 }
 
 /**
- * FormData 생성 (3단계 지역 포함)
+ * FormData 생성 (백엔드 @RequestPart에 맞게 수정)
  */
 function createFormData() {
     const formData = new FormData();
 
-    // 텍스트 데이터
-    formData.append('title', document.getElementById('title').value.trim());
-    formData.append('bookTitle', document.getElementById('bookTitle').value.trim());
-    formData.append('bookAuthor', document.getElementById('bookAuthor').value.trim());
-    formData.append('genre', document.getElementById('genre').value);
-    formData.append('region', document.getElementById('region').value);
-    formData.append('city', document.getElementById('city').value);
-    formData.append('district', document.getElementById('district').value);
-    formData.append('maxParticipants', document.getElementById('maxParticipants').value);
+    // JSON 데이터를 객체로 만들어서 'meeting' part로 전송
+    const meetingData = {
+        title: document.getElementById('title').value.trim(),
+        bookTitle: document.getElementById('bookTitle').value.trim(),
+        bookAuthor: document.getElementById('bookAuthor').value.trim(),
+        genre: document.getElementById('genre').value,
+        region: document.getElementById('region').value,
+        city: document.getElementById('city').value,
+        district: document.getElementById('district').value,
+        maxParticipants: document.getElementById('maxParticipants').value,
+        meetingTime: document.getElementById('meetingDate').value + 'T' + document.getElementById('meetingTime').value
+    };
 
-    // description 필드 추가
+    // description 필드 추가 (선택사항)
     const description = document.getElementById('description').value.trim();
     if (description) {
-        formData.append('description', description);
+        meetingData.description = description;
     }
 
-    // 선택적 필드
+    // detailAddress 필드 추가 (선택사항)
     const detailAddress = document.getElementById('detailAddress').value.trim();
     if (detailAddress) {
-        formData.append('detailAddress', detailAddress);
+        meetingData.detailAddress = detailAddress;
     }
 
-    // 날짜/시간 조합
-    const date = document.getElementById('meetingDate').value;
-    const time = document.getElementById('meetingTime').value;
-    const meetingTime = date + 'T' + time;
-    formData.append('meetingTime', meetingTime);
+    // JSON 데이터를 Blob으로 변환하여 'meeting' part로 추가
+    const meetingBlob = new Blob([JSON.stringify(meetingData)], {
+        type: 'application/json'
+    });
+    formData.append('meeting', meetingBlob);
 
-    // 이미지 파일 (imageFile로 변경하여 백엔드와 일치시킴)
+    // 이미지 파일 추가 (imageFile part)
     if (selectedImageFile) {
         formData.append('imageFile', selectedImageFile);
     }
