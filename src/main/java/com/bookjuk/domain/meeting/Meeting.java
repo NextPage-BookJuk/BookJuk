@@ -186,5 +186,15 @@ public class Meeting {
     public void changeTitle(String updatedTitle) {
         this.title = updatedTitle;
     }
+    // 제목 변경  테스트
+//    public void changeTitle(String newTitle) {
+//        if (newTitle == null) return;
+//        String t = newTitle.trim();
+//        if (t.isEmpty()) return;
+//        if (!t.equals(this.title)) {
+//            this.title = t;
+//        }
+//    }
+
 }
 

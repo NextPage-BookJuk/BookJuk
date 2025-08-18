@@ -1,6 +1,7 @@
 package com.bookjuk.service;
 
 import com.bookjuk.domain.meeting.Meeting;
+import com.bookjuk.domain.meeting.MeetingStatus;
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
@@ -14,6 +15,7 @@ import com.bookjuk.dto.meeting.response.MeetingListResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
 import com.bookjuk.repository.meeting.custom.MeetingRepositoryCustom;
 import com.bookjuk.repository.participant.MeetingParticipantRepository;
+import com.bookjuk.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +35,7 @@ import java.util.List;
 @Transactional
 public class MeetingService {
 
+    private final UserRepository userRepository;
     private final MeetingRepository meetingRepository;
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final FileService fileService;
@@ -123,28 +128,105 @@ public class MeetingService {
         log.debug("모임 생성 요청 검증 완료: title={}, host={}", request.getTitle(), host.getEmail());
     }
 
+
     /**
      * 모임 상세 정보를 조회합니다.
+     *
      * @param meetingId 모임 ID
      * @return 모임 상세 정보
      * @throws CustomException 모임을 찾을 수 없는 경우
      */
-    @Transactional(readOnly = true)
     public MeetingDetailResponse getMeetingDetail(Long meetingId) {
-        if (meetingId == null) {
-            throw new CustomException(ErrorCode.INVALID_INPUT);
-        }
-
         Meeting meeting = meetingRepository.findById(meetingId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
 
-        // 현재 참여자 수 계산 (승인된 참여자만)
-        int currentParticipants = meetingParticipantRepository
-                .countByMeetingAndStatus(meeting, ParticipantStatus.APPROVED);
+        // 현재 참가자 수 계산 (APPROVED 상태인 참가자만)
+        Integer currentParticipants = meetingParticipantRepository
+                .countByMeeting_IdAndStatus(meetingId, ParticipantStatus.APPROVED);
 
-        log.debug("모임 상세 조회 완료: meetingId={}, currentParticipants={}", meetingId, currentParticipants);
+        // 호스트 관련 통계 조회 (실제로는 User 엔티티에서 가져와야 함)
+        // 임시로 0으로 설정, 추후 User 서비스와 연동 필요
+        Integer hostLikesCount = 0;
+        Integer hostedMeetingsCount = (int) meetingRepository.countByHost_Id(meeting.getHost().getId());
 
         return MeetingDetailResponse.from(meeting, currentParticipants);
+    }
+
+    /**
+     * 특정 모임의 참가자 목록을 조회합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param status 참가자 상태 필터 (nullable)
+     * @return 참가자 목록
+     */
+    public List<com.bookjuk.dto.participant.ParticipantResponse> getParticipants(Long meetingId, String status) {
+        List<MeetingParticipant> participants;
+
+        if (status != null && !status.isEmpty()) {
+            try {
+                ParticipantStatus participantStatus = ParticipantStatus.valueOf(status.toUpperCase());
+                participants = meetingParticipantRepository
+                        .findByMeeting_IdAndStatus(meetingId, participantStatus);
+            } catch (IllegalArgumentException e) {
+                throw new CustomException(ErrorCode.INVALID_INPUT);
+            }
+        } else {
+            // 상태 필터가 없으면 APPROVED와 HOST만 조회 (일반적인 참가자 목록)
+            participants = meetingParticipantRepository
+                    .findByMeeting_IdAndStatusIn(meetingId,
+                            Arrays.asList(ParticipantStatus.APPROVED, ParticipantStatus.PENDING));
+        }
+
+        return participants.stream()
+                .map(com.bookjuk.dto.participant.ParticipantResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 모임에 참가 신청을 처리합니다.
+     *
+     * @param meetingId 모임 ID
+     * @param userId 신청자 ID
+     * @throws CustomException 이미 신청한 경우, 모집 완료된 경우 등
+     */
+    @Transactional
+    public void applyToMeeting(Long meetingId, Long userId) {
+        // 모임 존재 확인
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 사용자 존재 확인
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 이미 신청했는지 확인
+        boolean alreadyApplied = meetingParticipantRepository
+                .existsByMeeting_IdAndParticipant_Id(meetingId, userId);
+        if (alreadyApplied) {
+            throw new CustomException(ErrorCode.ALREADY_APPLIED);
+        }
+
+        // 모집 상태 확인
+        if (meeting.getMeetingStatus() != MeetingStatus.RECRUITING) {
+            throw new CustomException(ErrorCode.MEETING_BOARD_MISMATCH);
+        }
+
+        // 참가자 수 확인
+        Integer currentParticipants = meetingParticipantRepository
+                .countByMeeting_IdAndStatus(meetingId, ParticipantStatus.APPROVED);
+        if (currentParticipants >= meeting.getMaxParticipants()) {
+            throw new CustomException(ErrorCode.MEETING_FULL);
+        }
+
+        // 참가신청 생성
+        MeetingParticipant participant = MeetingParticipant.builder()
+                .meeting(meeting)
+                .participant(user)
+                .role(ParticipantRole.PARTICIPANT)
+                .status(ParticipantStatus.PENDING)
+                .build();
+
+        meetingParticipantRepository.save(participant);
     }
 
     /**

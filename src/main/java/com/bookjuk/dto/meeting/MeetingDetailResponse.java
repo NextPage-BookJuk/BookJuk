@@ -25,6 +25,9 @@ public class MeetingDetailResponse {
     private int currentParticipants; // 현재 참여 인원
     private MeetingStatus meetingStatus;
 
+    //  호스트 정보를 직접 필드로 추가
+    private HostInfo host;
+
     // HostInfoResponseDto 대신 User의 정보를 직접 필드로 선언
     private Long hostId;
 
@@ -50,17 +53,40 @@ public class MeetingDetailResponse {
         dto.setMeetingStatus(meeting.getMeetingStatus());
         dto.setCurrentParticipants(currentParticipants);
 
+
+
         // 2. 주소 정보 조합
         String fullLocation = String.join(" ", meeting.getRegion(), meeting.getCity(), meeting.getDetailAddress()).trim();
         dto.setLocation(fullLocation);
 
-        // 3. 호스트 정보 설정 (User 엔티티에서 직접 가져옴)
+/*        // 3. 호스트 정보 설정 (User 엔티티에서 직접 가져옴)
         User host = meeting.getHost();
         if (host != null) {
             dto.setHostId(host.getId());
+        }*/
+        // 3. 호스트 정보 설정 (완전한 객체로)
+        User hostUser = meeting.getHost();
+        if (hostUser != null) {
+            dto.setHost(HostInfo.builder()
+                    .id(hostUser.getId())
+                    .username(hostUser.getUsername())
+                    .likesCount(0) // 추후 구현
+                    .hostedMeetingsCount(0) // 추후 구현
+                    .build());
         }
-
         return dto;
+    }
+
+    /**
+     * 호스트 정보 내부 클래스
+     */
+    @Getter
+    @Builder
+    public static class HostInfo {
+        private Long id;
+        private String username;
+        private Integer likesCount;
+        private Integer hostedMeetingsCount;
     }
 
 

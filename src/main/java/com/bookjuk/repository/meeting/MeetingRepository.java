@@ -62,4 +62,12 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long>, Meeting
      */
     Page<Meeting> findByTitleContaining(String keyword, Pageable pageable);
 
+    /**
+     * 특정 호스트가 주최한 모임 수를 카운트합니다.
+     *
+     * @param hostId 호스트 ID
+     * @return 주최한 모임 수
+     */
+    long countByHost_Id(Long hostId);
+
 }
