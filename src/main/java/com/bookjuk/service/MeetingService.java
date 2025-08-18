@@ -6,6 +6,7 @@ import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
 import com.bookjuk.domain.user.User;
+import com.bookjuk.dto.board.response.ParticipantResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
 import com.bookjuk.exception.CustomException;
@@ -159,7 +160,7 @@ public class MeetingService {
      * @param status 참가자 상태 필터 (nullable)
      * @return 참가자 목록
      */
-    public List<com.bookjuk.dto.participant.ParticipantResponse> getParticipants(Long meetingId, String status) {
+    public List<ParticipantResponse> getParticipants(Long meetingId, String status) {
         List<MeetingParticipant> participants;
 
         if (status != null && !status.isEmpty()) {
@@ -178,7 +179,7 @@ public class MeetingService {
         }
 
         return participants.stream()
-                .map(com.bookjuk.dto.participant.ParticipantResponse::from)
+                .map(ParticipantResponse::from)
                 .collect(Collectors.toList());
     }
 
