@@ -169,7 +169,7 @@ body {
 .filter-dropdown::after {
   content: '▾';
   position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  font-size: 12px; color: #8d7a65; pointer-events: none;
+  font-size: 20px; color: #8d7a65; pointer-events: none;
 }
 
 .dropdown-menu {
@@ -282,15 +282,28 @@ body {
   box-shadow: 0 0 0 2px #fff;
 }
 .card-author .author .name {
-  font-weight: 700; color: #4d3f31; position: relative; padding-right: 10px;
+  font-weight: 700; color: #4d3f31; position: relative; padding-right: 2px;
 }
-.card-author .author .name::after {
-  /* 작은 책갈피 배지 */
-  content:"";
-  position:absolute; right:-2px; top: 2px; width: 6px; height: 14px;
-  background: linear-gradient(180deg, var(--gold), #e6c98a);
-  clip-path: polygon(0 0, 100% 0, 100% 80%, 50% 100%, 0 80%);
-  border-radius: 2px;
+/* Host like badge */
+.card-author .author .like-badge {
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e53935;
+  background: #fdecea;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  line-height: 1.2;
+  vertical-align: middle;
+  box-shadow: 0 1px 3px var(--shadow-1);
+}
+.card-author .author .like-badge::before {
+  content: "♥";
+  font-size: 12px;
+  margin-right: 4px;
+  display: none; /* 텍스트에 이미 ♥를 넣었으니 숨김. 필요하면 제거 */
 }
 
 /* ---------- Empty State ---------- */
