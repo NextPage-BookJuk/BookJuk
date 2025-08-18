@@ -67,12 +67,6 @@ public class MeetingController {
         return "create-meeting"; // templates/create-meeting.html 반환
     }
 
-    @GetMapping("/meetings/list")
-    public String meetingListPage() {
-        log.info("모임 목록 페이지 요청");
-        return "main-page";
-    }
-
     /**
      * 새로운 모임을 생성합니다.
      *
