@@ -284,6 +284,7 @@ function formatDateTime(dtStr) {
   const mm = String(d.getMinutes()).padStart(2,'0');
   return `${y}.${m}.${day} ${hh}:${mm}`;
 }
+// 브라우저 태그 실행 방지, XSS(교차 사이트 스크립팅) 공격 방지
 function escapeHtml(str) {
   if (typeof str !== 'string') return str ?? '';
   return str.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
@@ -386,7 +387,10 @@ function renderMeetings(data) {
         const title = it.title ?? '';
         const desc = it.description ?? '';
         const when   = it.meetingTime ?? '';
-        const city = it.city ?? it.region ?? '';
+        const region = it.region ?? '';
+        const city = it.city ?? '';
+        // 지역 표기: region과 city가 둘 다 있으면 "서울특별시 강남구"
+        const fullLocation = region && city ? `${region} ${city}` : (region || city || '');
         const curr   = it.currentParticipants ?? it.currParticipants ?? it.participantsCount ?? 0;
         const max = it.maxParticipants ?? it.capacity ?? it.limit ?? 0;
         const host = (it.host && (it.host.username || it.host.name)) || it.hostUsername || '';
@@ -407,7 +411,10 @@ function renderMeetings(data) {
             <h3 class="card-title">${escapeHtml(title)}</h3>
             <p class="card-info"><span>📖</span><span>${escapeHtml(desc)}</span></p>
             <p class="card-date"><span>🗓️</span><span>${formatDateTime(when)}</span></p>
-            <p class="card-location"><span>📍</span><span>${escapeHtml(city)} · ${curr}/${max}명</span></p>
+            <p class="card-location">
+                <span>📍</span>
+                <span>${escapeHtml(fullLocation)} · ${curr}/${max}명</span>
+            </p>
             <p class="card-author">
               <span class="author">
                 ${hostProfile
