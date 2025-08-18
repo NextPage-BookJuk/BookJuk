@@ -25,6 +25,7 @@ public class MeetingListItemDto {
         private String username;
         private String profileImage;
         private String introduction;
+        private Long hostLikeCount;
     }
 
     private HostSummary host;
@@ -51,13 +52,14 @@ public class MeetingListItemDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static MeetingListItemDto from(Meeting m, int currentParticipants) {
+    public static MeetingListItemDto from(Meeting m, int currentParticipants, Long hostLikeCount) {
         User h = m.getHost();
         HostSummary hostSummary = HostSummary.builder()
                 .userId(h.getId())
                 .username(h.getUsername())
                 .profileImage(h.getProfileImage())
                 .introduction(h.getIntroduction())
+                .hostLikeCount(hostLikeCount)
                 .build();
 
         return MeetingListItemDto.builder()
