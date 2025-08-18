@@ -616,3 +616,157 @@ function goHome() {
 function goMyPage() {
     window.location.href = '/mypage';
 }
+
+/**
+ * 이미지 미리보기
+ * @param {HTMLInputElement} input - 파일 입력 요소
+ */
+function previewImage(input) {
+    const imagePreview = document.getElementById('imagePreview');
+    const imageError = document.getElementById('imageError');
+
+    // 에러 메시지 숨기기
+    if (imageError) {
+        imageError.style.display = 'none';
+        imageError.textContent = '';
+    }
+
+    // 기존 미리보기 초기화
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+    }
+
+    // 파일이 선택되지 않았으면 리턴
+    if (!input.files || !input.files[0]) {
+        selectedImageFile = null;
+        return;
+    }
+
+    const file = input.files[0];
+
+    // 파일 크기 검증 (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+        showImageError('파일 크기는 10MB 이하여야 합니다.');
+        input.value = '';
+        selectedImageFile = null;
+        return;
+    }
+
+    // 파일 타입 검증
+    if (!isValidImageFile(file)) {
+        showImageError('JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 업로드 가능합니다.');
+        input.value = '';
+        selectedImageFile = null;
+        return;
+    }
+
+    // 파일 저장
+    selectedImageFile = file;
+
+    // 미리보기 생성
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        if (imagePreview) {
+            imagePreview.innerHTML = `
+                <div class="preview-container">
+                    <img src="${e.target.result}" alt="미리보기" class="preview-image">
+                    <button type="button" class="remove-image-btn" onclick="removeImage()">×</button>
+                    <div class="preview-info">
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${(file.size / 1024 / 1024).toFixed(2)}MB</span>
+                    </div>
+                </div>
+            `;
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
+/**
+ * 이미지 제거
+ */
+function removeImage() {
+    const imageInput = document.getElementById('meetingImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageError = document.getElementById('imageError');
+
+    // 파일 입력 초기화
+    if (imageInput) {
+        imageInput.value = '';
+    }
+
+    // 미리보기 초기화
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+    }
+
+    // 에러 메시지 숨기기
+    if (imageError) {
+        imageError.style.display = 'none';
+        imageError.textContent = '';
+    }
+
+    // 전역 변수 초기화
+    selectedImageFile = null;
+}
+
+/**
+ * 이미지 에러 표시
+ * @param {string} message - 에러 메시지
+ */
+function showImageError(message) {
+    const imageError = document.getElementById('imageError');
+    if (imageError) {
+        imageError.textContent = message;
+        imageError.style.display = 'block';
+    }
+}
+
+/**
+ * 폼 유효성 검사
+ * @returns {boolean} 유효성 검사 통과 여부
+ */
+function validateForm() {
+    // 필수 필드 검증
+    const requiredFields = [
+        { id: 'title', name: '모임 제목' },
+        { id: 'bookTitle', name: '도서 제목' },
+        { id: 'bookAuthor', name: '저자' },
+        { id: 'genre', name: '장르' },
+        { id: 'region', name: '시/도' },
+        { id: 'city', name: '시/군' },
+        { id: 'district', name: '구/군' },
+        { id: 'meetingDate', name: '모임 날짜' },
+        { id: 'meetingTime', name: '모임 시간' },
+        { id: 'maxParticipants', name: '최대 인원' }
+    ];
+
+    for (const field of requiredFields) {
+        const element = document.getElementById(field.id);
+        if (!element || !element.value.trim()) {
+            alert(`${field.name}을(를) 입력해주세요.`);
+            element?.focus();
+            return false;
+        }
+    }
+
+    // 최대 인원 검증
+    const maxParticipants = parseInt(document.getElementById('maxParticipants').value);
+    if (maxParticipants < 2 || maxParticipants > 10) {
+        alert('최대 인원은 2명 이상 10명 이하로 설정해주세요.');
+        return false;
+    }
+
+    // 날짜/시간 검증
+    const meetingDate = document.getElementById('meetingDate').value;
+    const meetingTime = document.getElementById('meetingTime').value;
+    const meetingDateTime = new Date(meetingDate + 'T' + meetingTime);
+    const now = new Date();
+
+    if (meetingDateTime <= now) {
+        alert('모임 시간은 현재 시간보다 미래여야 합니다.');
+        return false;
+    }
+
+    return true;
+}
