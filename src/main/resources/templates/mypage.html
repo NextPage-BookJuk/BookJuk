@@ -5,16 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>북적북적 - 마이페이지</title>
-    
+    <link rel="stylesheet" th:href="@{/css/mypage.css}">
 </head>
 <body>
     <header class="header">
-        <h1 class="logo" onclick="goHome()">북적북적</h1>
+        <h1 class="logo">북적북적</h1>
         <nav class="nav">
-            <a href="#" onclick="goHome()">홈</a>
-            <a href="#" class="active">마이페이지</a>
-            <a href="#" class="create-meeting-btn" onclick="createMeeting()">모임 만들기</a>
-            <a href="#" onclick="logout()">로그아웃</a>
+            <a href="/" >홈</a>
+            <a href="/createMeeting" class="create-meeting-btn">모임 만들기</a>
+            <a href="/" >로그아웃</a>
         </nav>
     </header>
 
@@ -28,7 +27,7 @@
             <!-- 프로필 섹션 -->
             <div class="profile-section">
                 <div class="profile-header">
-                    <div class="profile-avatar" id="profileAvatar">도</div>
+                    <div class="profile-image" id="profileImage"></div>
                     <div class="profile-name" id="profileName">도도뇽</div>
                     <div class="profile-email" id="profileEmail">user@example.com</div>
                     <div class="profile-bio" id="profileBio">
@@ -57,306 +56,75 @@
                             <span class="stat-label">참여 모임</span>
                             <span class="stat-number" id="totalMeetings">12</span>
                         </div>
-                        <div class="stat-item">
-                            <span class="stat-label">주최 모임</span>
-                            <span class="stat-number" id="hostedMeetings">8</span>
-                        </div>
                     </div>
                 </div>
 
                 <div class="profile-actions">
-                    <button class="btn btn-primary" onclick="editProfile()">
+                    <button class="btn btn-primary"> <!--onclick="editProfile()"-->
                         <span>✏️</span>
                         프로필 수정
-                    </button>
-                    <button class="btn btn-secondary" onclick="viewSettings()">
-                        <span>⚙️</span>
-                        설정
                     </button>
                 </div>
             </div>
 
             <!-- 활동 섹션 -->
             <div class="activity-section">
-                <h2 class="section-title">📊 활동 현황</h2>
-
+                <h2 class="section-title">📊 참여한 모임</h2>
                 <div class="tabs-container">
-                    <div class="tabs-header">
-                        <button class="tab-btn active" onclick="showTab('hosted')">주최한 모임 (8)</button>
-                        <button class="tab-btn" onclick="showTab('participated')">참여한 모임 (4)</button>
-                        <button class="tab-btn" onclick="showTab('applied')">신청한 모임 (2)</button>
-                    </div>
-
-                    <!-- 주최한 모임 탭 -->
-                    <div class="tab-content active" id="hosted-tab">
+                    <div class="tab-content">
                         <div class="meetings-list">
-                            <div class="meeting-item">
+                            <!-- 참여한 모임이 없을 때 표시되는 빈 상태 -->
+                            <div class="empty-state" id="emptyState">
+                                <div class="empty-state-icon">📖</div>
+                                <div class="empty-state-title">아직 참여한 모임이 없어요</div>
+                                <div class="empty-state-message">
+                                    다양한 독서모임에 참여해보세요!<br>
+                                    새로운 사람들과 함께 책을 읽는 즐거움을 경험할 수 있어요.
+                                </div>
+                                <button class="empty-state-button" onclick="findMeetings()">
+                                    모임 찾기
+                                </button>
+                            </div>
+
+                            <!-- 기존 미팅 아이템 (참여한 모임이 있을 때만 표시) -->
+                            <div class="meeting-item" data-id = "">
                                 <div class="meeting-header">
                                     <div class="meeting-info">
                                         <div class="meeting-title">따뜻한 겨울 소설 읽기</div>
-                                        <div class="meeting-book">논픽션 · 김영하</div>
+                                        <div class="meeting-book">
+                                            <span class="book-title">논픽션</span>
+                                            <span class="book-author">김영하</span>
+                                        </div>
                                         <div class="meeting-meta">
                                             <div class="meeting-meta-item">
                                                 <span>🗓️</span>
-                                                <span>2025.08.15 19:00</span>
+                                                <span class="date">2025.08.15 19:00</span>
                                             </div>
-                                            <div class="meeting-meta-item">
+                                            <!--<div class="meeting-meta-item">
                                                 <span>📍</span>
                                                 <span>강남구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>5/8명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
+                                            </div>-->
+                                            <!--<div class="meeting-meta-item">
                                                 <span>📚</span>
                                                 <span>소설</span>
-                                            </div>
+                                            </div>-->
                                         </div>
                                     </div>
                                     <div class="meeting-status">
                                         <span class="status-badge status-recruiting">모집 중</span>
-                                        <span class="role-badge role-host">호스트</span>
-                                        <div class="likes-info">
-                                            <span>❤️</span>
-                                            <span>받은 좋아요 3개</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">자기계발서 나눔 모집</div>
-                                        <div class="meeting-book">아토믹 해빗 · 제임스 클리어</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.07.28 19:00</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>강남구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>8/8명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>자기계발</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-completed">모집 완료</span>
-                                        <span class="role-badge role-host">호스트</span>
-                                        <div class="likes-info">
-                                            <span>❤️</span>
-                                            <span>받은 좋아요 7개</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">철학 입문서 함께 읽기</div>
-                                        <div class="meeting-book">소피의 세계 · 요슈타인 가더</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.07.15 18:00</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>서초구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>6/6명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>철학</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-completed">모집 완료</span>
-                                        <span class="role-badge role-host">호스트</span>
-                                        <div class="likes-info">
-                                            <span>❤️</span>
-                                            <span>받은 좋아요 5개</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 참여한 모임 탭 -->
-                    <div class="tab-content" id="participated-tab">
-                        <div class="meetings-list">
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">북유럽 미스터리 소설 탐구</div>
-                                        <div class="meeting-book">용 문신을 한 여자 · 스티그 라르손</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.07.20 19:30</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>마포구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>7/7명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>소설</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-completed">모집 완료</span>
-                                        <span class="role-badge role-participant">참여자</span>
-                                        <div class="likes-info">
-                                            <span>❤️</span>
-                                            <span>좋아요 남김</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">일본 문학 살롱</div>
-                                        <div class="meeting-book">노르웨이의 숲 · 무라카미 하루키</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.07.05 18:00</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>용산구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>5/6명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>소설</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-completed">모집 완료</span>
-                                        <span class="role-badge role-participant">참여자</span>
-                                        <div class="likes-info">
-                                            <span>❤️</span>
-                                            <span>좋아요 남김</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 신청한 모임 탭 -->
-                    <div class="tab-content" id="applied-tab">
-                        <div class="meetings-list">
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">스릴러 소설 리뷰 모임</div>
-                                        <div class="meeting-book">살인자의 기억법 · 김영하</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.08.20 19:00</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>강동구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>6/10명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>스릴러</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-pending">승인 대기</span>
-                                        <div class="likes-info">
-                                            <span>⏰</span>
-                                            <span>신청일: 08.07</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="meeting-item">
-                                <div class="meeting-header">
-                                    <div class="meeting-info">
-                                        <div class="meeting-title">에세이 낭독회</div>
-                                        <div class="meeting-book">죽고 싶지만 떡볶이는 먹고 싶어 · 백세희</div>
-                                        <div class="meeting-meta">
-                                            <div class="meeting-meta-item">
-                                                <span>🗓️</span>
-                                                <span>2025.08.25 16:00</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📍</span>
-                                                <span>성동구</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>👥</span>
-                                                <span>4/8명</span>
-                                            </div>
-                                            <div class="meeting-meta-item">
-                                                <span>📚</span>
-                                                <span>에세이</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="meeting-status">
-                                        <span class="status-badge status-recruiting">모집 중</span>
-                                        <div class="likes-info">
-                                            <span>✅</span>
-                                            <span>승인 완료</span>
-                                        </div>
+                                        <span class="role-badge role-participant">호스트</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- 좋아요 섹션 -->
-                <div class="likes-section">
-                    <h3 class="section-title">❤️ 좋아요 현황</h3>
-                    <div class="likes-grid">
-                        <div class="likes-card">
-                            <div class="likes-number">23</div>
-                            <div class="likes-label">받은 좋아요</div>
-                            <div class="likes-list">
-                                <div class="like-item">
-                                    <div class="like-avatar">책</div>
-                                    <div>
-                                        <div>책벌레123</div>
-                                        <div class="like-meeting">철학 입문서 함
-<script src="/js/mypage.js"></script>
+        </div>
+    </div>
+    <script type="module" th:src="@{/js/auth.js}"></script>
+    <script type="module" src="/js/mypage.js"></script>
+</body>
+
+
