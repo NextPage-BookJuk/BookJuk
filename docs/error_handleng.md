@@ -78,7 +78,7 @@ public enum ErrorCode {
 ### 3.2 카테고리별 에러 코드
 
 #### 🔐 **인증 및 권한 관련 (401, 403)**
-```java
+```
 NEED_LOGIN("NEED_LOGIN", "로그인이 필요한 작업입니다.", 401)
 UNAUTHORIZED("UNAUTHORIZED", "인증이 필요합니다.", 401)
 FORBIDDEN("FORBIDDEN", "접근 권한이 없습니다.", 403)
@@ -88,12 +88,12 @@ INVALID_PASSWORD("INVALID_PASSWORD", "비밀번호가 올바르지 않습니다.
 ```
 
 #### 👤 **사용자 관련 (404)**
-```java
+```
 USER_NOT_FOUND("USER_NOT_FOUND", "사용자를 찾을 수 없습니다.", 404)
 ```
 
 #### 📚 **모임 관련 (400, 403, 404)**
-```java
+```
 MEETING_NOT_FOUND("MEETING_NOT_FOUND", "해당 모임을 찾을 수 없습니다.", 404)
 MEETING_FULL("MEETING_FULL", "모임 정원이 모두 찼습니다.", 400)
 ALREADY_APPLIED("ALREADY_APPLIED", "이미 해당 모임에 신청하셨습니다.", 400)
@@ -102,13 +102,13 @@ CANNOT_MODIFY_FINISHED_MEETING("CANNOT_MODIFY_FINISHED_MEETING", "종료된 모�
 ```
 
 #### 👥 **참가자 관리 (404, 409)**
-```java
+```
 PARTICIPANT_NOT_FOUND("PARTICIPANT_NOT_FOUND", "참여자 정보를 찾을 수 없습니다.", 404)
 DUPLICATE_APPROVAL("DUPLICATE_APPROVAL", "이미 승인된 사용자입니다.", 409)
 ```
 
 #### 📝 **게시글 관련 (400, 403, 404)**
-```java
+```
 POST_NOT_FOUND("POST_NOT_FOUND", "게시글을 찾을 수 없습니다.", 404)
 NOT_POST_AUTHOR("NOT_POST_AUTHOR", "게시글 작성자만 수정 또는 삭제할 수 있습니다.", 403)
 POST_ACCESS_DENIED("POST_ACCESS_DENIED", "게시글 작성 권한이 없습니다.", 403)
@@ -116,27 +116,27 @@ FILE_SIZE_EXCEEDED("FILE_SIZE_EXCEEDED", "파일 크기가 제한을 초과했�
 ```
 
 #### 💬 **댓글 관련 (403, 404)**
-```java
+```
 COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "댓글을 찾을 수 없습니다.", 404)
 NOT_COMMENT_AUTHOR("NOT_COMMENT_AUTHOR", "댓글 작성자만 수정 또는 삭제할 수 있습니다.", 403)
 COMMENT_ACCESS_DENIED("COMMENT_ACCESS_DENIED", "댓글 작성 권한이 없습니다.", 403)
 ```
 
 #### 🎯 **게시판 규칙 관련 (400, 403)**
-```java
+```
 BOARD_ACCESS_DENIED("BOARD_ACCESS_DENIED", "게시판 접근 권한이 없습니다. HOST 또는 승인된 참여자만 이용할 수 있습니다.", 403)
 MEETING_BOARD_MISMATCH("MEETING_BOARD_MISMATCH", "해당 모임의 게시글이 아닙니다.", 400)
 ```
 
 #### ❤️ **리뷰/좋아요 관련 (400)**
-```java
+```
 MEETING_NOT_COMPLETED("MEETING_NOT_COMPLETED", "미팅이 완료되지 않았습니다.", 400)
 DUPLICATE_LIKE("DUPLICATE_LIKE", "좋아요는 최대 한 번만 누를 수 있습니다.", 400)
 LIKE_SELF_NOT_ALLOWED("LIKE_SELF_NOT_ALLOWED", "자기 자신을 좋아요할 수 없습니다.", 400)
 ```
 
 #### ⚠️ **공통/시스템 에러 (400, 404, 500)**
-```java
+```
 INVALID_INPUT("INVALID_INPUT", "입력값이 올바르지 않습니다.", 400)
 VALIDATION_ERROR("VALIDATION_ERROR", "유효성 검사에 실패했습니다.", 400)
 RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND", "요청한 리소스를 찾을 수 없습니다.", 404)
@@ -323,7 +323,7 @@ public ResponseEntity<ErrorResponse> handleException(Exception e, HttpServletReq
 ### 7.2 로깅 전략
 
 #### **로그 레벨별 구분**
-```java
+```
 // 비즈니스 예외 - WARN 레벨
 log.warn("비즈니스 예외 발생: {}", e.getMessage());
 
@@ -449,7 +449,7 @@ switch (response.status) {
 
 ### 8.3 사용자 친화적 메시지 표시
 
-```javascript
+```
 // 에러 코드를 사용자 친화적 메시지로 변환
 const ERROR_MESSAGES = {
     'MEETING_NOT_FOUND': '해당 모임을 찾을 수 없습니다.',
@@ -474,15 +474,16 @@ function showUserFriendlyError(errorCode, fallbackMessage) {
 
 ### ✅ **새로운 에러 코드 추가 시**
 
-1. **ErrorCode enum에 추가**
-   ```java
-   NEW_ERROR("NEW_ERROR", "새로운 에러 메시지", HTTP_STATUS_CODE)
-   ```
+#### 1. **ErrorCode enum에 추가**
 
-2. **적절한 카테고리로 분류**
+```
+NEW_ERROR("NEW_ERROR", "새로운 에러 메시지", HTTP_STATUS_CODE)
+```
+
+#### 2. **적절한 카테고리로 분류**
     - 인증/권한, 사용자, 모임, 게시판 등
 
-3. **HTTP 상태 코드 적절히 선택**
+#### 3. **HTTP 상태 코드 적절히 선택**
     - 400: 클라이언트 요청 오류
     - 401: 인증 필요
     - 403: 권한 없음
@@ -490,13 +491,13 @@ function showUserFriendlyError(errorCode, fallbackMessage) {
     - 409: 충돌
     - 500: 서버 오류
 
-4. **사용자 친화적 메시지 작성**
+#### 4. **사용자 친화적 메시지 작성**
     - 기술적 용어 지양
     - 명확하고 이해하기 쉬운 표현
 
 ### ✅ **예외 발생 시 권장사항**
 
-```java
+```
 // ✅ 좋은 예시
 if (meeting == null) {
     throw new CustomException(ErrorCode.MEETING_NOT_FOUND);
@@ -510,7 +511,7 @@ if (meeting == null) {
 
 ### ✅ **로깅 권장사항**
 
-```java
+```
 // ✅ 적절한 로깅
 log.warn("모임 신청 실패 - 사용자ID: {}, 모임ID: {}, 사유: {}", 
          userId, meetingId, "이미 신청함");
