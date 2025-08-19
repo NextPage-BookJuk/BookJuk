@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>북적북적 - 프로필 수정</title>
-    
+    <link rel="stylesheet" th:href="@{/css/edit-profile.css}">
 </head>
 <body>
     <header class="header">
@@ -29,18 +29,16 @@
                 <h2 class="section-title">📷 프로필 이미지</h2>
                 
                 <div class="profile-image-section">
-                    <div class="current-avatar" id="currentAvatar">
-                        도
-                    </div>
+                    <div class="profile-image" id="profileImage"></div>
                     <div class="image-upload-area">
-                        <button type="button" class="file-upload-btn" onclick="document.getElementById('profileImage').click()">
+                        <button type="button" class="file-upload-btn">
                             <span>📷</span>
                             이미지 선택
                         </button>
-                        <button type="button" class="remove-image-btn" onclick="removeProfileImage()" id="removeImageBtn" style="display: none;">
+                        <button type="button" class="remove-image-btn">
                             이미지 제거
                         </button>
-                        <input type="file" class="file-input" id="profileImage" accept=".jpg,.jpeg,.png" onchange="previewImage(this)">
+                        <input type="file" class="file-input" id="newImage" accept="image/png, image/jpeg" />
                         <div class="image-info">JPG, PNG 파일 (최대 10MB)</div>
                         <div class="error-message" id="imageError" style="display: none;"></div>
                     </div>
@@ -53,14 +51,14 @@
                 
                 <div class="form-group">
                     <label class="form-label">닉네임 <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="nickname" value="도도뇽" placeholder="닉네임을 입력하세요" maxlength="20">
+                    <input type="text" class="form-input" id="username" value="도도뇽" placeholder="닉네임을 입력하세요" maxlength="20">
                     <div class="helper-text">최대 20자까지 입력 가능합니다 (중복 허용)</div>
                     <div class="error-message" id="nicknameError" style="display: none;"></div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">이메일</label>
-                    <input type="email" class="form-input" value="user@example.com" disabled>
+                    <input type="email" class="form-input" id="email" value="user@example.com" disabled>
                     <div class="helper-text">이메일은 수정할 수 없습니다</div>
                 </div>
 
@@ -77,45 +75,45 @@
                 
                 <div class="form-group">
                     <label class="form-label">관심 있는 장르를 선택해주세요 (선택)</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item selected" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre1" value="소설" checked>
+                    <div class="radio-group">
+                        <div class="radio-item" >
+                            <input type="radio" id="genre1" value="소설" name="genre">
                             <label for="genre1">소설</label>
                         </div>
-                        <div class="checkbox-item selected" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre2" value="에세이" checked>
+                        <div class="radio-item">
+                            <input type="radio" id="genre2" value="에세이" name="genre">
                             <label for="genre2">에세이</label>
                         </div>
-                        <div class="checkbox-item selected" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre3" value="자기계발" checked>
+                        <div class="radio-item" >
+                            <input type="radio" id="genre3" value="자기계발" name="genre">
                             <label for="genre3">자기계발</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre4" value="역사">
+                        <div class="radio-item">
+                            <input type="radio" id="genre4" value="역사" name="genre">
                             <label for="genre4">역사</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre5" value="과학">
+                        <div class="radio-item">
+                            <input type="radio" id="genre5" value="과학" name="genre">
                             <label for="genre5">과학</label>
                         </div>
-                        <div class="checkbox-item selected" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre6" value="철학" checked>
+                        <div class="radio-item" >
+                            <input type="radio" id="genre6" value="철학" name="genre">
                             <label for="genre6">철학</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre7" value="경제/경영">
+                        <div class="radio-item">
+                            <input type="radio" id="genre7" value="경제/경영" name="genre">
                             <label for="genre7">경제/경영</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre8" value="종교">
+                        <div class="radio-item">
+                            <input type="radio" id="genre8" value="종교" name="genre">
                             <label for="genre8">종교</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre9" value="예술">
+                        <div class="radio-item">
+                            <input type="radio" id="genre9" value="예술" name="genre">
                             <label for="genre9">예술</label>
                         </div>
-                        <div class="checkbox-item" onclick="toggleGenre(this)">
-                            <input type="checkbox" id="genre10" value="기타">
+                        <div class="radio-item">
+                            <input type="radio" id="genre10" value="기타" name="genre">
                             <label for="genre10">기타</label>
                         </div>
                     </div>
@@ -123,290 +121,16 @@
                 </div>
             </div>
 
-            <!-- 비밀번호 변경 섹션 -->
-            <div class="form-section">
-                <h2 class="section-title">🔒 비밀번호 변경</h2>
-                
-                <div class="password-section">
-                    <div class="password-group">
-                        <div class="form-group">
-                            <label class="form-label">현재 비밀번호</label>
-                            <input type="password" class="form-input" id="currentPassword" placeholder="현재 비밀번호를 입력하세요">
-                            <div class="error-message" id="currentPasswordError" style="display: none;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">새 비밀번호</label>
-                            <input type="password" class="form-input" id="newPassword" placeholder="영문+숫자 포함 6~20자">
-                            <div class="helper-text">영문 + 숫자 포함 6~20자</div>
-                            <div class="error-message" id="newPasswordError" style="display: none;"></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">새 비밀번호 확인</label>
-                            <input type="password" class="form-input" id="confirmPassword" placeholder="새 비밀번호를 다시 입력하세요">
-                            <div class="error-message" id="confirmPasswordError" style="display: none;"></div>
-                        </div>
-                    </div>
-                    <div class="helper-text">비밀번호를 변경하지 않으려면 현재 비밀번호 필드를 비워두세요</div>
-                </div>
-            </div>
-
             <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="goBack()">취소</button>
-                <button type="button" class="btn btn-primary" onclick="saveProfile()" id="submitBtn">
+                <button class="btn btn-secondary" id="cancelBtn">취소</button>
+                <button type="submit" class="btn btn-primary" id="submitBtn">
                     <span id="submitText">프로필 저장</span>
                     <div class="loading-spinner" id="loadingSpinner"></div>
                 </button>
             </div>
         </form>
+
     </div>
-
-    <script>
-        let hasProfileImage = false;
-
-        // 장르 선택/해제 토글
-        function toggleGenre(element) {
-            const checkbox = element.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                element.classList.add('selected');
-            } else {
-                element.classList.remove('selected');
-            }
-        }
-
-        // 프로필 이미지 미리보기
-        function previewImage(input) {
-            const avatarEl = document.getElementById('currentAvatar');
-            const removeBtn = document.getElementById('removeImageBtn');
-            const errorEl = document.getElementById('imageError');
-
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                
-                // 파일 크기 확인 (10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    showError('imageError', '파일 크기는 10MB 이하여야 합니다.');
-                    input.value = '';
-                    return;
-                }
-
-                // 파일 형식 확인
-                if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
-                    showError('imageError', 'JPG, PNG 파일만 업로드 가능합니다.');
-                    input.value = '';
-                    return;
-                }
-
-                hideError('imageError');
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    avatarEl.innerHTML = `<img src="${e.target.result}" alt="프로필 이미지">`;
-                    removeBtn.style.display = 'inline-block';
-                    hasProfileImage = true;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // 프로필 이미지 제거
-        function removeProfileImage() {
-            const avatarEl = document.getElementById('currentAvatar');
-            const removeBtn = document.getElementById('removeImageBtn');
-            const fileInput = document.getElementById('profileImage');
-            
-            avatarEl.innerHTML = '도';
-            removeBtn.style.display = 'none';
-            fileInput.value = '';
-            hasProfileImage = false;
-        }
-
-        // 비밀번호 유효성 검사
-        function validatePassword(password) {
-            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$/;
-            return passwordRegex.test(password);
-        }
-
-        // 폼 유효성 검사
-        function validateForm() {
-            let isValid = true;
-            
-            // 닉네임 검증
-            const nickname = document.getElementById('nickname').value.trim();
-            if (!nickname) {
-                showError('nicknameError', '닉네임을 입력해주세요.');
-                document.getElementById('nickname').classList.add('error');
-                isValid = false;
-            } else if (nickname.length > 20) {
-                showError('nicknameError', '닉네임은 20자 이하로 입력해주세요.');
-                document.getElementById('nickname').classList.add('error');
-                isValid = false;
-            } else {
-                hideError('nicknameError');
-                document.getElementById('nickname').classList.remove('error');
-            }
-
-            // 비밀번호 변경 시 검증
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (currentPassword || newPassword || confirmPassword) {
-                // 현재 비밀번호 확인
-                if (!currentPassword) {
-                    showError('currentPasswordError', '현재 비밀번호를 입력해주세요.');
-                    document.getElementById('currentPassword').classList.add('error');
-                    isValid = false;
-                } else {
-                    hideError('currentPasswordError');
-                    document.getElementById('currentPassword').classList.remove('error');
-                }
-
-                // 새 비밀번호 검증
-                if (!newPassword) {
-                    showError('newPasswordError', '새 비밀번호를 입력해주세요.');
-                    document.getElementById('newPassword').classList.add('error');
-                    isValid = false;
-                } else if (!validatePassword(newPassword)) {
-                    showError('newPasswordError', '영문 + 숫자 포함 6~20자로 입력해주세요.');
-                    document.getElementById('newPassword').classList.add('error');
-                    isValid = false;
-                } else {
-                    hideError('newPasswordError');
-                    document.getElementById('newPassword').classList.remove('error');
-                }
-
-                // 비밀번호 확인 검증
-                if (!confirmPassword) {
-                    showError('confirmPasswordError', '새 비밀번호를 다시 입력해주세요.');
-                    document.getElementById('confirmPassword').classList.add('error');
-                    isValid = false;
-                } else if (newPassword !== confirmPassword) {
-                    showError('confirmPasswordError', '새 비밀번호가 일치하지 않습니다.');
-                    document.getElementById('confirmPassword').classList.add('error');
-                    isValid = false;
-                } else {
-                    hideError('confirmPasswordError');
-                    document.getElementById('confirmPassword').classList.remove('error');
-                }
-            }
-
-            return isValid;
-        }
-
-        // 프로필 저장
-        function saveProfile() {
-            if (!validateForm()) {
-                alert('입력값을 다시 확인해주세요.');
-                return;
-            }
-
-            // 선택된 장르 수집
-            const selectedGenres = [];
-            document.querySelectorAll('.checkbox-item.selected input[type="checkbox"]').forEach(checkbox => {
-                selectedGenres.push(checkbox.value);
-            });
-
-            const formData = {
-                nickname: document.getElementById('nickname').value.trim(),
-                introduction: document.getElementById('introduction').value.trim(),
-                genres: selectedGenres,
-                profileImage: document.getElementById('profileImage').files[0] || null,
-                removeImage: !hasProfileImage && document.getElementById('profileImage').files.length === 0
-            };
-
-            // 비밀번호 변경이 있는 경우
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            
-            if (currentPassword && newPassword) {
-                formData.currentPassword = currentPassword;
-                formData.newPassword = newPassword;
-            }
-
-            console.log('프로필 수정 데이터:', formData);
-
-            // 로딩 상태 시작
-            const submitBtn = document.getElementById('submitBtn');
-            const submitText = document.getElementById('submitText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
-            
-            submitBtn.disabled = true;
-            submitText.style.display = 'none';
-            loadingSpinner.style.display = 'block';
-
-            // 저장 시뮬레이션
-            setTimeout(() => {
-                // 성공 처리
-                showSuccess('프로필이 성공적으로 저장되었습니다!');
-                
-                // 로딩 상태 종료
-                submitBtn.disabled = false;
-                submitText.style.display = 'block';
-                loadingSpinner.style.display = 'none';
-
-                // 잠시 후 마이페이지로 이동
-                setTimeout(() => {
-                    alert('마이페이지로 이동합니다.');
-                }, 1500);
-            }, 2000);
-        }
-
-        // 에러 메시지 표시
-        function showError(id, message) {
-            const errorEl = document.getElementById(id);
-            if (errorEl) {
-                errorEl.innerHTML = `<span>⚠️</span> ${message}`;
-                errorEl.style.display = 'flex';
-            }
-        }
-
-        // 에러 메시지 숨기기
-        function hideError(id) {
-            const errorEl = document.getElementById(id);
-            if (errorEl) {
-                errorEl.style.display = 'none';
-            }
-        }
-
-        // 성공 메시지 표시
-        function showSuccess(message) {
-            alert(message);
-        }
-
-        // 네비게이션 함수들
-        function goHome() {
-            alert('메인 페이지로 이동합니다.');
-        }
-
-        function goMyPage() {
-            alert('마이페이지로 이동합니다.');
-        }
-
-        function goBack() {
-            if (isFormChanged()) {
-                if (confirm('변경사항이 저장되지 않았습니다. 정말 나가시겠습니까?')) {
-                    alert('마이페이지로 이동합니다.');
-                }
-            } else {
-                alert('마이페이지로 이동합니다.');
-            }
-        }
-
-        // 폼 변경 여부 확인
-        function isFormChanged() {
-            const nickname = document.getElementById('nickname').value.trim();
-            const introduction = document.getElementById('introduction').value.trim();
-            const currentPassword = document.getElementById('currentPassword').value;
-            
-            return nickname !== '도도뇽' || 
-                   introduction !== '안녕하세요! 책을 사랑하는 도도뇽입니다. 다양한 장르의 책을 읽으며 사람들과 이야기 나누는 것을 좋아해요. 함께 성장할 수 있는 따뜻한 독서모임을 만들고 싶습니다. 📚✨' ||
-                   currentPassword ||
-                   document.getElementById('profileImage').files.length > 0;
-        }
-
-        // 페이지 떠날 때 경고
-<script src="/js/edit-profile.js"></script>
+    <script type="module" th:src="@{/js/auth.js}"></script>
+    <script type="module" src="/js/edit-profile.js"></script>
+</body>
