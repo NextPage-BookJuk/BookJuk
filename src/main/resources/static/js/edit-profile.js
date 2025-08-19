@@ -44,6 +44,29 @@ const renderMyProfile = (myInfo) => {
 
 
 //=========== 기타 함수 ============//
+
+// ===== 인증 헬퍼 (auth.js 방식과 호환) =====
+const authHelper = {
+    getToken() {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('jwtToken');
+        return token && token.trim() !== '' ? token : null;
+    },
+    getUser() {
+        const userInfo = localStorage.getItem('userInfo') || localStorage.getItem('currentUser');
+        return userInfo ? JSON.parse(userInfo) : null;
+    },
+    isLoggedIn() {
+        return !!this.getToken();
+    },
+    logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('currentUser');
+        updateNavigationByLoginStatus();
+    }
+}
+
 // 로컬 스토리지로부터 사용자 정보 가져오기
 function getUserFromLocalStorage() {
     try {
@@ -53,18 +76,6 @@ function getUserFromLocalStorage() {
         console.error('사용자 정보 파싱 오류:', error);
         return null;
     }
-}
-
-// 로컬 스토리지에서 토큰 정보 가져오기
-function getJwtTokenFromLocalStorage() {
-    const token = localStorage.getItem('authToken');
-    return token && token.trim() !== '' ? token : null;
-}
-
-// 토큰 존재로 로그인 여부 판단
-function checkLoginStatus() {
-    const token = getJwtTokenFromLocalStorage();
-    return token !== null && token.trim() !== '';
 }
 
 // 프로필 이미지 업로드
@@ -255,10 +266,76 @@ async function handleErrorResponse(response) {
     }
 }
 
+function updateNavigationByLoginStatus() {
+    const isLoggedIn = authHelper.isLoggedIn();
+    const user = authHelper.getUser();
+
+    // 헤더의 로그인/회원가입 버튼들
+    const loginBtn = document.querySelector('.login-btn');
+    const signupBtn = document.querySelector('.signup-btn');
+    const startBtn = document.querySelector('.start-btn');
+
+    // 사용자 네비게이션 영역 (있다면)
+    let userNav = document.querySelector('.user-nav');
+
+    // 사용자 네비게이션 영역이 없으면 생성
+    if (!userNav && isLoggedIn) {
+        userNav = document.createElement('div');
+        userNav.className = 'user-nav';
+        userNav.style.cssText = 'display: flex; align-items: center; gap: 15px; margin-left: auto;';
+
+        // 적절한 위치에 삽입 (기존 버튼들 근처)
+        const nav = document.querySelector('nav') || document.querySelector('header') || document.body;
+        if (loginBtn && loginBtn.parentNode) {
+            loginBtn.parentNode.insertBefore(userNav, loginBtn);
+        } else {
+            nav.appendChild(userNav);
+        }
+    }
+
+    if (isLoggedIn && user) {
+        console.log('로그인된 사용자:', user);
+
+        // 로그인/회원가입 버튼 숨기기
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (signupBtn) signupBtn.style.display = 'none';
+        if (startBtn) startBtn.style.display = 'none';
+
+        // 사용자 네비게이션 표시
+        if (userNav) {
+            userNav.style.display = 'flex';
+            userNav.innerHTML = `
+                <a href="/mypage" class="mypage-btn">마이페이지</a>
+                <span style="color: #555; margin-right: 10px;">안녕하세요, ${user.username || user.name || '사용자'}님!</span>
+                <button onclick="logout()" class="logout-btn">로그아웃</button>
+            `;
+        }
+    } else {
+        // 로그인되지 않은 상태
+        if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (signupBtn) signupBtn.style.display = 'inline-block';
+        if (startBtn) startBtn.style.display = 'inline-block';
+        if (userNav) userNav.style.display = 'none';
+    }
+}
+
+// 로그아웃 함수
+function logout() {
+    if (confirm('정말 로그아웃하시겠습니까?')) {
+        authHelper.logout();
+        window.location.href = `/`;
+    }
+}
+
+// 홈으로 이동
+function goHome() {
+    window.location.href = `/`;
+}
+
 //=========== 서버 데이터 요청/응답 관련 함수 ============//
 const fetchGetMyPage = async () => {
     console.log("마이페이지 js");
-    const token = getJwtTokenFromLocalStorage();
+    const token = authHelper.getToken();
     if (!token) {
         throw new Error('인증 토큰이 없습니다.');
     }
@@ -285,7 +362,7 @@ const updateMyProfile = async () => {
         const formData = createFormData();
 
         // JWT 토큰 가져오기
-        const token = getJwtTokenFromLocalStorage();
+        const token = authHelper.getToken();
         if (!token) {
             throw new Error('인증 토큰이 없습니다.');
         }
@@ -331,6 +408,8 @@ const addEventListeners  = () => {
     const $imageInput = document.getElementById('newImage');
     const $saveBtn = document.getElementById('submitBtn')
     const $cancelBtn = document.getElementById('cancelBtn');
+    const $logoutBtn = document.querySelector('.logout-btn');
+    const $logo = document.querySelector('h1.logo');
 
     $uploadImageBtn.addEventListener('click', e => {
         $imageInput.click();
@@ -357,6 +436,18 @@ const addEventListeners  = () => {
         goToMyPage();
     })
 
+    // 로그아웃 버튼 클릭 시
+    $logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        console.log('로그아웃 버튼 클릭!');
+        logout();
+    })
+
+    // 홈으로 이동
+    $logo.addEventListener('click', e => {
+        goHome();
+    })
+
 }
 
 //=========== 메인 코드 실행 ============//
@@ -364,7 +455,7 @@ const addEventListeners  = () => {
 
     // 페이지가 처음 열렸을 때 로그인 상태를 확인
     // 로그인 상태 확인
-    if (!checkLoginStatus()) {
+    if (!authHelper.isLoggedIn()) {
         document.querySelector('.container').innerHTML = ``;
         alert('로그인이 필요한 서비스입니다.');
         window.location.href = '/auth';
@@ -372,6 +463,7 @@ const addEventListeners  = () => {
     }
 
     // 초기 진입 시 정보 조회
+    updateNavigationByLoginStatus();
     fetchGetMyPage();
 
     // 이벤트 핸들러들을 등록합니다.
