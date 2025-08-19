@@ -135,8 +135,7 @@ body {
   border-radius: 4px;
 }
 .hero-title {
-  font-family: var(--serif);
-  font-size: 40px; font-weight: 800; margin-bottom: 10px; color: var(--ink);
+  font-size: 40px; font-weight: bold; margin-bottom: 10px; color: var(--ink);
 }
 .hero-subtitle {
   font-size: 18px; color: #5f5144; margin-bottom: 26px;
