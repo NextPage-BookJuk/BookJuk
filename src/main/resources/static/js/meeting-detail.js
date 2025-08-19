@@ -906,9 +906,9 @@ async function approveParticipant(userId) {
             alert('참가자를 승인했습니다.');
 
             // 목록 새로고침
-            loadPendingRequests();
-            loadParticipants();
-            loadMeetingDetail();
+            await loadPendingRequests();
+            await loadParticipants();
+            await loadMeetingDetail();
         } else {
             const errorData = await response.text();
             throw new Error(errorData || '승인 처리에 실패했습니다.');
@@ -933,7 +933,10 @@ async function rejectParticipant(userId) {
 
         if (response.ok) {
             alert('참가신청을 거절했습니다.');
-            loadPendingRequests();
+            // 목록 새로고침
+            await loadPendingRequests();
+            await loadParticipants();
+            await loadMeetingDetail();
         } else {
             const errorData = await response.text();
             throw new Error(errorData || '거절 처리에 실패했습니다.');
