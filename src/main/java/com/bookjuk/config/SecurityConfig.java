@@ -60,6 +60,7 @@ public class SecurityConfig {
                                         ,"/meetings/**"
                                         ,"/api/meetings/*/posts/**"
                                         ,"/api/meetings/*/participants/**"
+                                        , "/editProfile"
                                 ).permitAll()
                                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                                 .requestMatchers("/api/users/**").permitAll()
