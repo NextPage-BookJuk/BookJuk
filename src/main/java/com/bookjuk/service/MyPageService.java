@@ -97,6 +97,9 @@ public class MyPageService {
         }
 
         // 3. 유저 객체에 정보 수정
+        if(newImage == null) {
+            newImage = "/images/defaultProfile.png";
+        }
         user.updateProfile(request, newImage);
 
         // 4. 수정된 유저정보 업데이트

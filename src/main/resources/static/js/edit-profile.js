@@ -1,5 +1,6 @@
 // 백엔드 API 서버의 기본 URL
 const URL = 'api/mypage';
+const DEFAULT_IMAGE_PATHS = '/images/defaultProfile.png';
 
 //=========== DOM ============//
 const profileImage = document.getElementById('profileImage');
@@ -8,6 +9,8 @@ const email = document.getElementById('email');
 const introduction = document.getElementById('introduction');
 const genres = document.querySelectorAll('input[name="genre"]');
 const $removeImageBtn = document.querySelector('.remove-image-btn');
+// db 에서 가져온 이미지 경로
+let storedImage = null;
 let selectedImageFile = null;
 
 //=========== 렌더링 관련 함수 ============//
@@ -40,6 +43,12 @@ const renderMyProfile = (myInfo) => {
         genre.checked = (genre.value === preferredGenre && preferredGenre !== null);
     });
 
+    // 이미지 삭제 버튼 노출
+    storedImage = user.profileImage;
+    if(isDefaultImage(storedImage)) {
+        $removeImageBtn.style.display = 'block';
+    }
+
 }
 
 
@@ -64,17 +73,6 @@ const authHelper = {
         localStorage.removeItem('jwtToken');
         localStorage.removeItem('currentUser');
         updateNavigationByLoginStatus();
-    }
-}
-
-// 로컬 스토리지로부터 사용자 정보 가져오기
-function getUserFromLocalStorage() {
-    try {
-        const user = localStorage.getItem('userInfo');
-        return user ? JSON.parse(user) : null;
-    } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
-        return null;
     }
 }
 
@@ -158,11 +156,6 @@ function removeImage() {
         imageError.style.display = 'none';
         imageError.textContent = '';
     }
-
-    // 전역 변수 초기화
-    selectedImageFile = null;
-
-
 
     $removeImageBtn.style.display = 'none';
 
@@ -266,6 +259,7 @@ async function handleErrorResponse(response) {
     }
 }
 
+// 네비게이션 변경
 function updateNavigationByLoginStatus() {
     const isLoggedIn = authHelper.isLoggedIn();
     const user = authHelper.getUser();
@@ -332,6 +326,16 @@ function goHome() {
     window.location.href = `/`;
 }
 
+// 마이페이지로 이동
+function goToMyPage() {
+    window.location.href = '/mypage';
+}
+
+// 디폴트 이미지 여부 확인
+function isDefaultImage(storedImage) {
+    if(storedImage !== DEFAULT_IMAGE_PATHS) return true;
+}
+
 //=========== 서버 데이터 요청/응답 관련 함수 ============//
 const fetchGetMyPage = async () => {
     console.log("마이페이지 js");
@@ -377,7 +381,7 @@ const updateMyProfile = async () => {
 
         if (response.ok) {
             const result = await response.json();
-            alert('프로필 정보가 성공적으로 수정되었습니다.');
+            // alert('프로필 정보가 성공적으로 수정되었습니다.');
 
             // 마이페이지로 다시 이동
             // alert 후 약간의 지연을 두고 이동
@@ -398,9 +402,7 @@ const updateMyProfile = async () => {
 
     }
 }
-function goToMyPage() {
-    window.location.href = '/mypage';
-}
+
 
 //=========== 이벤트 핸들러 설정 ============//
 const addEventListeners  = () => {
@@ -428,7 +430,9 @@ const addEventListeners  = () => {
     // 수정 폼 제출
     $saveBtn.addEventListener('click', e => {
         e.preventDefault();
-        updateMyProfile();
+        if(confirm('프로필 정보를 수정하시겠습니까?')) {
+            updateMyProfile();
+        }
     })
 
     $cancelBtn.addEventListener('click', e => {

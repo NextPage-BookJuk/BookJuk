@@ -95,7 +95,7 @@ const viewMyPage = (myInfo) => {
                 다양한 독서모임에 참여해보세요!<br>
                 새로운 사람들과 함께 책을 읽는 즐거움을 경험할 수 있어요.
             </div>
-            <button class="empty-state-button">
+            <button type="button" class="empty-state-button">
                 모임 찾기
             </button>
         `;
@@ -314,12 +314,15 @@ const addEventListeners = () => {
         }
     })
 
-    /*// 참여 모임 없을 시 모임 찾기 페이지 이동
-    $findMeetingBtn.addEventListener('click', e => {
-        e.preventDefault();
-        console.log('이동버튼 클릭!')
-        goToFindMeeting();
-    })*/
+    // 참여 모임 없을 시 모임 찾기 페이지 이동
+    if ($findMeetingBtn) {
+        $meetingSection.addEventListener('click', e => {
+            if(e.target.closest($findMeetingBtn)) {
+                console.log('이동버튼 클릭!')
+                goToFindMeeting();
+            }
+        })
+    }
 
     // 로그아웃 버튼 클릭 시
     $logoutBtn.addEventListener('click', e => {
