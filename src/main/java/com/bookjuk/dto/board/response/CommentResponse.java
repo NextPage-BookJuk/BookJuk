@@ -7,7 +7,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
 /**
  * 댓글 정보를 담는 응답 DTO 클래스
  * 댓글 작성자의 username도 함께 포함된다.
@@ -29,7 +28,6 @@ public class CommentResponse {
     // 댓글 수정 시간
     private LocalDateTime updatedAt;
 
-
     /**
      * 엔터티와 작성자로부터 CommentResponse 객체를 생성한다.
      *
@@ -42,6 +40,7 @@ public class CommentResponse {
                 .commentId(comment.getId())
                 .content(comment.getContent())
                 .userId(comment.getUserId())
+                .username(username)  // 누락된 부분 추가
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .build();

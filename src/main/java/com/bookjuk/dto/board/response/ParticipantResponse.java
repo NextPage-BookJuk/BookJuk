@@ -1,4 +1,4 @@
-package com.bookjuk.dto.participant;
+package com.bookjuk.dto.board.response;
 
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;

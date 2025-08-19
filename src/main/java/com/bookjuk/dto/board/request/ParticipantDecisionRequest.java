@@ -1,4 +1,4 @@
-package com.bookjuk.dto.board;
+package com.bookjuk.dto.board.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

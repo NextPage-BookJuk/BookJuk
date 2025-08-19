@@ -1,7 +1,7 @@
 package com.bookjuk.controller;
 
-import com.bookjuk.dto.board.ParticipantDecisionRequest;
-import com.bookjuk.dto.board.ParticipantDecisionResponse;
+import com.bookjuk.dto.board.request.ParticipantDecisionRequest;
+import com.bookjuk.dto.board.response.ParticipantDecisionResponse;
 import com.bookjuk.service.ParticipantService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
