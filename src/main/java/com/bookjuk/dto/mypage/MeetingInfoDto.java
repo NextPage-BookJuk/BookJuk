@@ -23,6 +23,7 @@ import java.util.Map;
 public class MeetingInfoDto {
 
     // 모임 정보
+    private Long meetingId;
     private String meetingTitle;
     private LocalDateTime meetingTime;
     private MeetingStatus meetingStatus;
@@ -37,6 +38,7 @@ public class MeetingInfoDto {
         bookMap.put("author", meeting.getBookAuthor());
 
         return MeetingInfoDto.builder()
+                .meetingId(meeting.getId())
                 .meetingTitle(meeting.getTitle())
                 .meetingTime(meeting.getMeetingTime())
                 .meetingStatus(meeting.getMeetingStatus())

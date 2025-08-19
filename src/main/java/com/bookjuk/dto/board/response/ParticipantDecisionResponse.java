@@ -1,4 +1,4 @@
-package com.bookjuk.dto.board;
+package com.bookjuk.dto.board.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
