@@ -71,12 +71,11 @@ function initDropdowns() {
       const item = e.target.closest('li');
       if (!item) return;
       const code = item.getAttribute('data-value') ?? item.textContent.trim();
-      const icon = labelEl.querySelector('.icon')?.textContent ?? '';
 
       // ✅ '전체'(빈 값) 선택 시 각 드롭다운 별 기본 라벨 복구
       if (code === '') {
         if (dropdown.classList.contains('region1-filter')) {
-          labelEl.innerHTML = `<span class="icon">${icon || '📍'}</span>시 / 도`;
+          labelEl.innerHTML = `시 / 도`;
           dropdown.setAttribute('data-value', '');
           // 시/도 초기화 시 구/군도 함께 초기화/비활성
           const r2 = document.querySelector('.region2-filter');
@@ -84,25 +83,25 @@ function initDropdowns() {
           if (r2 && r2Label) {
             r2.setAttribute('data-value','');
             r2.classList.add('disabled');
-            r2Label.innerHTML = `<span class="icon">📍</span>구 / 군`;
+            r2Label.innerHTML = `구 / 군`;
             const r2Menu = document.getElementById('region2-menu');
             if (r2Menu) r2Menu.innerHTML = '';
           }
         } else if (dropdown.classList.contains('region2-filter')) {
-          labelEl.innerHTML = `<span class="icon">${icon || '📍'}</span>구 / 군`;
+          labelEl.innerHTML = `구 / 군`;
           dropdown.setAttribute('data-value', '');
         } else if (dropdown.classList.contains('genre-filter')) {
-          labelEl.innerHTML = `<span class="icon">${icon || '📚'}</span>장르 선택`;
+          labelEl.innerHTML = `장르 선택`;
           dropdown.setAttribute('data-value', '');
         } else if (dropdown.classList.contains('status-filter')) {
-          labelEl.innerHTML = `<span class="icon">${icon || '📖'}</span>상태 선택`;
+          labelEl.innerHTML = `상태 선택`;
           dropdown.setAttribute('data-value', '');
         } else {
           dropdown.setAttribute('data-value', '');
         }
       } else {
         // 일반 선택: 선택한 항목 텍스트로 라벨 반영
-        labelEl.innerHTML = `<span class="icon">${icon}</span>${item.textContent.trim()}`;
+        labelEl.innerHTML = `${item.textContent.trim()}`;
         dropdown.setAttribute('data-value', code);
       }
       menuEl.classList.remove('active');
@@ -147,16 +146,16 @@ function initRegionMenus() {
     // '전체' 선택 시: 시/도 초기화 + 구/군 비활성
     if (siDo === '') {
       region1Filter.setAttribute('data-value', '');
-      region1Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>시 / 도`;
+      region1Filter.querySelector('.dropdown-label').innerHTML = `시 / 도`;
       region2Menu.innerHTML = '';
       region2Filter.setAttribute('data-value', '');
-      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>구 / 군`;
+      region2Filter.querySelector('.dropdown-label').innerHTML = `구 / 군`;
       region2Filter.classList.add('disabled');
       return;
     }
 
     region1Filter.setAttribute('data-value', siDo);
-    region1Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>${siDo}`;
+    region1Filter.querySelector('.dropdown-label').innerHTML = `${siDo}`;
 
     // 구/군 목록 갱신: '전체' 먼저 추가
     region2Menu.innerHTML = '';
@@ -173,7 +172,7 @@ function initRegionMenus() {
     });
 
     region2Filter.setAttribute('data-value', '');
-    region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>구 / 군`;
+    region2Filter.querySelector('.dropdown-label').innerHTML = `구 / 군`;
     region2Filter.classList.remove('disabled');
   });
 
@@ -184,10 +183,10 @@ function initRegionMenus() {
     if (guGun === '') {
       // '전체' → 구/군 초기화(시/도는 유지)
       region2Filter.setAttribute('data-value', '');
-      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>구 / 군`;
+      region2Filter.querySelector('.dropdown-label').innerHTML = `구 / 군`;
     } else {
       region2Filter.setAttribute('data-value', guGun);
-      region2Filter.querySelector('.dropdown-label').innerHTML = `<span class="icon">📍</span>${guGun}`;
+      region2Filter.querySelector('.dropdown-label').innerHTML = `${guGun}`;
     }
   });
 }
@@ -221,7 +220,6 @@ function updateNavigationByLoginStatus() {
   }
 
   if (isLoggedIn && user) {
-    console.log('로그인된 사용자:', user);
 
     // 로그인/회원가입 버튼 숨기기
     if (loginBtn) loginBtn.style.display = 'none';
@@ -251,7 +249,6 @@ function updateNavigationByLoginStatus() {
 function logout() {
   if (confirm('정말 로그아웃하시겠습니까?')) {
     authHelper.logout();
-    alert('로그아웃되었습니다.');
     location.reload(); // 페이지 새로고침으로 상태 업데이트
   }
 }
@@ -409,10 +406,10 @@ function renderMeetings(data) {
           </div>
           <div class="card-content">
             <h3 class="card-title">${escapeHtml(title)}</h3>
-            <p class="card-info"><span>📖</span><span>${escapeHtml(desc)}</span></p>
-            <p class="card-date"><span>🗓️</span><span>${formatDateTime(when)}</span></p>
+            <p class="card-info"><span>⊙</span><span>${escapeHtml(desc)}</span></p>
+            <p class="card-date"><span>⊙</span><span>${formatDateTime(when)}</span></p>
             <p class="card-location">
-                <span>📍</span>
+                <span>⊙</span>
                 <span>${escapeHtml(fullLocation)} · ${curr}/${max}명</span>
             </p>
             <p class="card-author">
@@ -479,7 +476,7 @@ function renderMeetings(data) {
     clearFilters();
     document.querySelector('.sort-filter')?.setAttribute('data-value', 'latest');
     const sortLabel = document.querySelector('.sort-filter .dropdown-label');
-    if (sortLabel) sortLabel.innerHTML = `<span class="icon">↕️</span>최신순`;
+    if (sortLabel) sortLabel.innerHTML = `최신순`;
     runSearch(0).catch(console.error);
   });
 }
@@ -586,7 +583,7 @@ function clearFilters() {
   if (r1) {
     r1.setAttribute('data-value', '');
     const l = r1.querySelector('.dropdown-label');
-    if (l) l.innerHTML = `<span class="icon">📍</span>시 / 도`;
+    if (l) l.innerHTML = `시 / 도`;
   }
   // 구/군
   const r2 = document.querySelector('.region2-filter');
@@ -594,7 +591,7 @@ function clearFilters() {
     r2.setAttribute('data-value', '');
     r2.classList.add('disabled');
     const l = r2.querySelector('.dropdown-label');
-    if (l) l.innerHTML = `<span class="icon">📍</span>구 / 군`;
+    if (l) l.innerHTML = `구 / 군`;
     // 목록도 비워줌
     const m = document.getElementById('region2-menu');
     if (m) m.innerHTML = '';
@@ -604,21 +601,21 @@ function clearFilters() {
   if (g) {
     g.setAttribute('data-value', '');
     const l = g.querySelector('.dropdown-label');
-    if (l) l.innerHTML = `<span class="icon">📚</span>장르 선택`;
+    if (l) l.innerHTML = `장르 선택`;
   }
   // 상태
   const s = document.querySelector('.status-filter');
   if (s) {
     s.setAttribute('data-value', '');
     const l = s.querySelector('.dropdown-label');
-    if (l) l.innerHTML = `<span class="icon">📖</span>상태 선택`;
+    if (l) l.innerHTML = `상태 선택`;
   }
   // 정렬(최신)
   const sort = document.querySelector('.sort-filter');
   if (sort) {
     sort.setAttribute('data-value', 'latest');
     const l = sort.querySelector('.dropdown-label');
-    if (l) l.innerHTML = `<span class="icon">↕️</span>최신순`;
+    if (l) l.innerHTML = `최신순`;
   }
 }
 
@@ -675,11 +672,6 @@ function goHome() {
 // 로그인 페이지로 이동
 function goToLogin() {
   window.location.href = '/auth';
-}
-
-// 회원가입 페이지로 이동 (auth 페이지의 회원가입 탭)
-function goToSignup() {
-  window.location.href = '/auth#signup';
 }
 
 // 모임 만들기 페이지로 이동 (로그인 체크 포함)
@@ -792,7 +784,6 @@ window.mainPageDebug = {
 
 // ===== 페이지 로드 =====
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('메인 페이지 로드 시작');
 
   // 로그인 상태 확인 및 네비게이션 업데이트
   updateNavigationByLoginStatus();
@@ -805,6 +796,5 @@ document.addEventListener('DOMContentLoaded', () => {
   // 페이지 로드 시 최신순, page=0, size=6 기준으로 바로 불러오기
   runSearch(0).catch(console.error);
 
-  console.log('메인 페이지 초기화 완료');
-  console.log('디버깅: mainPageDebug.checkAuthStatus() 로 상태 확인 가능');
+  // console.log('디버깅: mainPageDebug.checkAuthStatus() 로 상태 확인 가능');
 });
