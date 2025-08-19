@@ -134,7 +134,7 @@ const viewMyPage = (myInfo) => {
                         </div>
                         <div class="meeting-meta">
                             <div class="meeting-meta-item">
-                                <span>🗓️</span>
+                                <span>◎</span>
                                 <span class="date">${formatDate(meeting.meetingTime)}</span>
                             </div>
                         </div>
@@ -152,23 +152,27 @@ const viewMyPage = (myInfo) => {
     }
 }
 //=========== 기타 함수 ============//
-/**
- * 로컬스토리지에서 JWT 토큰 추출 (키: authToken)
- * @returns {string|null} JWT 토큰 또는 null
- */
 
-function getJwtTokenFromLocalStorage() {
-    const token = localStorage.getItem('authToken');
-    return token && token.trim() !== '' ? token : null;
-}
-
-/**
- * 로그인 상태 확인
- * @returns {boolean} 로그인 여부
- */
-function checkLoginStatus() {
-    const token = getJwtTokenFromLocalStorage();
-    return token !== null && token.trim() !== '';
+// ===== 인증 헬퍼 (auth.js 방식과 호환) =====
+const authHelper = {
+    getToken() {
+        const token = localStorage.getItem('authToken') || localStorage.getItem('jwtToken');
+        return token && token.trim() !== '' ? token : null;
+    },
+    getUser() {
+        const userInfo = localStorage.getItem('userInfo') || localStorage.getItem('currentUser');
+        return userInfo ? JSON.parse(userInfo) : null;
+    },
+    isLoggedIn() {
+        return !!this.getToken();
+    },
+    logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('currentUser');
+        updateNavigationByLoginStatus();
+    }
 }
 
 // 시간 포맷 함수
@@ -203,10 +207,76 @@ function goToFindMeeting() {
     window.location.href = `/`;
 }
 
+function updateNavigationByLoginStatus() {
+    const isLoggedIn = authHelper.isLoggedIn();
+    const user = authHelper.getUser();
+
+    // 헤더의 로그인/회원가입 버튼들
+    const loginBtn = document.querySelector('.login-btn');
+    const signupBtn = document.querySelector('.signup-btn');
+    const startBtn = document.querySelector('.start-btn');
+
+    // 사용자 네비게이션 영역 (있다면)
+    let userNav = document.querySelector('.user-nav');
+
+    // 사용자 네비게이션 영역이 없으면 생성
+    if (!userNav && isLoggedIn) {
+        userNav = document.createElement('div');
+        userNav.className = 'user-nav';
+        userNav.style.cssText = 'display: flex; align-items: center; gap: 15px; margin-left: auto;';
+
+        // 적절한 위치에 삽입 (기존 버튼들 근처)
+        const nav = document.querySelector('nav') || document.querySelector('header') || document.body;
+        if (loginBtn && loginBtn.parentNode) {
+            loginBtn.parentNode.insertBefore(userNav, loginBtn);
+        } else {
+            nav.appendChild(userNav);
+        }
+    }
+
+    if (isLoggedIn && user) {
+        console.log('로그인된 사용자:', user);
+
+        // 로그인/회원가입 버튼 숨기기
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (signupBtn) signupBtn.style.display = 'none';
+        if (startBtn) startBtn.style.display = 'none';
+
+        // 사용자 네비게이션 표시
+        if (userNav) {
+            userNav.style.display = 'flex';
+            userNav.innerHTML = `
+                <a href="/createMeeting" class="create-meeting-btn">모임 만들기</a>
+                <span style="color: #555; margin-right: 10px;">안녕하세요, ${user.username || user.name || '사용자'}님!</span>
+                <button onclick="logout()" class="logout-btn">로그아웃</button>
+            `;
+        }
+    } else {
+        // 로그인되지 않은 상태
+        if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (signupBtn) signupBtn.style.display = 'inline-block';
+        if (startBtn) startBtn.style.display = 'inline-block';
+        if (userNav) userNav.style.display = 'none';
+    }
+}
+
+// 로그아웃 함수
+function logout() {
+    if (confirm('정말 로그아웃하시겠습니까?')) {
+        authHelper.logout();
+        window.location.href = `/`;
+    }
+}
+
+// 홈으로 이동
+function goHome() {
+    window.location.href = `/`;
+}
+
 //=========== 서버 데이터 요청/응답 관련 함수 ============//
 const fetchGetMyPage = async () => {
     console.log("마이페이지 js");
-    const token = getJwtTokenFromLocalStorage();
+    const token = authHelper.getToken();
     if (!token) {
         throw new Error('인증 토큰이 없습니다.');
     }
@@ -225,6 +295,8 @@ const addEventListeners = () => {
     const $editProfileBtn = document.querySelector('.btn-primary');
     const $meetingSection = document.querySelector('.activity-section');
     const $findMeetingBtn = document.querySelector('.empty-state-button');
+    const $logoutBtn = document.querySelector('.logout-btn');
+    const $logo = document.querySelector('h1.logo');
 
     // 수정 페이지 이동
     $editProfileBtn.addEventListener('click', e => {
@@ -242,11 +314,23 @@ const addEventListeners = () => {
         }
     })
 
-    // 참여 모임 없을 시 모임 찾기 페이지 이동
+    /*// 참여 모임 없을 시 모임 찾기 페이지 이동
     $findMeetingBtn.addEventListener('click', e => {
         e.preventDefault();
         console.log('이동버튼 클릭!')
         goToFindMeeting();
+    })*/
+
+    // 로그아웃 버튼 클릭 시
+    $logoutBtn.addEventListener('click', e => {
+        e.preventDefault();
+        console.log('로그아웃 버튼 클릭!');
+        logout();
+    })
+
+    // 홈으로 이동
+    $logo.addEventListener('click', e => {
+        goHome();
     })
 
 }
@@ -256,13 +340,14 @@ const addEventListeners = () => {
 
     // 페이지가 처음 열렸을 때 로그인 상태를 확인
     // 로그인 상태 확인
-    if (!checkLoginStatus()) {
+    if (!authHelper.isLoggedIn()) {
         document.querySelector('.container').innerHTML = ``;
         alert('로그인이 필요한 서비스입니다.');
         window.location.href = '/auth';
         return;
     }
 
+    updateNavigationByLoginStatus();
     fetchGetMyPage();
 
     // 이벤트 핸들러들을 등록합니다.
