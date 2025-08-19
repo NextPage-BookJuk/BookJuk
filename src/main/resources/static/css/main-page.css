@@ -232,7 +232,7 @@ body {
   border-radius: var(--radius-sm); /* 살짝 둥근 네모 */
   background: #8b7355;
   color: #fff;
-  padding: 12px 20px;
+  padding: 12px 28px;
   border: none;
   cursor: pointer;
   font-weight: 700;
