@@ -7,6 +7,8 @@
     <title>북적북적 - 모임 만들기</title>
     <!-- 수정: Thymeleaf 문법으로 경로 변경 -->
     <link rel="stylesheet" th:href="@{/css/create-meeting.css}">
+    <link rel="icon" href="/images/BookJuk-logo.ico" type="image/x-icon">
+    <link rel="icon" th:href="@{/images/BookJuk-logo.ico}" type="image/x-icon">
 </head>
 <body>
 <header class="header">
@@ -14,31 +16,31 @@
     <nav class="nav">
         <a href="#" onclick="goHome()">홈</a>
         <a href="#" onclick="goMyPage()">마이페이지</a>
-        <a href="#" onclick="goHome()" class="back-btn">뒤로가기</a>
+        <a href="#" onclick="goLogout()" class="logout-btn">로그아웃</a>
     </nav>
 </header>
 
 <div class="container">
     <div class="page-header">
         <div class="mode-indicator" id="modeIndicator">새 모임 만들기</div>
-        <h1 class="page-title">📚 독서모임을 만들어보세요</h1>
+        <h1 class="page-title"> 독서모임을 만들어보세요</h1>
         <p class="page-subtitle">책을 통해 사람들과 소통하고 성장할 수 있는 모임을 만들어주세요</p>
     </div>
 
     <form class="form-container" id="meetingForm">
         <!-- 기본 정보 -->
         <div class="form-section">
-            <h2 class="section-title">📋 기본 정보</h2>
+            <h2 class="section-title"> 기본 정보</h2>
 
             <div class="form-group">
-                <label class="form-label">모임 제목 <span class="required">*</span></label>
+                <label class="form-label"><i class="fas fa-newspaper"></i> 모임 제목 <span class="required">*</span></label>
                 <input type="text" class="form-input" id="title" name="title" placeholder="예) 따뜻한 겨울 소설 읽기" maxlength="255">
                 <div class="helper-text">최대 255자까지 입력 가능합니다</div>
                 <div class="error-message" id="titleError" style="display: none;"></div>
             </div>
 
             <div class="form-group">
-                <label class="form-label">모임 설명</label>
+                <label class="form-label"><i class="fas fa-info-circle"></i> 모임 설명</label>
                 <textarea class="form-textarea" id="description" name="description" placeholder="모임에 대한 상세한 설명을 입력해주세요" maxlength="2000"></textarea>
                 <div class="helper-text">어떤 모임인지 자세히 알려주세요 (최대 2000자)</div>
                 <div class="error-message" id="descriptionError" style="display: none;"></div>
@@ -46,12 +48,12 @@
 
             <div class="input-group">
                 <div class="form-group" style="flex: 2;">
-                    <label class="form-label">책 제목 <span class="required">*</span></label>
+                    <label class="form-label"><i class="fas fa-book"></i> 책 제목 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="bookTitle" name="bookTitle" placeholder="읽을 책 제목을 입력하세요" maxlength="255">
                     <div class="error-message" id="bookTitleError" style="display: none;"></div>
                 </div>
                 <div class="form-group" style="flex: 1;">
-                    <label class="form-label">저자 <span class="required">*</span></label>
+                    <label class="form-label"><i class="fas fa-pen"></i> 저자 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="bookAuthor" name="bookAuthor" placeholder="저자명" maxlength="100">
                     <div class="error-message" id="bookAuthorError" style="display: none;"></div>
                 </div>
@@ -78,7 +80,7 @@
 
         <!-- 일시 및 장소 -->
         <div class="form-section">
-            <h2 class="section-title">📅 일시 및 장소</h2>
+            <h2 class="section-title"><i class="fas fa-calendar"></i> 일시 및 장소 <i class="fas fa-street-view"></i></h2>
 
             <div class="datetime-group">
                 <div class="form-group">
@@ -144,7 +146,7 @@
 
         <!-- 모집 정보 -->
         <div class="form-section">
-            <h2 class="section-title">👥 모집 정보</h2>
+            <h2 class="section-title"><i class="fas fa-user-plus"></i> 모집 정보</h2>
 
             <div class="form-group">
                 <label class="form-label">최대 인원 <span class="required">*</span></label>
@@ -156,12 +158,12 @@
 
         <!-- 이미지 업로드 -->
         <div class="form-section">
-            <h2 class="section-title">🖼️ 모임 이미지</h2>
+            <h2 class="section-title"><i class="fas fa-upload"></i> 모임 이미지</h2>
 
             <div class="form-group">
                 <label class="form-label">대표 이미지 (선택사항, 최대 1장)</label>
                 <div class="file-upload-area" onclick="document.getElementById('meetingImage').click()">
-                    <div class="upload-icon">📷</div>
+                    <div class="upload-icon"><i class="fas fa-camera"></i></div>
                     <div class="upload-text">클릭하여 이미지 업로드</div>
                     <div class="upload-subtext">JPG, JPEG, PNG, GIF, BMP, WEBP 파일 (최대 10MB, 1장만 가능)</div>
                 </div>
