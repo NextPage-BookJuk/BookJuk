@@ -102,6 +102,27 @@ function showToast(message, type = 'success') {
     setTimeout(removeToast, 5000);
 }
 
+// ==================================================
+// 인증 게이트키핑 로직 (로그인 상태면 로그인 페이지 접속 시 메인 페이지로 자동 이동)
+// 페이지가 로드되자마자 로그인 상태를 확인합니다.
+// ==================================================
+(function () {
+    if (auth.isLoggedIn()) {
+        // 로그인 폼/회원가입 폼을 숨겨서 깜빡임을 방지
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        if(loginForm) loginForm.classList.add('hidden');
+        if(signupForm) signupForm.classList.add('hidden');
+
+        // 사용자에게 알림을 보여주고 메인 페이지로 리다이렉트
+        showToast('이미 로그인된 상태입니다. 메인 페이지로 이동합니다.', 'success');
+        setTimeout(() => {
+            window.location.href = '/'; // 메인 페이지('/')로 이동
+        }, 1500); // 1.5초 후에 이동
+    }
+})();
+// ==================================================
+
 // DOM 요소 가져오기
 const loginForm = document.getElementById('login-form');
 const signupForm = document.getElementById('signup-form');
@@ -233,7 +254,7 @@ loginForm.addEventListener('submit', async (event) => {
     try {
         await auth.login(email, password);
         showToast('로그인 성공! 모임 목록으로 이동합니다.', 'success');
-        setTimeout(() => window.location.href = '/meetings/list', 1000); // 1초 후 모임 목록으로
+        setTimeout(() => window.location.href = '/', 1000); // 1초 후 모임 목록(메인 페이지)으로
     } catch (error) {
         showToast(error.detail || '로그인에 실패했습니다.', 'error');
     }
