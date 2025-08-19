@@ -91,7 +91,7 @@ function showToast(message, type = 'success') {
     progress.className = 'toast-progress';
 
     toast.append(messageEl, closeBtn, progress);
-    container.appendChild(toast);
+    container?.appendChild(toast);
 
     const removeToast = () => {
         toast.style.animation = 'slideOut 0.5s forwards';
@@ -107,7 +107,8 @@ function showToast(message, type = 'success') {
 // 페이지가 로드되자마자 로그인 상태를 확인합니다.
 // ==================================================
 (function () {
-    if (auth.isLoggedIn()) {
+    const path = window.location.pathname;
+    if (auth.isLoggedIn() && (path === '/login' || path === '/signup')) {
         // 로그인 폼/회원가입 폼을 숨겨서 깜빡임을 방지
         const loginForm = document.getElementById('login-form');
         const signupForm = document.getElementById('signup-form');
@@ -140,8 +141,8 @@ function showForm(formToShow, tabToActivate) {
     tabToActivate.classList.add('active');
 }
 
-loginTabBtn.addEventListener('click', () => showForm(loginForm, loginTabBtn));
-signupTabBtn.addEventListener('click', () => showForm(signupForm, signupTabBtn));
+loginTabBtn?.addEventListener('click', () => showForm(loginForm, loginTabBtn));
+signupTabBtn?.addEventListener('click', () => showForm(signupForm, signupTabBtn));
 
 // --- 회원가입 폼 로직 ---
 const usernameInput = document.getElementById('signup-username');
@@ -154,7 +155,7 @@ const signupSubmitBtn = document.getElementById('signup-submit-btn');
 let isEmailCheckedAndValid = false;
 
 // 이메일 중복 확인
-emailCheckBtn.addEventListener('click', async () => {
+emailCheckBtn?.addEventListener('click', async () => {
     const email = emailInput.value;
     const emailErrorEl = document.getElementById('email-error');
     const emailSuccessEl = document.getElementById('email-success');
@@ -190,7 +191,7 @@ emailCheckBtn.addEventListener('click', async () => {
 });
 
 // 이메일 입력 시, 확인 상태 초기화
-emailInput.addEventListener('input', () => {
+emailInput?.addEventListener('input', () => {
     isEmailCheckedAndValid = false;
     emailInput.classList.remove('success', 'error');
     document.getElementById('email-success').style.display = 'none';
@@ -199,7 +200,7 @@ emailInput.addEventListener('input', () => {
 });
 
 // 실시간 비밀번호 일치 확인
-passwordConfirmInput.addEventListener('input', () => {
+passwordConfirmInput?.addEventListener('input', () => {
     const password = passwordInput.value;
     const passwordConfirm = passwordConfirmInput.value;
     const errorEl = document.getElementById('password-confirm-error');
@@ -224,10 +225,10 @@ function validateSignupForm() {
         signupSubmitBtn.disabled = true;
     }
 }
-[usernameInput, passwordInput].forEach(input => input.addEventListener('input', validateSignupForm));
+if(usernameInput && passwordInput) [usernameInput, passwordInput].forEach(input => input.addEventListener('input', validateSignupForm));
 
 // 회원가입 폼 제출
-signupForm.addEventListener('submit', async (event) => {
+signupForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const username = usernameInput.value;
     const email = emailInput.value;
@@ -246,7 +247,7 @@ signupForm.addEventListener('submit', async (event) => {
 });
 
 // --- 로그인 폼 제출 ---
-loginForm.addEventListener('submit', async (event) => {
+loginForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
@@ -271,5 +272,5 @@ genres.forEach((genre, index) => {
         <input type="radio" id="${id}" name="genre" value="${genre}">
         <label for="${id}">${genre}</label>
     `;
-    genreGroup.appendChild(item);
+    genreGroup?.appendChild(item);
 });

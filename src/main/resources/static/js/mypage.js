@@ -24,6 +24,7 @@ const $receivedLikes = document.getElementById('receivedLikes');
 const $participatedMeetings = document.getElementById('totalMeetings');
 
 // 모임 정보
+const $meetingList = document.querySelector('.meetings-list');
 const $title = document.querySelector('.meeting-title');
 const $date = document.querySelector('.date');
 const $role = document.querySelector('.role-badge');
@@ -39,7 +40,6 @@ const viewMyPage = (myInfo) => {
     // 통계 정보 태그
 
     // 모임 정보 태그
-    const $meetingList = document.querySelector('.meetings-list');
     const $meetingItem = document.querySelector(".meeting-item");
 
     // 2. 랜더링 전 기존 정보 초기화
@@ -202,10 +202,6 @@ function goToEditProfile() {
     window.location.href = `/editProfile`;
 }
 
-// 모임 찾기 페이지로 이동
-function goToFindMeeting() {
-    window.location.href = `/`;
-}
 
 function updateNavigationByLoginStatus() {
     const isLoggedIn = authHelper.isLoggedIn();
@@ -294,7 +290,6 @@ const fetchGetMyPage = async () => {
 const addEventListeners = () => {
     const $editProfileBtn = document.querySelector('.btn-primary');
     const $meetingSection = document.querySelector('.activity-section');
-    const $findMeetingBtn = document.querySelector('.empty-state-button');
     const $logoutBtn = document.querySelector('.logout-btn');
     const $logo = document.querySelector('h1.logo');
 
@@ -315,14 +310,11 @@ const addEventListeners = () => {
     })
 
     // 참여 모임 없을 시 모임 찾기 페이지 이동
-    if ($findMeetingBtn) {
-        $meetingSection.addEventListener('click', e => {
-            if(e.target.closest($findMeetingBtn)) {
-                console.log('이동버튼 클릭!')
-                goToFindMeeting();
-            }
-        })
-    }
+    $meetingList.addEventListener('click', e => {
+        if(e.target.matches('.empty-state-button')) {
+            goHome();
+        };
+    })
 
     // 로그아웃 버튼 클릭 시
     $logoutBtn.addEventListener('click', e => {
