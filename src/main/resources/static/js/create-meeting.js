@@ -625,6 +625,9 @@ function goMyPage() {
  * - 서버 로그아웃 엔드포인트 호출 후 로컬 스토리지 토큰 제거 및 로그인 페이지로 이동
  */
 async function goLogout() {
+    // 확인 다이얼로그: 사용자가 취소하면 종료
+    const ok = confirm('정말 로그아웃 하시겠습니까?');
+    if (!ok) return;
     try {
         const token = getJwtTokenFromLocalStorage();
         // 서버에 로그아웃 요청 (토큰이 있으면 Authorization 포함)
