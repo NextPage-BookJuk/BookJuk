@@ -135,8 +135,7 @@ body {
   border-radius: 4px;
 }
 .hero-title {
-  font-family: var(--serif);
-  font-size: 40px; font-weight: 800; margin-bottom: 10px; color: var(--ink);
+  font-size: 40px; font-weight: bold; margin-bottom: 10px; color: var(--ink);
 }
 .hero-subtitle {
   font-size: 18px; color: #5f5144; margin-bottom: 26px;
@@ -233,7 +232,7 @@ body {
   border-radius: var(--radius-sm); /* 살짝 둥근 네모 */
   background: #8b7355;
   color: #fff;
-  padding: 12px 20px;
+  padding: 12px 28px;
   border: none;
   cursor: pointer;
   font-weight: 700;

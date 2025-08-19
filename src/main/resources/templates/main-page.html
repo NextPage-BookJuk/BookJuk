@@ -11,10 +11,9 @@
 </head>
 <body>
 <header class="header">
-    <h1 class="logo">북적북적</h1>
+    <h1 class="logo" onclick="goHome()">북적북적</h1>
     <nav class="nav">
         <a class="login-btn" href="#">로그인</a>
-        <a class="signup-btn" href="#">회원가입</a>
     </nav>
 </header>
 <main class="main-content">
@@ -30,7 +29,6 @@
                 <div aria-label="시/도 선택" class="filter-dropdown region1-filter" data-value="" role="button"
                      tabindex="0">
                     <span class="dropdown-label">
-                        <span class="icon">📍</span>
                         시 / 도
                     </span>
                     <ul aria-label="시/도 목록" class="dropdown-menu" id="region1-menu" role="listbox"></ul>
@@ -42,7 +40,6 @@
                 <div aria-label="구/군 선택" class="filter-dropdown region2-filter disabled" data-value="" role="button"
                      tabindex="0">
                     <span class="dropdown-label">
-                        <span class="icon">📍</span>
                         구 / 군
                     </span>
                     <ul aria-label="구/군 목록" class="dropdown-menu" id="region2-menu" role="listbox"></ul>
@@ -53,7 +50,6 @@
                 <p>어떤 장르를 좋아하세요?</p>
                 <div class="filter-dropdown genre-filter" data-value="" role="button" tabindex="0">
                     <span class="dropdown-label">
-                        <span class="icon">📚</span>
                         장르 선택
                     </span>
                     <ul aria-label="장르 목록" class="dropdown-menu" role="listbox">
@@ -76,7 +72,6 @@
                 <p>어떤 모임 상태를 원하세요?</p>
                 <div class="filter-dropdown status-filter" data-value="" role="button" tabindex="0">
                     <span class="dropdown-label">
-                        <span class="icon">📖</span>
                         상태 선택
                     </span>
                     <ul aria-label="상태 목록" class="dropdown-menu" role="listbox">
@@ -92,7 +87,6 @@
                 <p>어떻게 정렬 해드릴까요?</p>
                 <div class="filter-dropdown sort-filter" data-value="latest" role="button" tabindex="0">
                     <span class="dropdown-label">
-                        <span class="icon">↕️</span>
                         최신순
                     </span>
                     <ul aria-label="정렬 조건 목록" class="dropdown-menu" role="listbox">
@@ -106,7 +100,6 @@
             <div class="filter-actions">
                 <button class="search-btn" type="button">
                     찾기
-                    <span class="icon">🔍</span>
                 </button>
             </div>
         </div>
