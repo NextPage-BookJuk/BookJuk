@@ -1,8 +1,8 @@
 # 🗄️ BookJuk ERD (Entity Relationship Diagram)
 
-| 문서 버전 | 작성일        | 수정일        | 작성자         | 비고                       |
-|:------| :--------- | :--------- | :---------- |:-------------------------|
-| v1.6  | 2025-08-18 | 2025-08-19 | hsp64  | FK 제약 조건 제거, 실제 ddl파일 기반 |
+| 문서 버전 | 작성일        | 수정일        | 작성자        | 비고                    |
+|:------| :--------- | :--------- |:-----------|:----------------------|
+| v1.7  | 2025-08-18 | 2025-08-19 | hsp64, 강관주 | 문서 수정(인덱스, full상태 제거) |
 
 ---
 
@@ -13,7 +13,6 @@
 3. [테이블 상세 정보](#3-테이블-상세-정보)
 4. [관계 설명](#4-관계-설명)
 5. [비즈니스 규칙](#5-비즈니스-규칙)
-6. [인덱스 전략](#6-인덱스-전략)
 
 ---
 
@@ -166,7 +165,6 @@ erDiagram
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 가입일 |
 | `updated_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP ON UPDATE | 수정일 |
 
-**인덱스**: `idx_user_email` ON (`email`)
 
 ### 3.2 MEETING (모임)
 
@@ -190,8 +188,7 @@ erDiagram
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 생성일 |
 | `updated_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP ON UPDATE | 수정일 |
 
-**상태값**: `RECRUITING`, `FULL`, `COMPLETED`, `CANCELLED`  
-**인덱스**: `idx_meeting_host` ON (`host_id`)  
+**상태값**: `RECRUITING`, `COMPLETED`, `CANCELLED`  
 **참조 관계**: `host_id`는 USER 테이블의 `user_id`를 논리적으로 참조
 
 ### 3.3 MEETING_PARTICIPANT (모임 참가자)
@@ -208,7 +205,6 @@ erDiagram
 
 **역할값**: `HOST`, `PARTICIPANT`  
 **상태값**: `PENDING`, `APPROVED`, `REJECTED`  
-**인덱스**: `idx_mp_meeting_user_status` ON (`meeting_id`, `user_id`, `status`)  
 **참조 관계**:
 - `meeting_id`는 MEETING 테이블의 `meeting_id`를 논리적으로 참조
 - `user_id`는 USER 테이블의 `user_id`를 논리적으로 참조
@@ -241,7 +237,6 @@ erDiagram
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 작성일 |
 | `updated_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP ON UPDATE | 수정일 |
 
-**인덱스**: `idx_post_meeting_created` ON (`meeting_id`, `created_at`)  
 **참조 관계**:
 - `meeting_id`는 MEETING 테이블의 `meeting_id`를 논리적으로 참조
 - `user_id`는 USER 테이블의 `user_id`를 논리적으로 참조
@@ -257,7 +252,6 @@ erDiagram
 | `created_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP | 작성일 |
 | `updated_at` | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP ON UPDATE | 수정일 |
 
-**인덱스**: `idx_comment_post_created` ON (`post_id`, `created_at`)  
 **참조 관계**:
 - `post_id`는 POST 테이블의 `post_id`를 논리적으로 참조
 - `user_id`는 USER 테이블의 `user_id`를 논리적으로 참조
@@ -320,8 +314,7 @@ Meeting (모임)
 - ✅ **정원 제한**: `max_participants` 초과 불가 (애플리케이션 검증)
 - ✅ **상태 전이**:
   ```
-  RECRUITING → FULL (정원 마감)
-  RECRUITING → COMPLETED (모임 종료)
+  RECRUITING → COMPLETED (모임 완료)
   RECRUITING → CANCELLED (모임 취소)
   ```
 
@@ -358,63 +351,6 @@ Meeting (모임)
 - ✅ **수정/삭제 권한**: 댓글 작성자 또는 게시글 작성자, 모임 호스트만 가능
 
 ---
-
-## 6. 인덱스 전략
-
-### 6.1 검색 최적화 인덱스
-
-```
--- 사용자 이메일 검색 (로그인)
-CREATE INDEX idx_user_email ON user(email);
-
--- 모임 호스트 검색
-CREATE INDEX idx_meeting_host ON meeting(host_id);
-
--- 참가자 검색 (모임별, 사용자별, 상태별)
-CREATE INDEX idx_mp_meeting_user_status ON meeting_participant(meeting_id, user_id, status);
-
--- 게시글 검색 (모임별, 최신순)
-CREATE INDEX idx_post_meeting_created ON post(meeting_id, created_at);
-
--- 댓글 검색 (게시글별, 최신순)
-CREATE INDEX idx_comment_post_created ON comment(post_id, created_at);
-```
-
-### 6.2 추가 고려사항
-
-```
--- 리뷰 검색을 위한 복합 인덱스 (선택사항)
-CREATE INDEX idx_review_meeting_reviewer ON meeting_review(meeting_id, reviewer_id);
-CREATE INDEX idx_review_reviewee ON meeting_review(reviewee_id);
-
--- 모임 검색을 위한 복합 인덱스 (선택사항)
-CREATE INDEX idx_meeting_location_status ON meeting(region, city, status);
-CREATE INDEX idx_meeting_genre_time ON meeting(genre, meeting_time);
-```
-
-### 6.3 인덱스 활용 쿼리 예시
-
-```
--- 모임 목록 조회 (지역별, 장르별 필터)
-SELECT * FROM meeting 
-WHERE region = '서울특별시' 
-  AND city = '강남구' 
-  AND genre = '소설'
-  AND status = 'RECRUITING'
-ORDER BY created_at DESC;
-
--- 특정 모임의 승인된 참가자 목록 (JOIN 시 애플리케이션에서 데이터 존재 확인 필요)
-SELECT u.* FROM user u
-JOIN meeting_participant mp ON u.user_id = mp.user_id
-WHERE mp.meeting_id = 1 AND mp.status = 'APPROVED'
-ORDER BY mp.created_at;
-
--- 모임별 게시글 목록 (최신순)
-SELECT * FROM post 
-WHERE meeting_id = 1 
-ORDER BY created_at DESC 
-LIMIT 10 OFFSET 0;
-```
 
 ---
 
