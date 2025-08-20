@@ -70,7 +70,6 @@ async function apiRequest(endpoint, options = {}) {
 
         // 권한 오류 처리
         if (response.status === 403) {
-            alert('이 작업을 수행할 권한이 없습니다.');
             throw new Error('Forbidden');
         }
 
@@ -141,7 +140,6 @@ async function loadMeetingDetail() {
         }
     } catch (error) {
         console.error('모임 정보 로드 실패:', error);
-        alert('모임 정보를 불러오는데 실패했습니다.');
     }
 }
 
@@ -227,7 +225,7 @@ function updateParticipationUI(status) {
 
     switch (status) {
         case 'PENDING':
-            applyBtn.innerHTML = '<span>⏰</span> 승인 대기중';
+            applyBtn.innerHTML = '<span></span> 승인 대기중';
             applyBtn.disabled = true;
             applyBtn.className = 'btn btn-warning btn-full';
             break;
@@ -313,7 +311,7 @@ function updateUIByUserRole() {
         console.log('게스트 UI 설정');
         if (applyBtn) {
             applyBtn.style.display = 'inline-flex';
-            applyBtn.innerHTML = '<span>✋</span> 모임 신청';
+            applyBtn.innerHTML = '<span></span> 모임 신청';
             applyBtn.disabled = false;
             applyBtn.onclick = applyToMeeting;
         }
@@ -325,7 +323,7 @@ function updateUIByUserRole() {
         }
         if (applyBtn) {
             applyBtn.style.display = 'inline-flex';
-            applyBtn.innerHTML = '<span>✋</span> 모임 신청';
+            applyBtn.innerHTML = '<span></span> 모임 신청';
             applyBtn.disabled = false;
             applyBtn.onclick = applyToMeeting;
         }
@@ -428,7 +426,7 @@ function updateMeetingInfo(meeting) {
     if (meeting.host) {
         updateElement('host-avatar', meeting.host.username ? meeting.host.username.charAt(0) : '?');
         updateElement('host-name', `${meeting.host.username || '호스트'} (호스트)`);
-        updateElement('host-stats', `받은 좋아요 ${meeting.host.reviewsCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
+        updateElement('host-stats', `받은 좋아요 ${meeting.host.likesCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
     }
 
     // 참여자 수 정보 - 정확한 현재 참여자 수 반영
@@ -588,11 +586,10 @@ async function confirmApply() {
         }
     } catch (error) {
         console.error('모임 신청 실패:', error);
-        alert('모임 신청에 실패했습니다: ' + error.message);
 
         if (applyBtn) {
             applyBtn.disabled = false;
-            applyBtn.innerHTML = '<span>✋</span> 모임 신청';
+            applyBtn.innerHTML = '<span></span> 모임 신청';
         }
     }
 }
@@ -736,7 +733,7 @@ async function loadParticipants() {
 }
 
 /**
- * 참가자 아이템 생성 (업데이트된 버전 - 프로필 이미지와 리뷰 버튼 추가)
+ * 참가자 아이템 생성
  */
 function createParticipantItem(participant) {
     const item = document.createElement('div');
@@ -744,48 +741,6 @@ function createParticipantItem(participant) {
 
     const roleText = participant.role === 'HOST' ? '호스트' : '참여자';
     const roleClass = participant.role === 'HOST' ? 'host' : 'participant';
-
-    // 프로필 이미지 처리
-    const profileImageUrl = participant.profileImage || '/images/defaultProfile.png';
-    const isDefaultImage = !participant.profileImage || participant.profileImage.includes('defaultProfile.png');
-
-    // 리뷰 버튼 생성 (현재 사용자가 로그인되어 있고, 자신이 아닌 경우)
-    const showReviewButton = window.currentUserId &&
-        window.currentUserId !== participant.id &&
-        (window.userRole === 'host' || window.userRole === 'participant');
-
-    let reviewButtonHtml = '';
-    if (showReviewButton) {
-        const isReviewed = participant.isReviewedByCurrentUser || false;
-        const reviewCount = participant.reviewsCount || 0;
-
-        if (isReviewed) {
-            reviewButtonHtml = `
-                <div class="review-section">
-                    <button class="btn btn-sm btn-success review-btn" disabled title="이미 리뷰했습니다">
-                        ❤️ ${reviewCount}
-                    </button>
-                </div>
-            `;
-        } else {
-            reviewButtonHtml = `
-                <div class="review-section">
-                    <button class="btn btn-sm btn-outline-primary review-btn" 
-                            onclick="reviewParticipant(${participant.id})" 
-                            title="좋아요 주기">
-                        🤍 ${reviewCount}
-                    </button>
-                </div>
-            `;
-        }
-    } else if (participant.reviewsCount > 0) {
-        // 리뷰 버튼을 보여줄 수 없어도 리뷰 수는 표시
-        reviewButtonHtml = `
-            <div class="review-section">
-                <span class="review-count">❤️ ${participant.reviewsCount}</span>
-            </div>
-        `;
-    }
 
     // 호스트인 경우 거절 버튼 표시
     const actionButtons = window.userRole === 'host' && participant.role !== 'HOST' ? `
@@ -796,18 +751,12 @@ function createParticipantItem(participant) {
         </div>
     ` : '';
 
-    // 프로필 이미지 HTML
-    const profileImageHtml = isDefaultImage ?
-        `<div class="participant-mini-avatar ${roleClass}">${participant.username.charAt(0)}</div>` :
-        `<img src="${profileImageUrl}" alt="${participant.username}" class="participant-mini-avatar ${roleClass}" />`;
-
     item.innerHTML = `
-        ${profileImageHtml}
+        <div class="participant-mini-avatar ${roleClass}">${participant.username.charAt(0)}</div>
         <div class="participant-mini-info">
             <div class="participant-mini-name">${escapeHtml(participant.username)}</div>
             <div class="participant-mini-status">${roleText}</div>
         </div>
-        ${reviewButtonHtml}
         ${actionButtons}
     `;
 
@@ -819,7 +768,6 @@ function createParticipantItem(participant) {
  */
 async function kickParticipant(userId) {
     if (window.userRole !== 'host') {
-        alert('호스트만 참가자를 내보낼 수 있습니다.');
         return;
     }
 
@@ -948,16 +896,15 @@ async function approveParticipant(userId) {
         if (response.ok) {
 
             // 목록 새로고침
-            await loadPendingRequests();
-            await loadParticipants();
-            await loadMeetingDetail();
+            loadPendingRequests();
+            loadParticipants();
+            loadMeetingDetail();
         } else {
             const errorData = await response.text();
             throw new Error(errorData || '승인 처리에 실패했습니다.');
         }
     } catch (error) {
         console.error('승인 실패:', error);
-        alert('승인 처리에 실패했습니다: ' + error.message);
     }
 }
 
@@ -974,17 +921,13 @@ async function rejectParticipant(userId) {
         });
 
         if (response.ok) {
-            // 목록 새로고침
-            await loadPendingRequests();
-            await loadParticipants();
-            await loadMeetingDetail();
+            loadPendingRequests();
         } else {
             const errorData = await response.text();
             throw new Error(errorData || '거절 처리에 실패했습니다.');
         }
     } catch (error) {
         console.error('거절 실패:', error);
-        alert('거절 처리에 실패했습니다: ' + error.message);
     }
 }
 
@@ -1019,6 +962,7 @@ async function loadPosts() {
                 if (posts.length === 0) {
                     listElement.innerHTML = `
                         <div style="text-align: center; color: #777; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
                             <div style="font-size: 18px; margin-bottom: 10px;">아직 작성된 글이 없습니다</div>
                             <div style="font-size: 14px; color: #999;">첫 번째 글을 작성해보세요!</div>
                         </div>
@@ -1268,7 +1212,6 @@ async function addComment() {
         }
     } catch (error) {
         console.error('댓글 작성 실패:', error);
-        alert('댓글 작성에 실패했습니다: ' + error.message);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -1358,7 +1301,6 @@ function createMeeting() {
 function editMeeting() {
     if (!requireLogin('모임 수정')) return;
     if (window.userRole !== 'host') {
-        alert('모임 수정은 호스트만 가능합니다.');
         return;
     }
 
@@ -1703,7 +1645,6 @@ function createEditModal() {
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
-
 /**
  * 수정 폼에 현재 데이터 채우기
  */
@@ -1791,12 +1732,11 @@ async function submitEditForm() {
         }
     } catch (error) {
         console.error('모임 수정 실패:', error);
-        alert('모임 수정에 실패했습니다: ' + error.message);
     } finally {
         const submitBtn = document.querySelector('#edit-modal .btn-primary');
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '수정 완료';
+            submitBtn.innerHTML = '<span>💾</span> 수정 완료';
         }
     }
 }
@@ -1814,7 +1754,6 @@ function cancelMeeting() {
 
 function logout() {
     if (!checkLoginStatus()) {
-        alert('이미 로그아웃 상태입니다.');
         return;
     }
 
@@ -1910,7 +1849,6 @@ async function initializePage() {
 
     } catch (error) {
         console.error('페이지 초기화 실패:', error);
-        alert('페이지 로드 중 오류가 발생했습니다.');
     }
 }
 
@@ -1924,41 +1862,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     initializePage();
 });
-
-/**
- * 참여자에게 리뷰(좋아요) 주기
- */
-async function reviewParticipant(participantId) {
-    if (!requireLogin('리뷰 작성')) return;
-
-    if (!confirm('이 참여자에게 좋아요를 주시겠습니까?\n한 번 주면 취소할 수 없습니다.')) {
-        return;
-    }
-
-    try {
-        const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/reviews`, {
-            method: 'POST',
-            body: JSON.stringify({ toUserId: participantId })
-        });
-
-        if (response.ok) {
-            // 참가자 목록 새로고침하여 업데이트된 상태 반영
-            await loadParticipants();
-        } else {
-            const errorData = await response.text();
-            if (errorData.includes('DUPLICATE_LIKE') || errorData.includes('중복')) {
-                alert('이미 이 참여자에게 리뷰를 남겼습니다.');
-            } else if (errorData.includes('MEETING_NOT_COMPLETED')) {
-                alert('완료된 모임에서만 리뷰를 남길 수 있습니다.');
-            } else {
-                throw new Error(errorData || '리뷰 작성에 실패했습니다.');
-            }
-        }
-    } catch (error) {
-        console.error('리뷰 작성 실패:', error);
-        alert('리뷰 작성에 실패했습니다: ' + error.message);
-    }
-}
 
 // 전역 함수로 내보내기 (HTML에서 onclick으로 사용)
 window.applyToMeeting = applyToMeeting;
@@ -1979,6 +1882,5 @@ window.logout = logout;
 window.closeModal = closeModal;
 window.loadPosts = loadPosts;
 window.submitEditForm = submitEditForm;
-window.reviewParticipant = reviewParticipant;
 
-console.log(' 북적북적 모임 상세 페이지 준비 완료!');
+console.log('✨ 북적북적 모임 상세 페이지 준비 완료!');
