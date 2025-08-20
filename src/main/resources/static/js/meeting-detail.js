@@ -1019,7 +1019,6 @@ async function loadPosts() {
                 if (posts.length === 0) {
                     listElement.innerHTML = `
                         <div style="text-align: center; color: #777; padding: 40px;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
                             <div style="font-size: 18px; margin-bottom: 10px;">아직 작성된 글이 없습니다</div>
                             <div style="font-size: 14px; color: #999;">첫 번째 글을 작성해보세요!</div>
                         </div>
@@ -1389,193 +1388,272 @@ function createEditModal() {
         <div id="edit-modal" class="modal-overlay" style="display: none;">
             <div class="modal edit-modal">
                 <div class="modal-header">
-                    <h3> 모임 수정</h3>
-                    <button onclick="closeModal()" class="modal-close">×</button>
+                    <h3>모임 수정</h3>
+                    <button onclick="closeModal()" class="modal-close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-form">
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label>모임 제목</label>
-                                <input type="text" id="edit-title" class="form-input" placeholder="모임 제목을 입력하세요" required>
+                                <label for="edit-title">모임 제목</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-book-reader"></i>
+                                    <input type="text" id="edit-title" class="form-input" placeholder="모임 제목을 입력하세요" required>
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label>모임 설명</label>
-                                <textarea id="edit-description" class="form-textarea" rows="3" placeholder="모임에 대한 설명을 입력하세요"></textarea>
+                                <label for="edit-description">모임 설명</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-pen"></i>
+                                    <textarea id="edit-description" class="form-textarea" rows="3" placeholder="모임에 대한 설명을 입력하세요"></textarea>
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>책 제목</label>
-                                <input type="text" id="edit-bookTitle" class="form-input" placeholder="책 제목">
+                                <label for="edit-bookTitle">책 제목</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-book"></i>
+                                    <input type="text" id="edit-bookTitle" class="form-input" placeholder="책 제목">
+                                </div>
                             </div>
                             <div class="form-group half-width">
-                                <label>저자</label>
-                                <input type="text" id="edit-bookAuthor" class="form-input" placeholder="저자명">
+                                <label for="edit-bookAuthor">저자</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-user-edit"></i>
+                                    <input type="text" id="edit-bookAuthor" class="form-input" placeholder="저자명">
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>장르</label>
-                                <select id="edit-genre" class="form-select">
-                                    <option value="">선택하세요</option>
-                                    <option value="소설">소설</option>
-                                    <option value="에세이">에세이</option>
-                                    <option value="자기계발">자기계발</option>
-                                    <option value="역사">역사</option>
-                                    <option value="과학">과학</option>
-                                    <option value="철학">철학</option>
-                                    <option value="예술">예술</option>
-                                </select>
+                                <label for="edit-genre">장르</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                    <select id="edit-genre" class="form-select">
+                                        <option value="">선택하세요</option>
+                                        <option value="소설">소설</option>
+                                        <option value="에세이">에세이</option>
+                                        <option value="자기계발">자기계발</option>
+                                        <option value="역사">역사</option>
+                                        <option value="과학">과학</option>
+                                        <option value="철학">철학</option>
+                                        <option value="예술">예술</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="form-group half-width">
-                                <label>최대 참여자 수</label>
-                                <input type="number" id="edit-maxParticipants" class="form-input" min="2" max="20" placeholder="2-20명">
+                                <label for="edit-maxParticipants">최대 참여자 수</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-users"></i>
+                                    <input type="number" id="edit-maxParticipants" class="form-input" min="2" max="20" placeholder="2-20명">
+                                </div>
                             </div>
                         </div>
-                        
+
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>모임 날짜/시간</label>
-                                <input type="datetime-local" id="edit-meetingTime" class="form-input">
+                                <label for="edit-meetingTime">모임 날짜/시간</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="datetime-local" id="edit-meetingTime" class="form-input">
+                                </div>
                             </div>
                             <div class="form-group half-width">
-                                <label>상세 주소</label>
-                                <input type="text" id="edit-detailAddress" class="form-input" placeholder="구체적인 모임 장소">
+                                <label for="edit-detailAddress">상세 주소</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <input type="text" id="edit-detailAddress" class="form-input" placeholder="구체적인 모임 장소">
+                                </div>
                             </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span></span> 취소
+                        <i class="fas fa-times"></i> 취소
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitEditForm()">
-                        <span></span> 수정 완료
+                        <i class="fas fa-check"></i> 수정 완료
                     </button>
                 </div>
             </div>
         </div>
 
         <style>
+        /* Font Awesome 아이콘 CDN (만약 이미 추가되어 있다면 생략 가능) */
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+        
+        
+
         .edit-modal {
-            max-width: 600px;
+            max-width: 30vw;
             max-height: 90vh;
-            overflow-y: auto;
-            background: linear-gradient(135deg, #fff 0%, #f8f6f3 100%);
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            border: 2px solid #8b7355;
+            overflow: scroll;
+            scrollbar-width: none;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
         }
 
         .edit-modal .modal-header {
             background: linear-gradient(135deg, #8b7355 0%, #a0886b 100%);
             color: white;
-            padding: 20px 25px;
-            border-radius: 18px 18px 0 0;
+            padding: 22px 30px;
+            border-radius: 22px 22px 0 0;
             border-bottom: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .edit-modal .modal-header h3 {
             margin: 0;
-            font-size: 1.4em;
+            font-size: 1.5em;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .edit-modal .modal-close {
-            background: rgba(255,255,255,0.2);
+            background: transparent;
             color: white;
-            border: 2px solid rgba(255,255,255,0.3);
+            border: none;
             border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .edit-modal .modal-close:hover {
-            background: rgba(255,255,255,0.3);
-            transform: rotate(90deg);
+            background: rgba(255,255,255,0.2);
         }
 
         .edit-modal .modal-body {
-            padding: 25px;
+            padding: 0 30px ;
+            flex-grow: 1;
         }
 
         .form-row {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
+            margin: 10px 0;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
 
         .form-group.full-width {
-            flex: 1;
+            flex-basis: 100%;
         }
 
         .form-group.half-width {
-            flex: 1;
+            flex-basis: 50%;
         }
 
         .form-group label {
             font-weight: 600;
             color: #8b7355;
-            margin-bottom: 8px;
-            font-size: 0.95em;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #b0a291;
+            transition: color 0.3s ease;
         }
 
         .form-input, .form-textarea, .form-select {
-            padding: 12px 15px;
+            padding: 14px 15px 14px 45px; /* 아이콘 공간 확보 */
             border: 2px solid #e0d6c8;
-            border-radius: 10px;
-            font-size: 14px;
+            border-radius: 12px;
+            font-size: 15px;
             transition: all 0.3s ease;
             background: white;
+            width: 100%;
+            box-sizing: border-box; /* 패딩과 보더를 너비에 포함 */
         }
 
         .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: #8b7355;
-            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.1);
-            transform: translateY(-1px);
+            box-shadow: 0 0 10px rgba(139, 115, 85, 0.15);
+        }
+
+        .form-input:focus + i, .form-textarea:focus + i, .form-select:focus + i {
+           /* 포커스 시 아이콘 색상 변경 (스타일 충돌로 인해 JS로 처리하거나, 다른 CSS 구조 사용 필요) */
+        }
+        
+        /* input-with-icon 내부의 input/textarea/select에 focus가 갔을 때 아이콘 색상 변경 */
+        .input-with-icon:focus-within i {
+            color: #8b7355;
         }
 
         .form-textarea {
             resize: vertical;
-            min-height: 80px;
+            min-height: 100px;
+        }
+        
+        /* select 화살표 커스텀 */
+        .form-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%238B7355%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 15px top 50%;
+            background-size: .65em auto;
+            padding-right: 40px; /* 화살표 공간 확보 */
         }
 
+
         .edit-modal .modal-footer {
-            padding: 20px 25px;
+            padding: 10px;
             background: #f8f6f3;
-            border-radius: 0 0 18px 18px;
+            border-radius: 0 0 22px 22px;
             display: flex;
-            gap: 12px;
+            gap: 15px;
             justify-content: flex-end;
+            border-top: 1px solid #e0d6c8;
         }
 
         .edit-modal .btn {
-            padding: 12px 24px;
-            border-radius: 10px;
+            padding: 14px 28px;
+            border-radius: 12px;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 15px;
             cursor: pointer;
             transition: all 0.3s ease;
             border: none;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .edit-modal .btn-secondary {
@@ -1585,8 +1663,8 @@ function createEditModal() {
 
         .edit-modal .btn-secondary:hover {
             background: #5a6268;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(108, 117, 125, 0.3);
         }
 
         .edit-modal .btn-primary {
@@ -1595,61 +1673,31 @@ function createEditModal() {
         }
 
         .edit-modal .btn-primary:hover {
-            background: linear-gradient(135deg, #7a6248 0%, #8f7a5e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(139, 115, 85, 0.3);
         }
 
         @media (max-width: 768px) {
             .edit-modal {
                 max-width: 95%;
-                margin: 20px;
+                margin: 20px auto;
             }
             
             .form-row {
                 flex-direction: column;
                 gap: 0;
+                margin-bottom: 0;
             }
             
-            .form-group.half-width {
+            .form-group {
                 margin-bottom: 20px;
             }
+
+            .form-group.half-width {
+                flex-basis: 100%;
+            }
         }
-        .review-section {
-    display: flex;
-    align-items: center;
-    margin-left: auto;
-}
-
-.review-btn {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    border: 1px solid;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.review-btn:hover:not(:disabled) {
-    transform: scale(1.05);
-}
-
-.review-btn:disabled {
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.review-count {
-    font-size: 12px;
-    color: #666;
-}
-
-.participant-mini-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
+        /* 불필요한 review 관련 CSS는 제거 */
         </style>
     `;
 
@@ -1748,7 +1796,7 @@ async function submitEditForm() {
         const submitBtn = document.querySelector('#edit-modal .btn-primary');
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>💾</span> 수정 완료';
+            submitBtn.innerHTML = '수정 완료';
         }
     }
 }
@@ -1933,4 +1981,4 @@ window.loadPosts = loadPosts;
 window.submitEditForm = submitEditForm;
 window.reviewParticipant = reviewParticipant;
 
-console.log('✨ 북적북적 모임 상세 페이지 준비 완료!');
+console.log(' 북적북적 모임 상세 페이지 준비 완료!');
