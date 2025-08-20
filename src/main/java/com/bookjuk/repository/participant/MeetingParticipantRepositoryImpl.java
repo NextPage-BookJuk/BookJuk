@@ -4,6 +4,9 @@ import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -28,11 +31,32 @@ public class MeetingParticipantRepositoryImpl implements MeetingParticipantCusto
 
     // 유저 id로 참여한 미팅 id 반환
     @Override
-    public List<MeetingParticipant> findMeetingsByUserId(Long id) {
-        return factory
+    public Page<MeetingParticipant> findMeetingsByUserId(Long id, Pageable pageable) {
+
+        List<MeetingParticipant> contents = factory
                 .selectFrom(meetingParticipant)
                 .where(meetingParticipant.participant.id.eq(id))
+                .offset(pageable.getOffset())   // 시작 위치
+                .limit(pageable.getPageSize())  // 페이지 크기
                 .fetch();
+
+        Long total = factory
+                .select(meetingParticipant.count())
+                .from(meetingParticipant)
+                .where(meetingParticipant.participant.id.eq(id))
+                .fetchOne();
+
+        return new PageImpl<>(contents, pageable, total);
+    }
+
+    // 유저 id로 참여한 미팅의 총 개수 반환
+    @Override
+    public Long countMeetingByUserId(Long id) {
+        return factory
+                .select(meetingParticipant.meeting.count())
+                .from(meetingParticipant)
+                .where(meetingParticipant.participant.id.eq(id))
+                .fetchOne();
     }
 
 }

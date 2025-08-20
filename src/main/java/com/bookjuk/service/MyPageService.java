@@ -17,6 +17,8 @@ import com.bookjuk.repository.user.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -52,16 +54,14 @@ public class MyPageService {
         // 조회된 유저 정보를 마이페이지 응답에 필요한 dto 로 변경
         UserInfoDto profile = UserInfoDto.from(user);
 
-        // 2. 유저가 참여한 모임 정보 가져오기
-        // meeting_participant 에 유저 id로 참여 모임 id를 리스트로 반환
-        Long userId = user.getId();
-        List<MeetingInfoDto> meetings = getMeetingsByUserId(userId);
 
         // 3. 유저의 모임 참여, 좋아요 통계 정보를 가져오기
-        int meetingCount = meetings.size();
+        // meeting_participant 에 유저 id로 참여 모임의 총 개수 가져오기
+        Long userId = user.getId();
+        Long meetingCount = meetingParticipantRepository.countMeetingByUserId(userId);
         StaticsInfoDto stats = getStatsByUserId(userId, meetingCount);
 
-        return MyPageResponse.of(profile, stats, meetings);
+        return MyPageResponse.of(profile, stats);
 
     }
 
@@ -121,20 +121,20 @@ public class MyPageService {
 
     /**
      * 사용자의 id 정보로 참여한 미팅 정보를 가져오고 필요한 정보만 반환하는 메소드입니다.
-     * @param id - 이메일 정보로 찾은 유저의 id
+     * @param email - 토큰 정보로 부터 가져온 사용자 식별 이메일
      * @return - 유저의 id 로 참여한 미팅 정보를 리스트로 받은 후 필요한 정보만 dto 로 매핑한 리스트
      */
-    private List<MeetingInfoDto> getMeetingsByUserId(Long id) {
+    public Page<MeetingInfoDto> getMyMeetings(String email, Pageable pageable) {
+        // 이메일로 사용자 정보 가져요기
+        User user = getUserByEmail(email);
+        Long id = user.getId();
+
         // 사용자 id 정보로 참여한 미팅 정보 반환
-        List<MeetingParticipant> meetingParticipants =
-                meetingParticipantRepository.findMeetingsByUserId(id);
+        Page<MeetingParticipant> meetingParticipants =
+                meetingParticipantRepository.findMeetingsByUserId(id, pageable);
 
-        // 반환된 리스트를 for 돌려서 dto 로 매핑
-        return meetingParticipants
-                .stream()
-                .map(meeting -> MeetingInfoDto.from(meeting))
-                .collect(Collectors.toList());
-
+        // 반환된 페이지 리스트를 dto 로 매핑
+        return meetingParticipants.map(MeetingInfoDto::from);
     }
 
     /**
@@ -143,7 +143,7 @@ public class MyPageService {
      * @param count - 참여 리스트의 size
      * @return - 유저 id 정보롤 찾은 좋아요 개수와 참여 리스트의 개수를 받아 필요한 정보만 매핑한 dto
      */
-    private StaticsInfoDto getStatsByUserId(Long id, int count) {
+    private StaticsInfoDto getStatsByUserId(Long id, Long count) {
         Long reviewCount = meetingReviewRepository.countReviewByUserId(id);
         return StaticsInfoDto.of(reviewCount, count);
     }

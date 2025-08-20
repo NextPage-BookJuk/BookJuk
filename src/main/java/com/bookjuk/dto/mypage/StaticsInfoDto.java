@@ -15,9 +15,9 @@ import lombok.*;
 public class StaticsInfoDto {
 
     private Long receivedLikes;
-    private int participatedMeeting;
+    private Long participatedMeeting;
 
-    public static StaticsInfoDto of(Long likes, int meetings) {
+    public static StaticsInfoDto of(Long likes, Long meetings) {
         return StaticsInfoDto.builder()
                 .receivedLikes(likes)
                 .participatedMeeting(meetings)
