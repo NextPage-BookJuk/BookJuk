@@ -241,7 +241,7 @@ public class MeetingController {
         Long currentUserId = currentUser != null ? currentUser.getId() : null;
 
         // 수정된 서비스 메서드 호출 (3개 파라미터)
-        List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status, currentUserId);
+        List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
 
         log.info("참가자 목록 조회 완료 - meetingId: {}, count: {}", meetingId, participants.size());
         return ResponseEntity.ok(participants);

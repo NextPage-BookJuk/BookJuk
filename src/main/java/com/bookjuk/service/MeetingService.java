@@ -160,10 +160,9 @@ public class MeetingService {
      *
      * @param meetingId 모임 ID
      * @param status 참가자 상태 필터 (nullable)
-     * @param currentUserId 현재 사용자 ID (리뷰 상태 확인용)
      * @return 참가자 목록
      */
-    public List<ParticipantResponse> getParticipants(Long meetingId, String status, Long currentUserId) {
+    public List<ParticipantResponse> getParticipants(Long meetingId, String status) {
         List<MeetingParticipant> participants;
 
         if (status != null && !status.isEmpty()) {
@@ -182,31 +181,7 @@ public class MeetingService {
         }
 
         return participants.stream()
-                .map(participant -> {
-                    // 각 참여자가 받은 리뷰 수 조회
-                    Long reviewsCount = meetingReviewRepository.countReviewByUserId(participant.getParticipant().getId());
-
-                    // 현재 사용자가 이 참여자를 리뷰했는지 확인
-                    Boolean isReviewed = false;
-                    if (currentUserId != null && !currentUserId.equals(participant.getParticipant().getId())) {
-                        // 특정 모임에서 리뷰했는지 확인하려면 ReviewService의 메서드가 필요
-                        // 임시로 간단한 체크 (나중에 ReviewService 메서드 추가 후 사용)
-                        try {
-                            Meeting meeting = meetingRepository.findById(meetingId)
-                                    .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
-                            User reviewer = userRepository.findById(currentUserId)
-                                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-                            User reviewee = participant.getParticipant();
-
-                            isReviewed = meetingReviewRepository.existDuplicateReview(meeting, reviewer, reviewee);
-                        } catch (Exception e) {
-                            log.warn("리뷰 상태 확인 중 오류: {}", e.getMessage());
-                            isReviewed = false;
-                        }
-                    }
-
-                    return ParticipantResponse.from(participant, reviewsCount, isReviewed);
-                })
+                .map(ParticipantResponse::from)
                 .collect(Collectors.toList());
     }
 
