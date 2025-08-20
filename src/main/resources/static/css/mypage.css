@@ -527,6 +527,24 @@
             color: #8b7355;
         }
 
+        .load-more-btn {
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border-radius: 8px;
+            background: #8b7355;
+            color: #fff;
+            padding: 14px 24px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: transform .1s ease, box-shadow .2s ease, background .2s ease;
+            position: relative;
+            margin-top: 30px;
+            display: none;
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 15px 20px;

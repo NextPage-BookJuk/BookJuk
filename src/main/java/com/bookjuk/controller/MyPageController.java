@@ -36,7 +36,7 @@ public class MyPageController {
     @GetMapping("/meetings")
     public ResponseEntity<?> getMyMeetings(
             @AuthenticationPrincipal String email,
-            @PageableDefault(page = 0, size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            @PageableDefault(page = 0, size = 3, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<MeetingInfoDto> response = myPageService.getMyMeetings(email, pageable);
         return ResponseEntity.ok(ApiResponse.success("마이페이지 나의 참여 모임 정보 조회를 성공했습니다.", response));

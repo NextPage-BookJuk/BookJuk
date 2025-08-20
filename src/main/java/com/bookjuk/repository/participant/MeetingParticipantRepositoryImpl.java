@@ -29,7 +29,7 @@ public class MeetingParticipantRepositoryImpl implements MeetingParticipantCusto
                 .fetch();
     }
 
-    // 유저 id로 참여한 미팅 id 반환
+    // 유저 id로 참여한 미팅 정보 반환
     @Override
     public Page<MeetingParticipant> findMeetingsByUserId(Long id, Pageable pageable) {
 
