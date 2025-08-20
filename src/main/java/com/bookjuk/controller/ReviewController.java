@@ -2,6 +2,7 @@ package com.bookjuk.controller;
 
 import com.bookjuk.domain.review.MeetingReview;
 import com.bookjuk.domain.user.User;
+import com.bookjuk.dto.common.ApiResponse;
 import com.bookjuk.dto.review.ReviewRequest;
 import com.bookjuk.dto.review.ReviewResponse;
 import com.bookjuk.repository.meeting.MeetingRepository;
@@ -42,6 +43,6 @@ public class ReviewController {
         ReviewResponse response = reviewService.createReview(meetingId, reviewerId, request);
 
         log.info("{} 모임에서 {}님이 {}님에게 리뷰를 남겼습니다.", meetingId, reviewerId, request);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(ApiResponse.success("다른 사용자에게 리뷰 남기기를 성공했습니다.", response));
     }
 }

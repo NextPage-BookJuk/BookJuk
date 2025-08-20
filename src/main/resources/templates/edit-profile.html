@@ -11,30 +11,29 @@
 </head>
 <body>
     <header class="header">
-        <h1 class="logo" onclick="goHome()">북적북적</h1>
-        <nav class="nav">
-            <a href="#" onclick="goHome()">홈</a>
-            <a href="#" onclick="goMyPage()">마이페이지</a>
-            <a href="#" class="back-btn" onclick="goBack()">뒤로가기</a>
+        <h1 class="logo">북적북적</h1>
+        <nav class="user-nav">
+            <a href="#">홈</a>
+            <a href="#">마이페이지</a>
+            <a href="#" class="back-btn">로그아웃</a>
         </nav>
     </header>
 
     <div class="container">
         <div class="page-header">
-            <h1 class="page-title">✏️ 프로필 수정</h1>
+            <h1 class="page-title">프로필 수정</h1>
             <p class="page-subtitle">나의 정보를 수정하고 더 나은 독서모임 경험을 만들어보세요</p>
         </div>
 
         <form class="form-container" id="profileForm">
             <!-- 프로필 이미지 섹션 -->
             <div class="form-section">
-                <h2 class="section-title">📷 프로필 이미지</h2>
+                <h2 class="section-title">프로필 이미지</h2>
                 
                 <div class="profile-image-section">
                     <div class="profile-image" id="profileImage"></div>
                     <div class="image-upload-area">
                         <button type="button" class="file-upload-btn">
-                            <span>📷</span>
                             이미지 선택
                         </button>
                         <button type="button" class="remove-image-btn">
@@ -49,7 +48,7 @@
 
             <!-- 기본 정보 섹션 -->
             <div class="form-section">
-                <h2 class="section-title">📋 기본 정보</h2>
+                <h2 class="section-title">기본 정보</h2>
                 
                 <div class="form-group">
                     <label class="form-label">닉네임 <span class="required">*</span></label>
@@ -73,7 +72,7 @@
 
             <!-- 선호 장르 섹션 -->
             <div class="form-section">
-                <h2 class="section-title">📚 선호 장르</h2>
+                <h2 class="section-title">선호 장르</h2>
                 
                 <div class="form-group">
                     <label class="form-label">관심 있는 장르를 선택해주세요 (선택)</label>
