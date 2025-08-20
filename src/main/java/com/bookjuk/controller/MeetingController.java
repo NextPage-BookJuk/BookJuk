@@ -263,4 +263,30 @@ public class MeetingController {
         log.info("모임 신청 완료 - meetingId: {}, userId: {}", meetingId, userId);
         return ResponseEntity.ok().build();
     }
+    /**
+     * 모임 종료 (호스트 전용)
+     */
+    @PutMapping("/api/meetings/{meetingId}/complete")
+    @ResponseBody
+    public ResponseEntity<Void> completeMeeting(
+            @PathVariable Long meetingId,
+            @RequestAttribute("userId") Long hostId) {
+
+        meetingService.completeMeeting(meetingId, hostId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 참여자 강제 퇴장 (호스트 전용)
+     */
+    @DeleteMapping("/api/meetings/{meetingId}/participants/{userId}")
+    @ResponseBody
+    public ResponseEntity<Void> removeParticipant(
+            @PathVariable Long meetingId,
+            @PathVariable Long userId,
+            @RequestAttribute("userId") Long hostId) {
+
+        meetingService.removeParticipant(meetingId, userId, hostId);
+        return ResponseEntity.ok().build();
+    }
 }

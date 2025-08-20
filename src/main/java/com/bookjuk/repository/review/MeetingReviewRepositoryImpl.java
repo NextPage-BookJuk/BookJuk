@@ -45,4 +45,6 @@ public class MeetingReviewRepositoryImpl implements MeetingReviewCustom {
                         .and(meetingReview.meeting.id.eq(meetingId)))
                 .fetch();
     }
+    
+
 }

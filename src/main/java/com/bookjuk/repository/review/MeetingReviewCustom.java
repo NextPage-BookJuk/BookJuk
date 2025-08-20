@@ -15,4 +15,5 @@ public interface MeetingReviewCustom {
 
     // 특정 모임에서 리뷰어가 리뷰한 모든 참여자 ID 목록 조회
     List<Long> findReviewedUserIdsByMeeting(Long reviewerId, Long meetingId);
+
 }

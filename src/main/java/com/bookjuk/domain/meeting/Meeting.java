@@ -195,6 +195,11 @@ public class Meeting {
 //            this.title = t;
 //        }
 //    }
-
+    /**
+     * 모임 상태 변경
+     */
+    public void changeStatus(MeetingStatus status) {
+        this.meetingStatus = status;
+    }
 }
 

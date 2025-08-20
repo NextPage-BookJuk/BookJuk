@@ -70,4 +70,9 @@ public interface MeetingRepository extends JpaRepository<Meeting, Long>, Meeting
      */
     long countByHost_Id(Long hostId);
 
+
+    /**
+     * 특정 사용자가 주최한 모임 수
+     */
+    int countByHost(User host);
 }

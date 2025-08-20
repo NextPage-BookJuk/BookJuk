@@ -264,5 +264,47 @@ public class MeetingService {
                 .totalElements(meetingPage.getTotalElements())
                 .build();
     }
+    /**
+     * 모임 종료
+     */
+    @Transactional
+    public void completeMeeting(Long meetingId, Long hostId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
 
+        // 호스트 권한 확인
+        if (!meeting.getHost().getId().equals(hostId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 이미 종료된 모임인지 확인
+        if (meeting.getMeetingStatus() == MeetingStatus.COMPLETED) {
+            throw new CustomException(ErrorCode.MEETING_NOT_COMPLETED);
+        }
+
+        // 모임 상태를 COMPLETED로 변경
+        meeting.changeStatus(MeetingStatus.COMPLETED);
+        meetingRepository.save(meeting);
+    }
+
+    /**
+     * 참여자 강제 퇴장
+     */
+    @Transactional
+    public void removeParticipant(Long meetingId, Long userId, Long hostId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        // 호스트 권한 확인
+        if (!meeting.getHost().getId().equals(hostId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        // 참여자 찾기 및 삭제
+        MeetingParticipant participant = meetingParticipantRepository
+                .findByMeeting_IdAndParticipant_Id(meetingId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PARTICIPANT_NOT_FOUND));
+
+        meetingParticipantRepository.delete(participant);
+    }
 }
