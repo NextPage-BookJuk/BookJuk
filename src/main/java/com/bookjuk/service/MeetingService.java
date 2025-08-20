@@ -9,6 +9,7 @@ import com.bookjuk.domain.user.User;
 import com.bookjuk.dto.board.response.ParticipantResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
+import com.bookjuk.dto.meeting.MeetingUpdateRequest;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.dto.meeting.request.MeetingListItemDto;
@@ -42,6 +43,7 @@ public class MeetingService {
     private final MeetingParticipantRepository meetingParticipantRepository;
     private final FileService fileService;
     private final MeetingReviewRepository meetingReviewRepository;
+    private final ReviewService reviewService;
 
     /**
      * 모임을 생성합니다.
@@ -181,7 +183,15 @@ public class MeetingService {
         }
 
         return participants.stream()
-                .map(ParticipantResponse::from)
+                .map(participant -> {
+                    Long userId = participant.getParticipant().getId();
+                    // 전체 좋아요 수 (모든 모임에서 받은 총 좋아요)
+                    Long reviewsCount = (long) reviewService.getTotalReviewCountByUser(userId);
+                    // 현재 사용자가 이 참가자를 이 모임에서 리뷰했는지 확인
+                    Boolean isReviewedByCurrentUser = false;
+                    // TODO: 현재 사용자 ID를 파라미터로 받아서 확인 로직 추가
+                    return ParticipantResponse.from(participant, reviewsCount, isReviewedByCurrentUser);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -307,4 +317,49 @@ public class MeetingService {
 
         meetingParticipantRepository.delete(participant);
     }
+    /**
+     * 모임 정보를 수정합니다. (setter 없는 방식)
+     */
+    @Transactional
+    public void updateMeeting(Long meetingId, Long userId, MeetingUpdateRequest request) {
+        log.info("모임 수정 서비스 시작 - meetingId: {}, userId: {}", meetingId, userId);
+
+        // 모임 조회
+        Meeting meeting = meetingRepository.findById(meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEETING_NOT_FOUND));
+
+        log.info("모임 조회 완료 - hostId: {}, requestUserId: {}", meeting.getHost().getId(), userId);
+
+        // ✅ 수정: 호스트 권한 확인 (User 객체가 아닌 ID로 비교)
+        if (!meeting.getHost().getId().equals(userId)) {
+            log.warn("권한 없음 - 호스트가 아닙니다. hostId: {}, userId: {}", meeting.getHost().getId(), userId);
+            throw new CustomException(ErrorCode.NOT_MEETING_HOST);
+        }
+
+        // ✅ location 필드를 파싱한 새로운 객체 생성 (원본 수정 없음)
+        MeetingUpdateRequest parsedRequest = request.withParsedLocation();
+
+        log.info("파싱된 요청 데이터 - region: {}, city: {}, district: {}, detailAddress: {}",
+                parsedRequest.getRegion(), parsedRequest.getCity(),
+                parsedRequest.getDistrict(), parsedRequest.getDetailAddress());
+
+        // 모임 정보 업데이트
+        meeting.updateMeetingInfo(
+                parsedRequest.getTitle(),
+                parsedRequest.getDescription(),
+                parsedRequest.getBookTitle(),
+                parsedRequest.getBookAuthor(),
+                parsedRequest.getGenre(),
+                parsedRequest.getMaxParticipants(),
+                parsedRequest.getMeetingTime(),
+                parsedRequest.getRegion(),
+                parsedRequest.getCity(),
+                parsedRequest.getDistrict(),
+                parsedRequest.getDetailAddress()
+        );
+
+        meetingRepository.save(meeting);
+        log.info("모임 수정 완료 - meetingId: {}", meetingId);
+    }
+
 }

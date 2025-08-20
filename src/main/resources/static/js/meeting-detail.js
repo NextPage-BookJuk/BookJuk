@@ -81,7 +81,7 @@ async function apiRequest(endpoint, options = {}) {
 }
 
 /**
- * 현재 사용자 정보 가져오기
+ * 현재 사용자 정보 가져오기 - /api/auth/me 엔드포인트 필요
  */
 async function getCurrentUser() {
     try {
@@ -92,19 +92,19 @@ async function getCurrentUser() {
             return null;
         }
 
-        const response = await apiRequest('/api/auth/me');
-
-        if (response.ok) {
-            const user = await response.json();
-            window.currentUserId = user.id || user.userId;
+        // /api/auth/me 엔드포인트가 필요함
+        // 현재는 UserResponse의 userId 필드를 사용
+        const userInfo = localStorage.getItem('userInfo');
+        if (userInfo) {
+            const user = JSON.parse(userInfo);
+            window.currentUserId = user.userId; // 백엔드 UserResponse의 userId 필드
             window.userRole = user.role || 'member';
-
-            // 사용자 정보를 로컬스토리지에 저장
-            localStorage.setItem('userInfo', JSON.stringify(user));
-
             console.log('현재 사용자:', user);
             return user;
         }
+
+        window.currentUserId = null;
+        window.userRole = 'guest';
     } catch (error) {
         console.error('사용자 정보 조회 실패:', error);
         window.currentUserId = null;
@@ -116,25 +116,36 @@ async function getCurrentUser() {
 }
 
 /**
- * 모임 상세 정보 로드
+ * 모임 상세 정보 로드 함수 - 수정된 버전
  */
 async function loadMeetingDetail() {
     try {
-        console.log('모임 상세 정보 로드 시작', 'meetingId:', window.currentMeetingId);
+        console.log('=== 모임 상세 정보 로드 시작 ===', 'meetingId:', window.currentMeetingId);
 
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}`);
 
         if (response.ok) {
             const meeting = await response.json();
-            console.log('모임 정보 로드 성공:', meeting);
+            console.log('=== 모임 정보 로드 성공 ===', meeting);
 
+            // 1단계: 모임 정보 업데이트 (상세주소 포함)
             updateMeetingInfo(meeting);
+
+            // 2단계: 사용자 역할 확인
             checkUserRole(meeting);
 
-            // 로그인된 사용자의 참여 상태 확인
+            // 3단계: 로그인된 사용자의 참여 상태 확인 (역할 확인 후)
             if (window.currentUserId) {
                 await checkParticipationStatus();
+                console.log('=== 참여 상태 확인 완료, 최종 역할 ===', window.userRole);
             }
+
+            // 4단계: 최종 UI 업데이트 (상세주소 재확인 포함)
+            console.log('=== 최종 UI 업데이트 ===');
+            setTimeout(() => {
+                updateUIByUserRole();
+            }, 150);
+
         } else {
             throw new Error(`HTTP ${response.status}`);
         }
@@ -149,11 +160,11 @@ async function loadMeetingDetail() {
 function checkUserRole(meeting) {
     console.log('사용자 역할 확인:', {
         currentUserId: window.currentUserId,
-        hostId: meeting.hostId || meeting.host?.id,
+        hostId: meeting.hostId || meeting.host?.userId,
         userRole: window.userRole
     });
 
-    const hostId = meeting.hostId || meeting.host?.id;
+    const hostId = meeting.hostId || meeting.host?.userId;
 
     if (window.currentUserId && window.currentUserId === hostId) {
         window.userRole = 'host';
@@ -171,7 +182,7 @@ function checkUserRole(meeting) {
 }
 
 /**
- * 참여 상태 확인 - 수정된 버전
+ * 참여 상태 확인 - GET /api/meetings/{meetingId}/participants
  */
 async function checkParticipationStatus() {
     if (!window.currentUserId || window.userRole === 'host') return;
@@ -180,20 +191,8 @@ async function checkParticipationStatus() {
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/participants`);
 
         if (response.ok) {
-            const responseData = await response.json();
-            console.log('참여 상태 확인 API 응답:', responseData);
-
-            // API 응답 구조 확인
-            let participants;
-            if (responseData.success && responseData.data) {
-                participants = responseData.data; // ApiResponse 구조
-            } else if (responseData.content) {
-                participants = responseData.content; // 페이지네이션 구조
-            } else if (Array.isArray(responseData)) {
-                participants = responseData; // 직접 배열
-            } else {
-                participants = [];
-            }
+            const participants = await response.json();
+            console.log('참여 상태 확인 API 응답:', participants);
 
             // 현재 사용자의 참여 상태 찾기
             const myParticipation = participants.find(p => p.id === window.currentUserId);
@@ -253,7 +252,7 @@ function updateParticipationUI(status) {
             break;
 
         default:
-            applyBtn.innerHTML = '<span>✋</span> 모임 신청';
+            applyBtn.innerHTML = '<span></span> 모임 신청';
             applyBtn.disabled = false;
             applyBtn.className = 'btn btn-primary btn-full';
     }
@@ -262,8 +261,37 @@ function updateParticipationUI(status) {
 /**
  * 역할별 UI 업데이트
  */
+async function loadMeetingDetail() {
+    try {
+        console.log('모임 상세 정보 로드 시작', 'meetingId:', window.currentMeetingId);
+
+        const response = await apiRequest(`/api/meetings/${window.currentMeetingId}`);
+
+        if (response.ok) {
+            const meeting = await response.json();
+            console.log('모임 정보 로드 성공:', meeting);
+
+            updateMeetingInfo(meeting);
+            checkUserRole(meeting);  // 역할 먼저 확인
+
+            // 로그인된 사용자의 참여 상태 확인 (역할 확인 후)
+            if (window.currentUserId) {
+                await checkParticipationStatus();
+                console.log('참여 상태 확인 완료, 최종 역할:', window.userRole);
+            }
+        } else {
+            throw new Error(`HTTP ${response.status}`);
+        }
+    } catch (error) {
+        console.error('모임 정보 로드 실패:', error);
+    }
+}
+
+/**
+ * 역할별 UI 업데이트 함수 - 수정된 버전
+ */
 function updateUIByUserRole() {
-    console.log('UI 업데이트 시작:', {
+    console.log('=== updateUIByUserRole 시작 ===', {
         userRole: window.userRole,
         currentUserId: window.currentUserId,
         isLoggedIn: checkLoginStatus()
@@ -347,10 +375,26 @@ function updateUIByUserRole() {
     }
 
     updateNavigationHeader();
-}
 
+    // 중요: 역할이 변경될 때마다 상세주소 정보도 업데이트
+    console.log('=== 역할 변경으로 인한 상세주소 업데이트 ===');
+    setTimeout(() => {
+        if (window.currentMeetingData) {
+            updateDetailAddress(window.currentMeetingData);
+        }
+    }, 100);
+
+    // 역할이 변경되면 참가자 목록도 다시 로드
+    const participantsList = document.querySelector('.participants-list');
+    if (participantsList && (isHost || isParticipant)) {
+        console.log('역할 변경으로 인한 참가자 목록 업데이트');
+        setTimeout(() => {
+            loadParticipants();
+        }, 200);
+    }
+}
 /**
- * 모임 종료 함수
+ * 모임 종료 함수 - PUT /api/meetings/{meetingId}/complete
  */
 async function completeMeeting() {
     if (!requireLogin('모임 종료')) return;
@@ -383,42 +427,74 @@ async function completeMeeting() {
 }
 
 /**
- * 상세주소 업데이트 함수
+ * 상세주소 업데이트 함수 - 수정된 버전
  */
 function updateDetailAddress(meeting = null) {
-    const updateElement = (id, content) => {
-        const element = document.getElementById(id);
-        if (element) element.textContent = content;
-    };
+    console.log('=== updateDetailAddress 호출 ===', {
+        userRole: window.userRole,
+        meeting: meeting,
+        currentMeetingData: window.currentMeetingData
+    });
 
-    if (window.userRole === 'host' || window.userRole === 'participant') {
-        let detailAddress = '상세주소 미제공';
+    const addressElement = document.getElementById('meeting-address');
+    if (!addressElement) {
+        console.log('meeting-address 엘리먼트를 찾을 수 없음');
+        return;
+    }
 
-        if (meeting && meeting.location) {
-            const parts = meeting.location.split(' ');
-            if (parts.length >= 3) {
-                detailAddress = parts[parts.length - 1];
-                window.currentDetailAddress = detailAddress;
-            }
-        } else if (window.currentDetailAddress) {
-            detailAddress = window.currentDetailAddress;
+    // meeting 파라미터가 없으면 전역 데이터 사용
+    const meetingData = meeting || window.currentMeetingData;
+
+    if (!meetingData) {
+        console.log('모임 데이터가 없음');
+        addressElement.textContent = '모임 정보 로딩 중...';
+        return;
+    }
+
+    // 권한 체크: 호스트 또는 승인된 참가자만 상세주소 표시
+    const canSeeDetailAddress = (window.userRole === 'host' || window.userRole === 'participant');
+
+    console.log('권한 체크:', {
+        canSeeDetailAddress,
+        userRole: window.userRole,
+        detailAddress: meetingData.detailAddress
+    });
+
+    if (canSeeDetailAddress) {
+        // 상세주소가 있으면 표시, 없으면 기본 메시지
+        const detailAddress = meetingData.detailAddress?.trim();
+
+        if (detailAddress && detailAddress !== '') {
+            addressElement.textContent = detailAddress;
+            console.log('상세주소 표시:', detailAddress);
+        } else {
+            addressElement.textContent = '상세주소 미제공';
+            console.log('상세주소 없음 - 기본 메시지 표시');
         }
-
-        console.log('상세주소 설정:', detailAddress, 'for role:', window.userRole);
-        updateElement('meeting-address', detailAddress);
     } else {
-        console.log('게스트/멤버 - 참여 후 확인 가능');
-        updateElement('meeting-address', '참여 후 확인 가능');
+        // 게스트나 일반 멤버는 참여 후 확인 가능 메시지
+        addressElement.textContent = '참여 후 확인 가능';
+        console.log('권한 없음 - 참여 후 확인 가능 메시지 표시');
+    }
+
+    // 전역 변수에도 저장 (수정 시 사용)
+    if (meetingData.detailAddress) {
+        window.currentDetailAddress = meetingData.detailAddress;
     }
 }
-
 /**
- * 모임 정보 UI 업데이트
+ * 모임 정보 UI 업데이트 함수 - 수정된 버전
  */
 function updateMeetingInfo(meeting) {
+    console.log('=== updateMeetingInfo 시작 ===', meeting);
+
     const updateElement = (id, content) => {
         const element = document.getElementById(id);
-        if (element) element.textContent = content;
+        if (element) {
+            element.textContent = content;
+        } else {
+            console.warn(`엘리먼트를 찾을 수 없음: ${id}`);
+        }
     };
 
     const updateAttribute = (id, attr, value) => {
@@ -431,6 +507,7 @@ function updateMeetingInfo(meeting) {
     updateElement('meeting-title', meeting.title || '모임 제목');
     updateElement('book-title', meeting.bookTitle || '도서 제목');
     updateElement('book-author', meeting.bookAuthor || '저자');
+    updateElement('meeting-description', meeting.description || '모임 설명이 없습니다.');
 
     // 날짜 포맷팅
     if (meeting.meetingTime) {
@@ -438,23 +515,20 @@ function updateMeetingInfo(meeting) {
         updateElement('meeting-date', formatDate(meetingDate));
     }
 
-    // 위치 정보 구성
-    let meetingLocation = '위치 정보 없음';
-    let detailAddress = '상세주소 미제공';
+    // 위치 정보 구성 - 개별 필드 사용
+    const region = meeting.region || '';
+    const city = meeting.city || '';
+    const district = meeting.district || '';
 
-    if (meeting.location) {
-        const parts = meeting.location.split(' ');
-        if (parts.length >= 3) {
-            detailAddress = parts[parts.length - 1];
-            meetingLocation = parts.slice(0, -1).join(' ');
-        } else {
-            meetingLocation = meeting.location;
-        }
-    }
+    // 기본 주소 (시/도 시/군 구/군) - 게스트에게도 표시
+    const baseLocation = [region, city, district].filter(Boolean).join(' ');
 
-    updateElement('meeting-location', meetingLocation);
-    window.currentMeetingLocation = meetingLocation;
-    window.currentDetailAddress = detailAddress;
+    // 전역 변수에 저장
+    window.currentMeetingLocation = baseLocation;
+    window.currentDetailAddress = meeting.detailAddress || '';
+
+    // 기본 위치 표시 (모든 사용자에게)
+    updateElement('meeting-location', baseLocation || '위치 정보 없음');
 
     updateElement('meeting-genre', meeting.genre ? `장르: ${meeting.genre}` : '장르: 미분류');
 
@@ -462,7 +536,7 @@ function updateMeetingInfo(meeting) {
     if (meeting.host) {
         updateElement('host-avatar', meeting.host.username ? meeting.host.username.charAt(0) : '?');
         updateElement('host-name', `${meeting.host.username || '호스트'} (호스트)`);
-        updateElement('host-stats', `받은 좋아요 ${meeting.host.likesCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
+        updateElement('host-stats', `받은 좋아요 ${meeting.host.reviewCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
     }
 
     // 참여자 수 정보
@@ -496,10 +570,18 @@ function updateMeetingInfo(meeting) {
 
     // 원본 모임 데이터 저장
     window.currentMeetingData = meeting;
+
+    console.log('=== updateMeetingInfo 완료, 상세주소 업데이트 호출 ===');
+
+    // 약간의 지연을 두어 DOM 업데이트가 완전히 완료된 후 실행
+    setTimeout(() => {
+        updateDetailAddress(meeting);
+    }, 100);
 }
 
+
 /**
- * 참가자 목록 로드 - 완전 수정된 버전
+ * 참가자 목록 로드 - GET /api/meetings/{meetingId}/participants?status=APPROVED
  */
 async function loadParticipants() {
     const loadingElement = document.getElementById('participants-loading');
@@ -518,22 +600,8 @@ async function loadParticipants() {
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/participants?status=APPROVED`);
 
         if (response.ok) {
-            const responseData = await response.json();
-            console.log('참가자 API 응답 전체:', responseData);
-
-            // API 응답 구조 확인
-            let participants;
-            if (responseData.success && responseData.data) {
-                participants = responseData.data; // ApiResponse 구조
-            } else if (responseData.content) {
-                participants = responseData.content; // 페이지네이션 구조
-            } else if (Array.isArray(responseData)) {
-                participants = responseData; // 직접 배열
-            } else {
-                participants = [];
-            }
-
-            console.log('추출된 참가자 데이터:', participants);
+            const participants = await response.json();
+            console.log('참가자 API 응답:', participants);
 
             if (listElement) {
                 listElement.innerHTML = '';
@@ -546,13 +614,7 @@ async function loadParticipants() {
                     `;
                 } else {
                     participants.forEach((participant, index) => {
-                        console.log(`참가자 ${index + 1} 상세:`, {
-                            id: participant.id,
-                            username: participant.username,
-                            role: participant.role,
-                            reviewsCount: participant.reviewsCount,
-                            isReviewedByCurrentUser: participant.isReviewedByCurrentUser
-                        });
+                        console.log(`참가자 ${index + 1} 상세:`, participant);
                         const item = createParticipantItem(participant);
                         listElement.appendChild(item);
                     });
@@ -582,8 +644,43 @@ async function loadParticipants() {
 }
 
 /**
- * 참가자 아이템 생성 - 완전 수정된 버전
+ * 참가자 아이템 생성
  */
+// meeting-detail.js의 createParticipantItem 함수 완전 새로 작성
+async function checkParticipationStatus() {
+    if (!window.currentUserId || window.userRole === 'host') return;
+
+    try {
+        const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/participants`);
+
+        if (response.ok) {
+            const participants = await response.json();
+
+            // 현재 사용자의 참여 상태 찾기
+            const myParticipation = participants.find(p => p.id === window.currentUserId);
+
+            if (myParticipation) {
+                // ✅ 수정된 부분: 승인된 참가자는 무조건 'participant'로 설정
+                if (myParticipation.role === 'PARTICIPANT' || myParticipation.role === 'HOST') {
+                    window.userRole = myParticipation.role === 'HOST' ? 'host' : 'participant';
+                    updateParticipationUI('APPROVED');
+                } else {
+                    // 대기중이거나 다른 상태
+                    if (myParticipation.status) {
+                        updateParticipationUI(myParticipation.status);
+                    }
+                }
+            } else {
+                // 참가자 목록에 없음 - 비참가자
+                window.userRole = 'member';
+            }
+        }
+    } catch (error) {
+        window.userRole = 'member';
+    }
+}
+
+// createParticipantItem 함수도 디버깅 추가 버전
 function createParticipantItem(participant) {
     const item = document.createElement('div');
     item.className = 'participant-mini-item';
@@ -595,49 +692,42 @@ function createParticipantItem(participant) {
     const profileImageUrl = participant.profileImage || '/images/defaultProfile.png';
     const isDefaultImage = !participant.profileImage || participant.profileImage.includes('defaultProfile.png');
 
-    // 백엔드에서 받은 값 그대로 사용
-    const reviewCount = participant.reviewsCount || participant.reviewCount || 0;
-    const isReviewed = participant.isReviewedByCurrentUser || participant.isReviewed || false;
+    // 전체 좋아요 수
+    const totalLikeCount = participant.totalLikes ||
+        participant.receivedLikes ||
+        participant.totalLikeCount ||
+        participant.hostLikeCount ||
+        participant.reviewsCount || 0;
 
-    console.log(`${participant.username} 리뷰 정보:`, {
-        reviewCount,
-        isReviewed,
-        currentUserId: window.currentUserId,
-        participantId: participant.id,
-        userRole: window.userRole
-    });
+    // 리뷰 상태 확인
+    const reviewKey = `review_${window.currentMeetingId}_${participant.id}`;
+    const backendReviewed = participant.isReviewedByCurrentUser || false;
+    const localReviewed = localStorage.getItem(reviewKey) === 'true';
+    const isReviewed = backendReviewed || localReviewed;
 
-    let reviewButtonHtml = '';
-
-    // 모임 완료 상태 확인
+    // 모임 완료 여부
     const meetingCompleted = window.currentMeetingData &&
         (window.currentMeetingData.meetingStatus === 'COMPLETED' ||
             window.currentMeetingData.status === 'COMPLETED');
 
-    console.log(`${participant.username} 리뷰 버튼 조건:`, {
-        hasUserId: !!window.currentUserId,
-        notSelf: window.currentUserId !== participant.id,
-        isHostOrParticipant: (window.userRole === 'host' || window.userRole === 'participant'),
-        userRole: window.userRole,
-        meetingCompleted,
-        canReview: window.currentUserId &&
-            window.currentUserId !== participant.id &&
-            (window.userRole === 'host' || window.userRole === 'participant') &&
-            meetingCompleted
-    });
+    // updateDetailAddress 로직과 동일하게 호스트/참가자 구분
+    const canSeeDetails = (window.userRole === 'host' || window.userRole === 'participant');
 
-    // 리뷰 버튼 표시 조건
-    if (window.currentUserId &&
-        window.currentUserId !== participant.id &&
-        (window.userRole === 'host' || window.userRole === 'participant') &&
-        meetingCompleted) {
+    // 리뷰 가능 조건: 상세주소를 볼 수 있는 권한 + 모임완료 + 자신이 아님
+    const canReview = canSeeDetails &&
+        meetingCompleted &&
+        window.currentUserId &&
+        window.currentUserId !== participant.id;
 
-        // 모임 완료 + 참여자/호스트 → 리뷰 버튼 표시
+    // 리뷰 버튼 HTML
+    let reviewButtonHtml = '';
+
+    if (canReview) {
         if (isReviewed) {
             reviewButtonHtml = `
                 <div class="review-section">
-                    <button class="btn btn-sm btn-success review-btn" disabled title="이미 리뷰를 남겼습니다">
-                        ❤️ ${reviewCount}
+                    <button class="btn btn-sm btn-success review-btn" disabled>
+                        ❤️ ${totalLikeCount}
                     </button>
                 </div>
             `;
@@ -645,18 +735,17 @@ function createParticipantItem(participant) {
             reviewButtonHtml = `
                 <div class="review-section">
                     <button class="btn btn-sm btn-outline-primary review-btn" 
-                            onclick="reviewParticipant(${participant.id})"
-                            title="이 참여자에게 좋아요 주기">
-                        🤍 ${reviewCount}
+                            onclick="reviewParticipant(${participant.id})">
+                        ❤️ ${totalLikeCount}
                     </button>
                 </div>
             `;
         }
     } else {
-        // 모든 다른 경우 → 리뷰 수만 표시
+        // 리뷰 불가능한 경우
         reviewButtonHtml = `
             <div class="review-section">
-                <span class="review-count like-badge" title="받은 좋아요 수">❤️ ${reviewCount}</span>
+                <span class="review-count like-badge">❤️ ${totalLikeCount}</span>
             </div>
         `;
     }
@@ -667,8 +756,7 @@ function createParticipantItem(participant) {
     !meetingCompleted ? `
         <div class="participant-actions">
             <button class="btn btn-danger btn-sm participant-reject-btn" 
-                    onclick="kickParticipant(${participant.id})" 
-                    title="참가자 내보내기">
+                    onclick="kickParticipant(${participant.id})">
                 ✗
             </button>
         </div>
@@ -692,8 +780,78 @@ function createParticipantItem(participant) {
     return item;
 }
 
+
+// reviewParticipant 함수도 새로 작성
+async function reviewParticipant(participantId) {
+    if (!requireLogin('리뷰 작성')) return;
+
+    // 권한 체크
+    if (window.userRole !== 'host' && window.userRole !== 'participant') {
+        alert('이 모임의 참여자만 리뷰를 남길 수 있습니다.');
+        return;
+    }
+
+    // 모임 완료 체크
+    const meetingCompleted = window.currentMeetingData &&
+        (window.currentMeetingData.meetingStatus === 'COMPLETED' ||
+            window.currentMeetingData.status === 'COMPLETED');
+
+    if (!meetingCompleted) {
+        alert('완료된 모임에서만 리뷰를 남길 수 있습니다.');
+        return;
+    }
+
+    // 자신에게 리뷰 방지
+    if (window.currentUserId === participantId) {
+        alert('자신에게는 리뷰를 남길 수 없습니다.');
+        return;
+    }
+
+    if (!confirm('이 참여자에게 좋아요를 주시겠습니까?')) {
+        return;
+    }
+
+    try {
+        const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/reviews`, {
+            method: 'POST',
+            body: JSON.stringify({ toUserId: participantId })
+        });
+
+        if (response.ok) {
+            // 성공: 로컬스토리지에 저장
+            const reviewKey = `review_${window.currentMeetingId}_${participantId}`;
+            localStorage.setItem(reviewKey, 'true');
+
+            // 버튼 즉시 업데이트
+            const reviewBtn = document.querySelector(`button[onclick="reviewParticipant(${participantId})"]`);
+            if (reviewBtn) {
+                const currentCount = parseInt(reviewBtn.textContent.match(/\d+/)?.[0] || 0);
+                reviewBtn.innerHTML = `❤️ ${currentCount + 1}`;
+                reviewBtn.className = 'btn btn-sm btn-success review-btn';
+                reviewBtn.disabled = true;
+                reviewBtn.removeAttribute('onclick');
+            }
+
+            loadParticipants(); // 전체 새로고침
+        } else {
+            const errorText = await response.text();
+
+            if (errorText.includes('DUPLICATE') || errorText.includes('중복')) {
+                // 중복 에러여도 로컬스토리지 저장
+                const reviewKey = `review_${window.currentMeetingId}_${participantId}`;
+                localStorage.setItem(reviewKey, 'true');
+                alert('이미 리뷰를 남겼습니다.');
+                loadParticipants();
+            } else {
+                alert('리뷰 실패: ' + errorText);
+            }
+        }
+    } catch (error) {
+        alert('오류 발생: ' + error.message);
+    }
+}
 /**
- * 리뷰 함수 - 완전 수정된 버전
+ * 리뷰 함수 - POST /api/meetings/{meetingId}/reviews
  */
 async function reviewParticipant(participantId) {
     console.log('리뷰 함수 호출:', {
@@ -747,8 +905,17 @@ async function reviewParticipant(participantId) {
             const result = await response.json();
             console.log('리뷰 성공 응답:', result);
 
+            // 성공 후 해당 버튼을 즉시 빨간색으로 바꾸기
+            const reviewBtn = document.querySelector(`button[onclick="reviewParticipant(${participantId})"]`);
+            if (reviewBtn) {
+                const currentCount = parseInt(reviewBtn.textContent.match(/\d+/)[0]) || 0;
+                reviewBtn.innerHTML = `❤️ ${currentCount + 1}`;
+                reviewBtn.className = 'btn btn-sm btn-success review-btn';
+                reviewBtn.disabled = true;
+                reviewBtn.title = '이미 리뷰를 남겼습니다';
+            }
+
             alert('리뷰가 완료되었습니다!');
-            await loadParticipants();
 
         } else {
             const errorData = await response.text();
@@ -970,7 +1137,7 @@ if (!document.getElementById('participant-styles')) {
 }
 
 /**
- * 참가자 내보내기 (호스트 전용)
+ * 참가자 내보내기 (호스트 전용) - DELETE /api/meetings/{meetingId}/participants/{userId}
  */
 async function kickParticipant(userId) {
     if (window.userRole !== 'host') {
@@ -1023,7 +1190,7 @@ function updateParticipantCount(count) {
 }
 
 /**
- * 대기 중인 참가신청 로드
+ * 대기 중인 참가신청 로드 - GET /api/meetings/{meetingId}/participants?status=PENDING
  */
 async function loadPendingRequests() {
     if (window.userRole !== 'host') return;
@@ -1088,7 +1255,7 @@ function createPendingItem(participant) {
 }
 
 /**
- * 참가자 승인
+ * 참가자 승인 - PATCH /api/meetings/{meetingId}/participants/{userId}
  */
 async function approveParticipant(userId) {
     try {
@@ -1111,7 +1278,7 @@ async function approveParticipant(userId) {
 }
 
 /**
- * 참가자 거절
+ * 참가자 거절 - PATCH /api/meetings/{meetingId}/participants/{userId}
  */
 async function rejectParticipant(userId) {
     if (!confirm('정말로 이 참가신청을 거절하시겠습니까?')) return;
@@ -1216,7 +1383,7 @@ function updateNavigationHeader() {
 }
 
 /**
- * 모임 신청
+ * 모임 신청 - POST /api/meetings/{meetingId}/apply
  */
 function applyToMeeting() {
     if (!requireLogin('모임 신청')) return;
@@ -1232,7 +1399,7 @@ async function confirmApply() {
     try {
         if (applyBtn) {
             applyBtn.disabled = true;
-            applyBtn.innerHTML = '<span>⚿</span> 신청 중...';
+            applyBtn.innerHTML = '<span></span> 신청 중...';
         }
 
         const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/apply`, {
@@ -1409,10 +1576,14 @@ function createPostItem(post) {
     item.className = 'post-item';
     item.onclick = () => viewPostDetail(post);
 
+    // ✅ postId 속성 추가 (댓글 카운트 업데이트용)
+    item.setAttribute('data-post-id', post.postId);
+
     const timeAgo = getTimeAgo(new Date(post.createdAt));
     const truncatedContent = truncateText(post.content, 100);
 
     const authorName = post.username || post.authorName || '작성자';
+    // ✅ 백엔드에서 commentCount 필드 제공
     const commentCount = post.commentCount || 0;
 
     item.innerHTML = `
@@ -1490,7 +1661,28 @@ function showPostDetailModal(post) {
     window.currentPostId = post.postId;
     showModal('post-detail-modal');
 }
+function updatePostDetailCommentCount() {
+    const commentsList = document.getElementById('commentsList');
+    if (!commentsList) return;
 
+    // 현재 표시된 댓글 개수 세기
+    const commentItems = commentsList.querySelectorAll('.comment-item');
+    const currentCommentCount = commentItems.length;
+
+    // 게시글 목록의 해당 게시글 댓글 카운트도 즉시 업데이트
+    const postItems = document.querySelectorAll('.post-item');
+    postItems.forEach(postItem => {
+        const postId = postItem.getAttribute('data-post-id') ||
+            postItem.querySelector('[data-post-id]')?.getAttribute('data-post-id');
+
+        if (postId == window.currentPostId) {
+            const commentCountElement = postItem.querySelector('.post-stat-item span:last-child');
+            if (commentCountElement) {
+                commentCountElement.textContent = `댓글 ${currentCommentCount}`;
+            }
+        }
+    });
+}
 /**
  * 게시글 댓글 로드
  */
@@ -1504,9 +1696,13 @@ async function loadPostComments(post) {
         if (response.ok) {
             const comments = await response.json();
             displayComments(comments);
+
+            // 댓글 로드 후 카운트 업데이트
+            updatePostDetailCommentCount();
         } else {
             if (post.comments && Array.isArray(post.comments)) {
                 displayComments(post.comments);
+                updatePostDetailCommentCount();
             } else {
                 commentsList.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">아직 댓글이 없습니다.</div>';
             }
@@ -1515,6 +1711,7 @@ async function loadPostComments(post) {
         console.error('댓글 로드 실패:', error);
         if (post.comments && Array.isArray(post.comments)) {
             displayComments(post.comments);
+            updatePostDetailCommentCount();
         } else {
             commentsList.innerHTML = '<div style="text-align: center; color: #777; padding: 20px;">댓글을 불러오는데 실패했습니다.</div>';
         }
@@ -1565,6 +1762,7 @@ function displayComments(comments) {
 /**
  * 댓글 작성
  */
+
 async function addComment() {
     if (!requireLogin('댓글 작성')) return;
 
@@ -1599,15 +1797,24 @@ async function addComment() {
         if (response.ok) {
             commentInput.value = '';
 
+            // 댓글 작성 성공 시 세 가지 업데이트
+            // 1. 현재 게시글의 댓글 목록 새로고침
             const currentPost = { postId: window.currentPostId };
-            await viewPostDetail(currentPost);
+            await loadPostComments(currentPost);
+
+            // 2. 게시글 목록 새로고침 (댓글 카운트 업데이트)
             await loadPosts();
+
+            // 3. 게시글 상세 모달의 댓글 카운트도 즉시 업데이트
+            updatePostDetailCommentCount();
+
         } else {
             const errorData = await response.text();
             throw new Error(errorData || '댓글 작성에 실패했습니다.');
         }
     } catch (error) {
         console.error('댓글 작성 실패:', error);
+        alert('댓글 작성에 실패했습니다: ' + error.message);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -1615,7 +1822,6 @@ async function addComment() {
         }
     }
 }
-
 /**
  * 유틸리티 함수들
  */
@@ -2030,7 +2236,7 @@ function createEditModal() {
 }
 
 /**
- * 수정 폼에 현재 데이터 채우기
+ * 수정 폼에 현재 데이터 채우기 - 개별 주소 필드 사용
  */
 function fillEditForm() {
     const meeting = window.currentMeetingData;
@@ -2042,7 +2248,9 @@ function fillEditForm() {
     document.getElementById('edit-bookAuthor').value = meeting.bookAuthor || '';
     document.getElementById('edit-genre').value = meeting.genre || '';
     document.getElementById('edit-maxParticipants').value = meeting.maxParticipants || '';
-    document.getElementById('edit-detailAddress').value = window.currentDetailAddress || '';
+
+    // ✅ 수정: 상세주소 필드에 실제 detailAddress 사용
+    document.getElementById('edit-detailAddress').value = meeting.detailAddress || '';
 
     if (meeting.meetingTime) {
         const meetingDate = new Date(meeting.meetingTime);
@@ -2050,40 +2258,68 @@ function fillEditForm() {
             .toISOString().slice(0, 16);
         document.getElementById('edit-meetingTime').value = localDateTime;
     }
+
+    console.log('수정 폼 초기화 완료:', {
+        region: meeting.region,
+        city: meeting.city,
+        district: meeting.district,
+        detailAddress: meeting.detailAddress
+    });
 }
 
 /**
- * 수정 폼 제출
+ * 수정 폼 제출 - 상세주소 처리 개선 버전
  */
 async function submitEditForm() {
+    // 기본 검증
     const title = document.getElementById('edit-title').value.trim();
     if (!title) {
         alert('모임 제목을 입력해주세요.');
         return;
     }
 
+    const bookTitle = document.getElementById('edit-bookTitle').value.trim();
+    const bookAuthor = document.getElementById('edit-bookAuthor').value.trim();
+    const genre = document.getElementById('edit-genre').value.trim();
+    const meetingTime = document.getElementById('edit-meetingTime').value;
+
+    if (!bookTitle || !bookAuthor || !genre || !meetingTime) {
+        alert('필수 항목을 모두 입력해주세요.');
+        return;
+    }
+
+    const maxParticipants = parseInt(document.getElementById('edit-maxParticipants').value);
+    if (!maxParticipants || maxParticipants < 2 || maxParticipants > 20) {
+        alert('최대 참여자 수는 2명 이상 20명 이하여야 합니다.');
+        return;
+    }
+
+    // 수정: 상세주소 처리 로직 개선
+    const detailAddress = document.getElementById('edit-detailAddress').value.trim();
+
     const updateData = {
         title: title,
         description: document.getElementById('edit-description').value.trim(),
-        bookTitle: document.getElementById('edit-bookTitle').value.trim(),
-        bookAuthor: document.getElementById('edit-bookAuthor').value.trim(),
-        genre: document.getElementById('edit-genre').value,
-        maxParticipants: parseInt(document.getElementById('edit-maxParticipants').value) || window.currentMeetingData.maxParticipants,
-        meetingTime: document.getElementById('edit-meetingTime').value
+        bookTitle: bookTitle,
+        bookAuthor: bookAuthor,
+        genre: genre,
+        maxParticipants: maxParticipants,
+        meetingTime: meetingTime,
+        // 핵심: 상세주소를 개별 필드로 직접 전송
+        detailAddress: detailAddress
     };
 
-    const detailAddress = document.getElementById('edit-detailAddress').value.trim();
-    if (detailAddress && window.currentMeetingData && window.currentMeetingData.location) {
-        const parts = window.currentMeetingData.location.split(' ');
-        if (parts.length >= 3) {
-            parts[parts.length - 1] = detailAddress;
-            updateData.location = parts.join(' ');
-        } else {
-            updateData.location = `${window.currentMeetingLocation} ${detailAddress}`.trim();
-        }
+    // 추가: 기존 주소 정보도 함께 전송 (location 파싱 대신)
+    if (window.currentMeetingData) {
+        updateData.region = window.currentMeetingData.region ||
+            (window.currentMeetingData.location ? window.currentMeetingData.location.split(' ')[0] : '');
+        updateData.city = window.currentMeetingData.city ||
+            (window.currentMeetingData.location ? window.currentMeetingData.location.split(' ')[1] : '');
+        updateData.district = window.currentMeetingData.district ||
+            (window.currentMeetingData.location ? window.currentMeetingData.location.split(' ')[2] : '');
     }
 
-    console.log('수정 데이터:', updateData);
+    console.log('전송할 데이터:', updateData);
 
     try {
         const submitBtn = document.querySelector('#edit-modal .btn-primary');
@@ -2103,20 +2339,31 @@ async function submitEditForm() {
         console.log('수정 응답 상태:', response.status);
 
         if (response.ok) {
+            alert('모임 정보가 성공적으로 수정되었습니다.');
             closeModal();
             await loadMeetingDetail();
         } else {
             const errorText = await response.text();
-            console.error('서버 에러 응답:', errorText);
-            throw new Error(`모임 수정에 실패했습니다 (${response.status}): ${errorText}`);
+            console.error('서버 오류 응답:', errorText);
+
+            if (response.status === 403) {
+                alert('모임 수정 권한이 없습니다. 호스트만 수정할 수 있습니다.');
+            } else if (response.status === 404) {
+                alert('존재하지 않는 모임입니다.');
+            } else if (response.status === 400) {
+                alert('입력 데이터를 확인해주세요.');
+            } else {
+                alert(`모임 수정에 실패했습니다 (${response.status}): ${errorText}`);
+            }
         }
     } catch (error) {
         console.error('모임 수정 실패:', error);
+        alert('모임 수정 중 오류가 발생했습니다: ' + error.message);
     } finally {
         const submitBtn = document.querySelector('#edit-modal .btn-primary');
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerHTML = '<span>💾</span> 수정 완료';
+            submitBtn.innerHTML = '<i class="fas fa-check"></i> 수정 완료';
         }
     }
 }
@@ -2194,19 +2441,24 @@ async function initializePage() {
 
         setupEventListeners();
 
+        // 1단계: 사용자 정보 먼저 로드
         await getCurrentUser();
         console.log('사용자 정보 로드 완료, 역할:', window.userRole);
 
-        const promises = [
-            loadMeetingDetail(),
+        // 2단계: 모임 정보 로드 (역할 확인 포함)
+        await loadMeetingDetail();
+        console.log('모임 정보 로드 완료, 최종 역할:', window.userRole);
+
+        // 3단계: 역할이 확정된 후 참가자 목록과 게시글 로드
+        const remainingPromises = [
             loadParticipants(),
             loadPosts()
         ];
 
-        const results = await Promise.allSettled(promises);
+        const results = await Promise.allSettled(remainingPromises);
 
         results.forEach((result, index) => {
-            const names = ['모임 정보', '참가자 목록', '게시글 목록'];
+            const names = ['참가자 목록', '게시글 목록'];
             if (result.status === 'fulfilled') {
                 console.log(`${names[index]} 로드 성공`);
             } else {
@@ -2230,84 +2482,3 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePage();
 });
 
-// 전역 함수로 내보내기
-window.applyToMeeting = applyToMeeting;
-window.confirmApply = confirmApply;
-window.openWriteModal = openWriteModal;
-window.submitPost = submitPost;
-window.addComment = addComment;
-window.approveParticipant = approveParticipant;
-window.rejectParticipant = rejectParticipant;
-window.kickParticipant = kickParticipant;
-window.goHome = goHome;
-window.goToLogin = goToLogin;
-window.goMyPage = goMyPage;
-window.createMeeting = createMeeting;
-window.editMeeting = editMeeting;
-window.cancelMeeting = cancelMeeting;
-window.logout = logout;
-window.closeModal = closeModal;
-window.loadPosts = loadPosts;
-window.submitEditForm = submitEditForm;
-window.completeMeeting = completeMeeting;
-window.reviewParticipant = reviewParticipant;
-
-// 디버깅 함수
-window.debugParticipantRole = function() {
-    console.log('=== 참가자 역할 디버깅 ===');
-    console.log('window.userRole:', window.userRole);
-    console.log('window.currentUserId:', window.currentUserId);
-    console.log('window.currentMeetingId:', window.currentMeetingId);
-    console.log('모임 완료 상태:', window.currentMeetingData?.meetingStatus);
-
-    const originalRole = window.userRole;
-    console.log('participant로 강제 설정 테스트');
-    window.userRole = 'participant';
-    updateUIByUserRole();
-
-    setTimeout(() => {
-        loadParticipants().then(() => {
-            console.log('참가자 목록 새로고침 완료');
-        });
-    }, 100);
-};
-
-window.testParticipantAPI = async function() {
-    console.log('=== 참가자 API 직접 테스트 ===');
-    try {
-        const response = await fetch(`/api/meetings/${window.currentMeetingId}/participants`, {
-            headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-        });
-        const data = await response.json();
-        console.log('API 응답:', data);
-
-        let participants;
-        if (data.success && data.data) {
-            participants = data.data;
-        } else if (data.content) {
-            participants = data.content;
-        } else if (Array.isArray(data)) {
-            participants = data;
-        } else {
-            participants = [];
-        }
-
-        console.log('추출된 참가자:', participants);
-        const me = participants.find(p => p.id === window.currentUserId);
-        console.log('내 정보:', me);
-
-        if (me) {
-            console.log('내 역할:', me.role);
-            console.log('리뷰 수 필드들:', {
-                reviewsCount: me.reviewsCount,
-                reviewCount: me.reviewCount,
-                isReviewedByCurrentUser: me.isReviewedByCurrentUser,
-                isReviewed: me.isReviewed
-            });
-        }
-    } catch (error) {
-        console.error('API 테스트 실패:', error);
-    }
-};
-
-console.log('✨ 북적북적 모임 상세 페이지 준비 완료!');

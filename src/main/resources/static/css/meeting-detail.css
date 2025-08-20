@@ -651,6 +651,17 @@ body {
     animation: spin 1s linear infinite;
     margin: 0 auto 10px;
 }
+#meeting-description {
+    padding: 0 20px 20px;
+    background: rgba(255, 255, 255, 0.3); /* 반투명 흰색 배경 */
+    backdrop-filter: blur(10px); /* 배경 블러 처리 */
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #1a1a1a;
+    font-family: 'Pretendard', sans-serif; /* 깔끔한 본문용 폰트 */
+    line-height: 1.75;
+    /*box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);*/
+}
 
 @keyframes spin {
     0% { transform: rotate(0deg); }

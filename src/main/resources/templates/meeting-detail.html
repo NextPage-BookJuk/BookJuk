@@ -22,12 +22,12 @@
     <main class="main-content">
         <!-- 왼쪽 컨텐츠 영역 -->
         <div class="content-left">
-            <div class="breadcrumb">
-                <a href="#" onclick="goHome()">홈</a> > <a href="#" onclick="goHome()">모임 목록</a> > <span id="breadcrumb-title">모임 제목</span>
-            </div>
+<!--            <div class="breadcrumb">-->
+<!--                <a href="#" onclick="goHome()">홈</a> > <a href="#" onclick="goHome()">모임 목록</a> > <span id="breadcrumb-title">모임 제목</span>-->
+<!--            </div>-->
 
             <!-- 모임 상세 정보 -->
-            <div class="meeting-header">
+            <div class="meeting-header ">
                 <div class="meeting-image" id="meeting-image">
                     <div class="status-badges" id="status-badges">
                         <!-- 상태 배지들이 여기에 동적으로 추가됩니다 -->
@@ -36,7 +36,7 @@
 
                 <div class="meeting-info">
                     <h1 class="meeting-title" id="meeting-title">모임 제목</h1>
-
+                    <div id="meeting-description"></div>
                     <div class="book-info">
                         <div class="book-title" id="book-title">도서 제목</div>
                         <div class="book-author" id="book-author">저자명</div>
@@ -66,7 +66,7 @@
                             <div class="host-avatar" id="host-avatar">호</div>
                             <div class="host-details">
                                 <h4 id="host-name">호스트명 (호스트)</h4>
-                                <div class="host-stats" id="host-stats">받은 좋아요 0개 · 주최 모임 0회</div>
+                                <div class="host-stats" id="host-stats">받은 좋아요 ${meeting.host.reviewCount || 0}개 · 주최 모임 0회</div>
                             </div>
                         </div>
                     </div>
