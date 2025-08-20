@@ -428,7 +428,7 @@ function updateMeetingInfo(meeting) {
     if (meeting.host) {
         updateElement('host-avatar', meeting.host.username ? meeting.host.username.charAt(0) : '?');
         updateElement('host-name', `${meeting.host.username || '호스트'} (호스트)`);
-        updateElement('host-stats', `받은 좋아요 ${meeting.host.likesCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
+        updateElement('host-stats', `받은 좋아요 ${meeting.host.reviewsCount || 0}개 · 주최 모임 ${meeting.host.hostedMeetingsCount || 0}회`);
     }
 
     // 참여자 수 정보 - 정확한 현재 참여자 수 반영
@@ -627,7 +627,6 @@ async function submitPost() {
     const submitBtn = document.querySelector('#write-modal .btn-primary');
 
     if (!titleElement || !contentElement) {
-        alert('입력 필드를 찾을 수 없습니다.');
         return;
     }
 
@@ -669,7 +668,6 @@ async function submitPost() {
         });
 
         if (response.ok) {
-            alert('게시글이 작성되었습니다.');
             hideModal('write-modal');
             loadPosts(); // 게시글 목록 새로고침
         } else {
@@ -678,7 +676,6 @@ async function submitPost() {
         }
     } catch (error) {
         console.error('게시글 작성 실패:', error);
-        alert('게시글 작성에 실패했습니다: ' + error.message);
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -739,7 +736,7 @@ async function loadParticipants() {
 }
 
 /**
- * 참가자 아이템 생성
+ * 참가자 아이템 생성 (업데이트된 버전 - 프로필 이미지와 리뷰 버튼 추가)
  */
 function createParticipantItem(participant) {
     const item = document.createElement('div');
@@ -747,6 +744,48 @@ function createParticipantItem(participant) {
 
     const roleText = participant.role === 'HOST' ? '호스트' : '참여자';
     const roleClass = participant.role === 'HOST' ? 'host' : 'participant';
+
+    // 프로필 이미지 처리
+    const profileImageUrl = participant.profileImage || '/images/defaultProfile.png';
+    const isDefaultImage = !participant.profileImage || participant.profileImage.includes('defaultProfile.png');
+
+    // 리뷰 버튼 생성 (현재 사용자가 로그인되어 있고, 자신이 아닌 경우)
+    const showReviewButton = window.currentUserId &&
+        window.currentUserId !== participant.id &&
+        (window.userRole === 'host' || window.userRole === 'participant');
+
+    let reviewButtonHtml = '';
+    if (showReviewButton) {
+        const isReviewed = participant.isReviewedByCurrentUser || false;
+        const reviewCount = participant.reviewsCount || 0;
+
+        if (isReviewed) {
+            reviewButtonHtml = `
+                <div class="review-section">
+                    <button class="btn btn-sm btn-success review-btn" disabled title="이미 리뷰했습니다">
+                        ❤️ ${reviewCount}
+                    </button>
+                </div>
+            `;
+        } else {
+            reviewButtonHtml = `
+                <div class="review-section">
+                    <button class="btn btn-sm btn-outline-primary review-btn" 
+                            onclick="reviewParticipant(${participant.id})" 
+                            title="좋아요 주기">
+                        🤍 ${reviewCount}
+                    </button>
+                </div>
+            `;
+        }
+    } else if (participant.reviewsCount > 0) {
+        // 리뷰 버튼을 보여줄 수 없어도 리뷰 수는 표시
+        reviewButtonHtml = `
+            <div class="review-section">
+                <span class="review-count">❤️ ${participant.reviewsCount}</span>
+            </div>
+        `;
+    }
 
     // 호스트인 경우 거절 버튼 표시
     const actionButtons = window.userRole === 'host' && participant.role !== 'HOST' ? `
@@ -757,12 +796,18 @@ function createParticipantItem(participant) {
         </div>
     ` : '';
 
+    // 프로필 이미지 HTML
+    const profileImageHtml = isDefaultImage ?
+        `<div class="participant-mini-avatar ${roleClass}">${participant.username.charAt(0)}</div>` :
+        `<img src="${profileImageUrl}" alt="${participant.username}" class="participant-mini-avatar ${roleClass}" />`;
+
     item.innerHTML = `
-        <div class="participant-mini-avatar ${roleClass}">${participant.username.charAt(0)}</div>
+        ${profileImageHtml}
         <div class="participant-mini-info">
             <div class="participant-mini-name">${escapeHtml(participant.username)}</div>
             <div class="participant-mini-status">${roleText}</div>
         </div>
+        ${reviewButtonHtml}
         ${actionButtons}
     `;
 
@@ -786,7 +831,6 @@ async function kickParticipant(userId) {
         });
 
         if (response.ok) {
-            alert('참가자를 내보냈습니다.');
             loadParticipants(); // 참가자 목록 새로고침
             loadMeetingDetail(); // 모임 정보도 새로고침 (참여자 수 업데이트)
         } else {
@@ -795,7 +839,6 @@ async function kickParticipant(userId) {
         }
     } catch (error) {
         console.error('참가자 내보내기 실패:', error);
-        alert('참가자 내보내기에 실패했습니다: ' + error.message);
     }
 }
 
@@ -903,7 +946,6 @@ async function approveParticipant(userId) {
         });
 
         if (response.ok) {
-            alert('참가자를 승인했습니다.');
 
             // 목록 새로고침
             await loadPendingRequests();
@@ -932,7 +974,6 @@ async function rejectParticipant(userId) {
         });
 
         if (response.ok) {
-            alert('참가신청을 거절했습니다.');
             // 목록 새로고침
             await loadPendingRequests();
             await loadParticipants();
@@ -1214,7 +1255,6 @@ async function addComment() {
         });
 
         if (response.ok) {
-            alert('댓글이 작성되었습니다.');
             commentInput.value = '';
 
             // 게시글 다시 로드하여 댓글 새로고침
@@ -1349,39 +1389,39 @@ function createEditModal() {
         <div id="edit-modal" class="modal-overlay" style="display: none;">
             <div class="modal edit-modal">
                 <div class="modal-header">
-                    <h3>✏️ 모임 수정</h3>
+                    <h3> 모임 수정</h3>
                     <button onclick="closeModal()" class="modal-close">×</button>
                 </div>
                 <div class="modal-body">
                     <form id="edit-form">
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label>📝 모임 제목</label>
+                                <label>모임 제목</label>
                                 <input type="text" id="edit-title" class="form-input" placeholder="모임 제목을 입력하세요" required>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label>📖 모임 설명</label>
+                                <label>모임 설명</label>
                                 <textarea id="edit-description" class="form-textarea" rows="3" placeholder="모임에 대한 설명을 입력하세요"></textarea>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>📚 책 제목</label>
+                                <label>책 제목</label>
                                 <input type="text" id="edit-bookTitle" class="form-input" placeholder="책 제목">
                             </div>
                             <div class="form-group half-width">
-                                <label>✏️ 저자</label>
+                                <label>저자</label>
                                 <input type="text" id="edit-bookAuthor" class="form-input" placeholder="저자명">
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>🎭 장르</label>
+                                <label>장르</label>
                                 <select id="edit-genre" class="form-select">
                                     <option value="">선택하세요</option>
                                     <option value="소설">소설</option>
@@ -1394,18 +1434,18 @@ function createEditModal() {
                                 </select>
                             </div>
                             <div class="form-group half-width">
-                                <label>👥 최대 참여자 수</label>
+                                <label>최대 참여자 수</label>
                                 <input type="number" id="edit-maxParticipants" class="form-input" min="2" max="20" placeholder="2-20명">
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-group half-width">
-                                <label>📅 모임 날짜/시간</label>
+                                <label>모임 날짜/시간</label>
                                 <input type="datetime-local" id="edit-meetingTime" class="form-input">
                             </div>
                             <div class="form-group half-width">
-                                <label>📍 상세 주소</label>
+                                <label>상세 주소</label>
                                 <input type="text" id="edit-detailAddress" class="form-input" placeholder="구체적인 모임 장소">
                             </div>
                         </div>
@@ -1413,10 +1453,10 @@ function createEditModal() {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">
-                        <span>❌</span> 취소
+                        <span></span> 취소
                     </button>
                     <button type="button" class="btn btn-primary" onclick="submitEditForm()">
-                        <span>💾</span> 수정 완료
+                        <span></span> 수정 완료
                     </button>
                 </div>
             </div>
@@ -1575,6 +1615,41 @@ function createEditModal() {
                 margin-bottom: 20px;
             }
         }
+        .review-section {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.review-btn {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    border: 1px solid;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.review-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.review-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.review-count {
+    font-size: 12px;
+    color: #666;
+}
+
+.participant-mini-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
         </style>
     `;
 
@@ -1658,7 +1733,6 @@ async function submitEditForm() {
         console.log('수정 응답 상태:', response.status);
 
         if (response.ok) {
-            alert('모임이 수정되었습니다.');
             closeModal();
             // 페이지 새로고침하여 모든 정보 업데이트
             await loadMeetingDetail();
@@ -1702,14 +1776,12 @@ function logout() {
             .then(() => {
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userInfo');
-                alert('로그아웃되었습니다.');
                 window.location.href = '/';
             })
             .catch(() => {
                 // 백엔드 오류가 있어도 클라이언트에서 로그아웃 처리
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('userInfo');
-                alert('로그아웃되었습니다.');
                 window.location.href = '/';
             });
     }
@@ -1805,6 +1877,41 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePage();
 });
 
+/**
+ * 참여자에게 리뷰(좋아요) 주기
+ */
+async function reviewParticipant(participantId) {
+    if (!requireLogin('리뷰 작성')) return;
+
+    if (!confirm('이 참여자에게 좋아요를 주시겠습니까?\n한 번 주면 취소할 수 없습니다.')) {
+        return;
+    }
+
+    try {
+        const response = await apiRequest(`/api/meetings/${window.currentMeetingId}/reviews`, {
+            method: 'POST',
+            body: JSON.stringify({ toUserId: participantId })
+        });
+
+        if (response.ok) {
+            // 참가자 목록 새로고침하여 업데이트된 상태 반영
+            await loadParticipants();
+        } else {
+            const errorData = await response.text();
+            if (errorData.includes('DUPLICATE_LIKE') || errorData.includes('중복')) {
+                alert('이미 이 참여자에게 리뷰를 남겼습니다.');
+            } else if (errorData.includes('MEETING_NOT_COMPLETED')) {
+                alert('완료된 모임에서만 리뷰를 남길 수 있습니다.');
+            } else {
+                throw new Error(errorData || '리뷰 작성에 실패했습니다.');
+            }
+        }
+    } catch (error) {
+        console.error('리뷰 작성 실패:', error);
+        alert('리뷰 작성에 실패했습니다: ' + error.message);
+    }
+}
+
 // 전역 함수로 내보내기 (HTML에서 onclick으로 사용)
 window.applyToMeeting = applyToMeeting;
 window.confirmApply = confirmApply;
@@ -1824,5 +1931,6 @@ window.logout = logout;
 window.closeModal = closeModal;
 window.loadPosts = loadPosts;
 window.submitEditForm = submitEditForm;
+window.reviewParticipant = reviewParticipant;
 
 console.log('✨ 북적북적 모임 상세 페이지 준비 완료!');

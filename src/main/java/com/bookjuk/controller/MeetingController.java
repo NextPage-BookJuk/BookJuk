@@ -231,11 +231,17 @@ public class MeetingController {
     @ResponseBody
     public ResponseEntity<List<ParticipantResponse>> getParticipants(
             @PathVariable Long meetingId,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            HttpServletRequest request) { // 이 부분 추가
 
         log.info("참가자 목록 조회 요청 - meetingId: {}, status: {}", meetingId, status);
 
-        List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
+        // 현재 사용자 ID 추출 (JWT 토큰에서)
+        User currentUser = getCurrentUserFromToken(request);
+        Long currentUserId = currentUser != null ? currentUser.getId() : null;
+
+        // 수정된 서비스 메서드 호출 (3개 파라미터)
+        List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status, currentUserId);
 
         log.info("참가자 목록 조회 완료 - meetingId: {}, count: {}", meetingId, participants.size());
         return ResponseEntity.ok(participants);
