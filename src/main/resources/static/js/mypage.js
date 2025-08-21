@@ -10,7 +10,7 @@
 }
 export default MyPage;*/
 // 백엔드 API 서버의 기본 URL
-const URL = 'api/mypage';
+const URL = '/api/mypage';
 
 //=========== DOM ============//
 // 프로필 정보
@@ -28,6 +28,9 @@ const $meetingList = document.querySelector('.meetings-list');
 const $title = document.querySelector('.meeting-title');
 const $date = document.querySelector('.date');
 const $role = document.querySelector('.role-badge');
+const $loadMoreBtn = document.querySelector('.load-more-btn');
+
+let currentPage = 0;
 
 //=========== 렌더링 관련 함수 ============//
 const viewMyPage = (myInfo) => {
@@ -44,7 +47,6 @@ const viewMyPage = (myInfo) => {
 
     // 2. 랜더링 전 기존 정보 초기화
     $profileHeader.innerHTML = ` `;
-    $meetingList.innerHTML = ` `;
     $receivedLikes.textContent = ` `;
     $participatedMeetings.textContent = ` `;
     $genreTags.innerHTML = ` `;
@@ -84,8 +86,19 @@ const viewMyPage = (myInfo) => {
     $receivedLikes.textContent = `${stat.receivedLikes}`;
     $participatedMeetings.textContent = `${stat.participatedMeeting}`;
 
+}
+
+const loadMyMeetings = (myMeetings, isLoadMore = false) => {
+
+    // 1. 랜더링 전 기본 정보 초기화
+    // 초기 로딩상황일떄만 초기화함
+    if(!isLoadMore) {
+        $meetingList.innerHTML = ` `;
+    }
+
     // 미팅 정보
-    const meetings = myInfo.data.meetings || [];
+    const meetings = myMeetings.data.content || [];
+
     if(meetings.length === 0) {
         const $noMeeting = document.createElement('div');
         $noMeeting.innerHTML = `
@@ -102,6 +115,9 @@ const viewMyPage = (myInfo) => {
         $noMeeting.className = 'empty-state';
         $meetingList.append($noMeeting);
 
+        if ($loadMoreBtn) {
+            $loadMoreBtn.style.display = 'none';
+        }
 
     } else {
         meetings.forEach(meeting => {
@@ -149,8 +165,10 @@ const viewMyPage = (myInfo) => {
             $meetingItem.dataset.id = meeting.meetingId;
             $meetingList.append($meetingItem);
         })
+        updateLoadMoreButton(myMeetings.data.last, isLoadMore);
     }
 }
+
 //=========== 기타 함수 ============//
 
 // ===== 인증 헬퍼 (auth.js 방식과 호환) =====
@@ -269,14 +287,23 @@ function goHome() {
     window.location.href = `/`;
 }
 
+// 더보기 버튼 관리 함수
+function updateLoadMoreButton(isLast, isLoadMore) {
+
+    if ($loadMoreBtn) {
+        $loadMoreBtn.style.display = isLast ? 'none' : 'block';
+    }
+}
+
 //=========== 서버 데이터 요청/응답 관련 함수 ============//
+// 마이페이지 사용자 정보 조회
 const fetchGetMyPage = async () => {
     console.log("마이페이지 js");
     const token = authHelper.getToken();
     if (!token) {
         throw new Error('인증 토큰이 없습니다.');
     }
-    const res = await fetch('/api/mypage', {
+    const res = await fetch(URL, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`
@@ -285,6 +312,51 @@ const fetchGetMyPage = async () => {
     const result = await res.json();
     console.log(result);
     viewMyPage(result);
+}
+
+// 마이페이지 사용자 참여 모임 정보 조회
+const fetchGetMyMeetings = async () => {
+    const token = authHelper.getToken();
+    if (!token) {
+        throw new Error('인증 토큰이 없습니다.');
+    }
+    const res = await fetch(`${URL}/meetings`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    });
+
+    const result = await res.json();
+    console.log(result);
+    loadMyMeetings(result, false);
+
+}
+
+// 모임 정보 더보기
+const loadMoreMeeting = async () => {
+    currentPage ++;
+
+    const token = authHelper.getToken();
+    if (!token) {
+        throw new Error('인증 토큰이 없습니다.');
+    }
+    try {
+        const res = await fetch(`${URL}/meetings?page=${currentPage}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const result = await res.json();
+        loadMyMeetings(result, true);
+
+    } catch (error) {
+        console.error('더보기 로드 실패:', error);
+    }
+
+
 }
 //=========== 이벤트 핸들러 설정 ============//
 const addEventListeners = () => {
@@ -313,7 +385,7 @@ const addEventListeners = () => {
     $meetingList.addEventListener('click', e => {
         if(e.target.matches('.empty-state-button')) {
             goHome();
-        };
+        }
     })
 
     // 로그아웃 버튼 클릭 시
@@ -328,10 +400,17 @@ const addEventListeners = () => {
         goHome();
     })
 
+    // 더보기 버튼
+    $loadMoreBtn.addEventListener('click', e => {
+        e.preventDefault();
+        loadMoreMeeting();
+    })
+
 }
 
 //=========== 메인 코드 실행 ============//
-(function () {
+
+(async function () {
 
     // 페이지가 처음 열렸을 때 로그인 상태를 확인
     // 로그인 상태 확인
@@ -343,9 +422,16 @@ const addEventListeners = () => {
     }
 
     updateNavigationByLoginStatus();
-    fetchGetMyPage();
-
     // 이벤트 핸들러들을 등록합니다.
     addEventListeners();
+
+    try {
+        await Promise.all([
+            fetchGetMyPage(),
+            fetchGetMyMeetings(),
+        ]);
+    } catch (error) {
+        console.error('병렬 호출 중 오류:', error);
+    }
 })();
 
