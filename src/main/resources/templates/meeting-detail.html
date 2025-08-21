@@ -9,215 +9,217 @@
     <link rel="icon" th:href="@{/images/BookJuk-logo.ico}" type="image/x-icon">
 </head>
 <body>
-<header class="header">
-    <h1 class="logo" onclick="goHome()">북적북적</h1>
-    <nav class="nav">
-        <!-- 네비게이션 메뉴는 JavaScript에서 동적으로 생성됩니다 -->
-        <a href="#" onclick="goHome()">홈</a>
-        <a href="#" onclick="goToLogin()">로그인</a>
-        <a href="#" class="create-meeting-btn" onclick="createMeeting()">모임 만들기</a>
-    </nav>
-</header>
+    <header class="header">
+        <h1 class="logo" onclick="goHome()">북적북적</h1>
+        <nav class="nav">
+            <!-- 네비게이션 메뉴는 JavaScript에서 동적으로 생성됩니다 -->
+            <a href="#" onclick="goHome()">홈</a>
+            <a href="#" onclick="goToLogin()">로그인</a>
+            <a href="#" class="create-meeting-btn" onclick="createMeeting()">모임 만들기</a>
+        </nav>
+    </header>
 
-<main class="main-content">
-    <!-- 왼쪽 컨텐츠 영역 -->
-    <div class="content-left">
-        <div class="breadcrumb">
-            <a href="#" onclick="goHome()">홈</a> > <a href="#" onclick="goHome()">모임 목록</a> > <span id="breadcrumb-title">모임 제목</span>
-        </div>
+    <main class="main-content">
+        <!-- 왼쪽 컨텐츠 영역 -->
+        <div class="content-left">
+<!--            <div class="breadcrumb">-->
+<!--                <a href="#" onclick="goHome()">홈</a> > <a href="#" onclick="goHome()">모임 목록</a> > <span id="breadcrumb-title">모임 제목</span>-->
+<!--            </div>-->
 
-        <!-- 모임 상세 정보 -->
-        <div class="meeting-header">
-            <div class="meeting-image" id="meeting-image">
-                <div class="status-badges" id="status-badges">
-                    <!-- 상태 배지들이 여기에 동적으로 추가됩니다 -->
-                </div>
-            </div>
-
-            <div class="meeting-info">
-                <h1 class="meeting-title" id="meeting-title">모임 제목</h1>
-
-                <div class="book-info">
-                    <div class="book-title" id="book-title">도서 제목</div>
-                    <div class="book-author" id="book-author">저자명</div>
-                </div>
-
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-icon">🗓️</span>
-                        <span id="meeting-date">날짜</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon">📍</span>
-                        <span id="meeting-location">위치</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon">📚</span>
-                        <span id="meeting-genre">장르</span>
-                    </div>
-                    <div class="info-item">
-                        <span class="info-icon">🏠</span>
-                        <span id="meeting-address">상세주소</span>
+            <!-- 모임 상세 정보 -->
+            <div class="meeting-header ">
+                <div class="meeting-image" id="meeting-image">
+                    <div class="status-badges" id="status-badges">
+                        <!-- 상태 배지들이 여기에 동적으로 추가됩니다 -->
                     </div>
                 </div>
 
-                <div class="host-info">
-                    <div class="host-profile">
-                        <div class="host-avatar" id="host-avatar">호</div>
-                        <div class="host-details">
-                            <h4 id="host-name">호스트명 (호스트)</h4>
-                            <div class="host-stats" id="host-stats">받은 좋아요 0개 · 주최 모임 0회</div>
+                <div class="meeting-info">
+                    <h1 class="meeting-title" id="meeting-title">모임 제목</h1>
+                    <div id="meeting-description"></div>
+                    <div class="book-info">
+                        <div class="book-title" id="book-title">도서 제목</div>
+                        <div class="book-author" id="book-author">저자명</div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-icon"></span>
+                            <span id="meeting-date">날짜</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon"></span>
+                            <span id="meeting-location">위치</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon"></span>
+                            <span id="meeting-genre">장르</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-icon"></span>
+                            <span id="meeting-address">상세주소</span>
+                        </div>
+                    </div>
+
+                    <div class="host-info">
+                        <div class="host-profile">
+                            <div class="host-avatar" id="host-avatar">호</div>
+                            <div class="host-details">
+                                <h4 id="host-name">호스트명 (호스트)</h4>
+                                <div class="host-stats" id="host-stats">통계 정보 로딩 중...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- 소통 게시판 -->
+            <div class="board-section">
+                <div class="board-header">
+                    <div>
+                        <h2 class="board-title"> 소통 게시판</h2>
+                        <div class="board-stats" id="board-stats">총 0개의 게시글</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="openWriteModal()" id="writeBtn" style="display: none;">
+                        <span></span>
+                        글쓰기
+                    </button>
+                </div>
+
+                <div class="loading" id="posts-loading">
+                    <div class="spinner"></div>
+                    <div>게시글을 불러오는 중...</div>
+                </div>
+
+                <div class="posts-list" id="posts-list">
+                    <!-- 게시글 목록이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
         </div>
 
-        <!-- 소통 게시판 -->
-        <div class="board-section">
-            <div class="board-header">
-                <div>
-                    <h2 class="board-title">💬 소통 게시판</h2>
-                    <div class="board-stats" id="board-stats">총 0개의 게시글</div>
+        <!-- 오른쪽 사이드바 -->
+        <div class="content-right">
+            <!-- 참가신청 리스트 (호스트만 보임) -->
+            <div class="participants-sidebar" id="pending-requests" style="display: none;">
+                <h3 class="sidebar-title">참가신청 대기</h3>
+                <div class="loading" id="pending-loading">
+                    <div class="spinner"></div>
+                    <div>신청 목록을 불러오는 중...</div>
                 </div>
-                <button class="btn btn-primary" onclick="openWriteModal()" id="writeBtn" style="display: none;">
-                    <span>✏️</span>
-                    글쓰기
+                <div class="pending-list" id="pending-list">
+                    <!-- 대기 중인 참가신청이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- 참여 현황 -->
+            <div class="participants-sidebar">
+                <h3 class="sidebar-title">참여 현황</h3>
+                <div class="participants-count-display" id="participants-count">0/0명</div>
+                <div class="loading" id="participants-loading">
+                    <div class="spinner"></div>
+                    <div>참여자 목록을 불러오는 중...</div>
+                </div>
+                <div class="participants-mini-list" id="participants-list">
+                    <!-- 참가자 목록이 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
+
+            <!-- 액션 영역 -->
+            <div class="action-sidebar">
+                <div class="meeting-status-info">
+                    <div class="status-info-item">
+                        <span class="status-info-label">모집 상태</span>
+                        <span class="status-info-value" id="status-value">-</span>
+                    </div>
+                    <div class="status-info-item">
+                        <span class="status-info-label">남은 자리</span>
+                        <span class="status-info-value" id="remaining-slots">-</span>
+                    </div>
+                    <div class="status-info-item">
+                        <span class="status-info-label">신청 마감</span>
+                        <span class="status-info-value" id="deadline">-</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-full" onclick="applyToMeeting()" id="applyBtn">
+                    <span></span>
+                    모임 신청하기
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="editMeeting()" id="editBtn" style="display: none;">
+                    모임 수정
+                </button>
+                <button class="btn btn-danger btn-full" onclick="cancelMeeting()" id="cancelBtn" style="display: none;">
+                    모임 취소
+                </button>
+                <button class="btn btn-secondary btn-full" onclick="completeMeeting()" id="completeBtn" style="display: none;">
+                    모임 완료
                 </button>
             </div>
+        </div>
+    </main>
 
-            <div class="loading" id="posts-loading">
-                <div class="spinner"></div>
-                <div>게시글을 불러오는 중...</div>
-            </div>
-
-            <div class="posts-list" id="posts-list">
-                <!-- 게시글 목록이 여기에 동적으로 추가됩니다 -->
+    <!-- 모달들 -->
+    <div class="modal-overlay" id="apply-modal">
+        <div class="modal">
+            <h3>모임 신청</h3>
+            <p>이 모임에 신청하시겠습니까?<br>호스트의 승인 후 참여가 확정됩니다.</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="confirmApply()">신청하기</button>
             </div>
         </div>
     </div>
 
-    <!-- 오른쪽 사이드바 -->
-    <div class="content-right">
-        <!-- 참가신청 리스트 (호스트만 보임) -->
-        <div class="participants-sidebar" id="pending-requests" style="display: none;">
-            <h3 class="sidebar-title">⏳ 참가신청 대기</h3>
-            <div class="loading" id="pending-loading">
-                <div class="spinner"></div>
-                <div>신청 목록을 불러오는 중...</div>
-            </div>
-            <div class="pending-list" id="pending-list">
-                <!-- 대기 중인 참가신청이 여기에 동적으로 추가됩니다 -->
-            </div>
-        </div>
-
-        <!-- 참여 현황 -->
-        <div class="participants-sidebar">
-            <h3 class="sidebar-title">👥 참여 현황</h3>
-            <div class="participants-count-display" id="participants-count">0/0명</div>
-            <div class="loading" id="participants-loading">
-                <div class="spinner"></div>
-                <div>참여자 목록을 불러오는 중...</div>
-            </div>
-            <div class="participants-mini-list" id="participants-list">
-                <!-- 참가자 목록이 여기에 동적으로 추가됩니다 -->
-            </div>
-        </div>
-
-        <!-- 액션 영역 -->
-        <div class="action-sidebar">
-            <div class="meeting-status-info">
-                <div class="status-info-item">
-                    <span class="status-info-label">모집 상태</span>
-                    <span class="status-info-value" id="status-value">-</span>
+    <div class="modal-overlay" id="write-modal">
+        <div class="modal">
+            <h3>새 글 작성</h3>
+            <div class="write-form">
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    <input type="text" class="form-input" id="postTitle" placeholder="글 제목을 입력하세요" maxlength="100">
                 </div>
-                <div class="status-info-item">
-                    <span class="status-info-label">남은 자리</span>
-                    <span class="status-info-value" id="remaining-slots">-</span>
-                </div>
-                <div class="status-info-item">
-                    <span class="status-info-label">신청 마감</span>
-                    <span class="status-info-value" id="deadline">-</span>
+                <div class="form-group">
+                    <label class="form-label">내용</label>
+                    <textarea class="form-textarea" id="postContent" placeholder="내용을 입력하세요" maxlength="1000"></textarea>
                 </div>
             </div>
-
-            <button class="btn btn-primary btn-full" onclick="applyToMeeting()" id="applyBtn">
-                <span>✋</span>
-                모임 신청하기
-            </button>
-            <button class="btn btn-secondary btn-full" onclick="editMeeting()" id="editBtn" style="display: none;">
-                <span>✏️</span>
-                모임 수정
-            </button>
-            <button class="btn btn-danger btn-full" onclick="cancelMeeting()" id="cancelBtn" style="display: none;">
-                모임 취소
-            </button>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="submitPost()">게시</button>
+            </div>
         </div>
     </div>
-</main>
 
-<!-- 모달들 -->
-<div class="modal-overlay" id="apply-modal">
-    <div class="modal">
-        <h3>모임 신청</h3>
-        <p>이 모임에 신청하시겠습니까?<br>호스트의 승인 후 참여가 확정됩니다.</p>
-        <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="closeModal()">취소</button>
-            <button class="btn btn-primary" onclick="confirmApply()">신청하기</button>
+    <div class="modal-overlay" id="post-detail-modal">
+        <div class="modal" style="max-width: 600px;">
+            <h3 id="postDetailTitle">게시글 제목</h3>
+            <div class="post-meta" id="postDetailMeta" style="margin-bottom: 20px;">
+                <div class="post-author">
+                    <div class="author-avatar">작</div>
+                    <span>작성자</span>
+                </div>
+                <span>•</span>
+                <span>작성일</span>
+            </div>
+            <div id="postDetailContent" style="margin-bottom: 20px; line-height: 1.6;">
+                게시글 내용
+            </div>
+            <div style="border-top: 1px solid #eee; padding-top: 20px;">
+                <h4 style="margin-bottom: 15px;">댓글</h4>
+                <div id="commentsList">
+                    <!-- 댓글 목록이 여기에 들어감 -->
+                </div>
+                <div style="margin-top: 15px;" id="comment-form">
+                    <textarea class="form-textarea" id="newComment" placeholder="댓글을 입력하세요" style="min-height: 60px;"></textarea>
+                    <button class="btn btn-primary" onclick="addComment()" style="margin-top: 10px; width: auto;">댓글 작성</button>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
+            </div>
         </div>
     </div>
-</div>
 
-<div class="modal-overlay" id="write-modal">
-    <div class="modal">
-        <h3>새 글 작성</h3>
-        <div class="write-form">
-            <div class="form-group">
-                <label class="form-label">제목</label>
-                <input type="text" class="form-input" id="postTitle" placeholder="글 제목을 입력하세요" maxlength="100">
-            </div>
-            <div class="form-group">
-                <label class="form-label">내용</label>
-                <textarea class="form-textarea" id="postContent" placeholder="내용을 입력하세요" maxlength="1000"></textarea>
-            </div>
-        </div>
-        <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="closeModal()">취소</button>
-            <button class="btn btn-primary" onclick="submitPost()">게시</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="post-detail-modal">
-    <div class="modal" style="max-width: 600px;">
-        <h3 id="postDetailTitle">게시글 제목</h3>
-        <div class="post-meta" id="postDetailMeta" style="margin-bottom: 20px;">
-            <div class="post-author">
-                <div class="author-avatar">작</div>
-                <span>작성자</span>
-            </div>
-            <span>•</span>
-            <span>작성일</span>
-        </div>
-        <div id="postDetailContent" style="margin-bottom: 20px; line-height: 1.6;">
-            게시글 내용
-        </div>
-        <div style="border-top: 1px solid #eee; padding-top: 20px;">
-            <h4 style="margin-bottom: 15px;">댓글</h4>
-            <div id="commentsList">
-                <!-- 댓글 목록이 여기에 들어감 -->
-            </div>
-            <div style="margin-top: 15px;" id="comment-form">
-                <textarea class="form-textarea" id="newComment" placeholder="댓글을 입력하세요" style="min-height: 60px;"></textarea>
-                <button class="btn btn-primary" onclick="addComment()" style="margin-top: 10px; width: auto;">댓글 작성</button>
-            </div>
-        </div>
-        <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="closeModal()">닫기</button>
-        </div>
-    </div>
-</div>
-
-<script th:src="@{/js/meeting-detail.js}"></script>
+    <script th:src="@{/js/meeting-detail.js}"></script>
 </body>
 </html>

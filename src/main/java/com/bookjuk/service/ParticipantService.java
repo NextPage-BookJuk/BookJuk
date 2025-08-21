@@ -51,4 +51,5 @@ public class ParticipantService {
         // 5) 응답
         return ParticipantDecisionResponse.of(meetingId, targetUserId, mp.getStatus().name());
     }
+
 }

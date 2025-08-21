@@ -5,6 +5,8 @@ import com.bookjuk.domain.user.User;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import static com.bookjuk.domain.review.QMeetingReview.meetingReview;
 
 @RequiredArgsConstructor
@@ -34,4 +36,15 @@ public class MeetingReviewRepositoryImpl implements MeetingReviewCustom {
                 .fetchOne()
                 ;
     }
+    @Override
+    public List<Long> findReviewedUserIdsByMeeting(Long reviewerId, Long meetingId) {
+        return factory
+                .select(meetingReview.reviewee.id)
+                .from(meetingReview)
+                .where(meetingReview.reviewer.id.eq(reviewerId)
+                        .and(meetingReview.meeting.id.eq(meetingId)))
+                .fetch();
+    }
+    
+
 }

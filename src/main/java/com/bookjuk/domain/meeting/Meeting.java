@@ -156,30 +156,53 @@ public class Meeting {
     }
 
     /**
-     * 모임 정보 수정 메서드
-     * DTO로부터 받은 데이터로 엔티티의 상태를 변경합니다.
-     * 이미지 URL은 별도로 받아와서 업데이트합니다.
-     *
-     * @param request 수정할 정보가 담긴 DTO
-     * @param imageUrl 새로 업로드된 이미지의 URL (변경이 없으면 null 또는 기존 URL)
+     * 모임 정보를 업데이트하는 메서드 (실제 테이블 구조에 맞춤)
+     * ✅ 수정: 상세주소 업데이트 로직 개선
      */
-    public void update(MeetingUpdateRequest request, String imageUrl) {
-        this.title = request.getTitle();
-        this.description = request.getDescription();
-        this.bookTitle = request.getBookTitle();
-        this.bookAuthor = request.getBookAuthor();
-        this.genre = request.getGenre();
-        this.meetingTime = request.getMeetingTime();
-        this.region = request.getRegion();
-        this.city = request.getCity();
-        this.district = request.getDistrict();
-        this.detailAddress = request.getDetailAddress();
-        this.maxParticipants = request.getMaxParticipants();
+    public void updateMeetingInfo(String title, String description, String bookTitle,
+                                  String bookAuthor, String genre, Integer maxParticipants,
+                                  LocalDateTime meetingTime, String region, String city,
+                                  String district, String detailAddress) {
 
-        // 이미지 URL이 null이 아닌 경우에만 업데이트
-        if (imageUrl != null) {
-            this.imageUrl = imageUrl;
+        if (title != null && !title.trim().isEmpty()) {
+            this.title = title.trim();
         }
+        if (description != null) {
+            this.description = description.trim();
+        }
+        if (bookTitle != null && !bookTitle.trim().isEmpty()) {
+            this.bookTitle = bookTitle.trim();
+        }
+        if (bookAuthor != null && !bookAuthor.trim().isEmpty()) {
+            this.bookAuthor = bookAuthor.trim();
+        }
+        if (genre != null && !genre.trim().isEmpty()) {
+            this.genre = genre.trim();
+        }
+        if (maxParticipants != null && maxParticipants > 0) {
+            this.maxParticipants = maxParticipants;
+        }
+        if (meetingTime != null) {
+            this.meetingTime = meetingTime;
+        }
+
+        // ✅ 수정: 주소 필드 업데이트 로직 개선
+        if (region != null && !region.trim().isEmpty()) {
+            this.region = region.trim();
+        }
+        if (city != null && !city.trim().isEmpty()) {
+            this.city = city.trim();
+        }
+        if (district != null && !district.trim().isEmpty()) {
+            this.district = district.trim();
+        }
+
+        // ✅ 핵심 수정: 상세주소는 null이어도 업데이트 허용 (빈 문자열로 설정 가능)
+        if (detailAddress != null) {
+            this.detailAddress = detailAddress.trim();
+        }
+
+        this.updatedAt = LocalDateTime.now();
     }
 
 
@@ -195,6 +218,11 @@ public class Meeting {
 //            this.title = t;
 //        }
 //    }
-
+    /**
+     * 모임 상태 변경
+     */
+    public void changeStatus(MeetingStatus status) {
+        this.meetingStatus = status;
+    }
 }
 

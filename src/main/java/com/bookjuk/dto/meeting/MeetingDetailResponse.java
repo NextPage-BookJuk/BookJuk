@@ -8,8 +8,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class MeetingDetailResponse {
 
     private Long meetingId;
@@ -20,61 +21,85 @@ public class MeetingDetailResponse {
     private String bookAuthor;
     private String genre;
     private LocalDateTime meetingTime;
-    private String location; // 주소를 하나로 합친 필드
+    private String location; // 주소를 하나로 합친 필드 (호환성용)
+
+    private String region;
+    private String city;
+    private String district;
+    private String detailAddress;
+
     private int maxParticipants;
-    private int currentParticipants; // 현재 참여 인원
+    private int currentParticipants;
     private MeetingStatus meetingStatus;
 
-    //  호스트 정보를 직접 필드로 추가
     private HostInfo host;
-
-    // HostInfoResponseDto 대신 User의 정보를 직접 필드로 선언
     private Long hostId;
 
     /**
-     * Meeting 엔티티를 DTO로 변환하는 정적 팩토리 메서드
-     * @param meeting 원본 Meeting 엔티티
-     * @param currentParticipants 서비스 계층에서 계산된 현재 참여 인원
-     * @return 변환된 DTO 객체
+     * 모임 완료 여부 확인 메서드
      */
-    public static MeetingDetailResponse from(Meeting meeting, int currentParticipants) {
-        MeetingDetailResponse dto = new MeetingDetailResponse();
+    public boolean isCompleted() {
+        return meetingStatus == MeetingStatus.COMPLETED;
+    }
 
-        // 1. 모임 관련 정보 설정
-        dto.setMeetingId(meeting.getId());
-        dto.setTitle(meeting.getTitle());
-        dto.setDescription(meeting.getDescription());
-        dto.setImageUrl(meeting.getImageUrl());
-        dto.setBookTitle(meeting.getBookTitle());
-        dto.setBookAuthor(meeting.getBookAuthor());
-        dto.setGenre(meeting.getGenre());
-        dto.setMeetingTime(meeting.getMeetingTime());
-        dto.setMaxParticipants(meeting.getMaxParticipants());
-        dto.setMeetingStatus(meeting.getMeetingStatus());
-        dto.setCurrentParticipants(currentParticipants);
+    /**
+     * Meeting 엔티티를 DTO로 변환하는 정적 팩토리 메서드
+     */
+    public static MeetingDetailResponse from(Meeting meeting, int currentParticipants,
+                                             int hostLikesCount, int hostMeetingsCount) {
 
-
-
-        // 2. 주소 정보 조합
-        String fullLocation = String.join(" ", meeting.getRegion(), meeting.getCity(), meeting.getDetailAddress()).trim();
-        dto.setLocation(fullLocation);
-
-/*        // 3. 호스트 정보 설정 (User 엔티티에서 직접 가져옴)
-        User host = meeting.getHost();
-        if (host != null) {
-            dto.setHostId(host.getId());
-        }*/
-        // 3. 호스트 정보 설정 (완전한 객체로)
+        // 호스트 정보 생성
+        HostInfo hostInfo = null;
+        Long hostId = null;
         User hostUser = meeting.getHost();
         if (hostUser != null) {
-            dto.setHost(HostInfo.builder()
+            hostId = hostUser.getId();
+            hostInfo = HostInfo.builder()
                     .id(hostUser.getId())
                     .username(hostUser.getUsername())
-                    .likesCount(0) // 추후 구현
-                    .hostedMeetingsCount(0) // 추후 구현
-                    .build());
+                    .likesCount(hostLikesCount)
+                    .hostedMeetingsCount(hostMeetingsCount)
+                    .build();
         }
-        return dto;
+
+        String fullLocation = String.join(" ",
+                meeting.getRegion(),
+                meeting.getCity(),
+                meeting.getDistrict(),
+                meeting.getDetailAddress() != null ? meeting.getDetailAddress() : ""
+        ).trim().replaceAll("\\s+", " ");
+
+        // ✅ 빌더 패턴으로 객체 생성
+        return MeetingDetailResponse.builder()
+                .meetingId(meeting.getId())
+                .title(meeting.getTitle())
+                .description(meeting.getDescription())
+                .imageUrl(meeting.getImageUrl())
+                .bookTitle(meeting.getBookTitle())
+                .bookAuthor(meeting.getBookAuthor())
+                .genre(meeting.getGenre())
+                .meetingTime(meeting.getMeetingTime())
+                .maxParticipants(meeting.getMaxParticipants())
+                .meetingStatus(meeting.getMeetingStatus())
+                .currentParticipants(currentParticipants)
+                // ✅ 개별 주소 필드 설정
+                .region(meeting.getRegion())
+                .city(meeting.getCity())
+                .district(meeting.getDistrict())
+                .detailAddress(meeting.getDetailAddress())
+                // 호환성용 location 필드
+                .location(fullLocation)
+                // 호스트 정보
+                .hostId(hostId)
+                .host(hostInfo)
+                .build();
+    }
+
+    /**
+     * 기존 방식 지원을 위한 오버로드된 메서드
+     */
+    public static MeetingDetailResponse from(Meeting meeting, int currentParticipants) {
+        return from(meeting, currentParticipants, 0, 0);
     }
 
     /**
@@ -82,12 +107,12 @@ public class MeetingDetailResponse {
      */
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class HostInfo {
         private Long id;
         private String username;
         private Integer likesCount;
         private Integer hostedMeetingsCount;
     }
-
-
 }

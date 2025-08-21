@@ -372,4 +372,32 @@ public class BoardService {
             throw new CustomException(ErrorCode.INVALID_INPUT);
         }
     }
+    /**
+     * 특정 게시글의 댓글 목록만 조회 (별도 API용)
+     */
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentsByPostId(Long meetingId, Long postId) {
+        // 게시글 존재 확인
+        postRepository.findByPostIdAndMeetingId(postId, meetingId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // 댓글 목록 조회
+        Page<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(postId, Pageable.unpaged());
+
+        // 댓글 작성자들의 ID 수집
+        List<Long> userIds = comments.getContent().stream()
+                .map(Comment::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        // 사용자 정보 한 번에 조회 (N+1 문제 해결)
+        Map<Long, String> userUsernameMap = userRepository.findAllById(userIds).stream()
+                .collect(Collectors.toMap(User::getId, User::getUsername));
+
+        // 댓글 응답 DTO 생성
+        return comments.getContent().stream()
+                .map(comment -> CommentResponse.from(comment,
+                        userUsernameMap.getOrDefault(comment.getUserId(), "알 수 없는 사용자")))
+                .collect(Collectors.toList());
+    }
 }

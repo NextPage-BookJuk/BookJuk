@@ -3,6 +3,7 @@ package com.bookjuk.dto.board.response;
 import com.bookjuk.domain.board.Post;
 import lombok.Builder;
 import lombok.Getter;
+import org.hibernate.annotations.Formula;
 
 import java.time.LocalDateTime;
 
@@ -32,6 +33,7 @@ public class PostListResponse {
     // 게시글 수정 시간
     private LocalDateTime updatedAt;
 
+    private Long commentCount;  // ✅ 단순한 필드
 
     /**
      * Post 엔터티와 작성자 username 으로부터 PostListResponse 객체를 생성한다.
@@ -51,5 +53,4 @@ public class PostListResponse {
                 .updatedAt(post.getUpdatedAt())
                 .build();
     }
-
 }

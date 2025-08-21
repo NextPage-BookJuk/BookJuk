@@ -4,6 +4,7 @@ import com.bookjuk.domain.user.User;
 import com.bookjuk.dto.board.response.ParticipantResponse;
 import com.bookjuk.dto.meeting.MeetingCreateRequest;
 import com.bookjuk.dto.meeting.MeetingDetailResponse;
+import com.bookjuk.dto.meeting.MeetingUpdateRequest;
 import com.bookjuk.exception.CustomException;
 import com.bookjuk.exception.ErrorCode;
 import com.bookjuk.jwt.JwtProvider;
@@ -47,6 +48,7 @@ public class MeetingController {
     /**
      * 모임 생성 페이지를 반환합니다.
      * 로그인하지 않은 사용자는 로그인 페이지로 리다이렉트됩니다.
+     *
      * @param request HTTP 요청
      * @return 모임 생성 템플릿 또는 로그인 페이지 리다이렉트
      */
@@ -69,27 +71,27 @@ public class MeetingController {
 
     /**
      * 새로운 모임을 생성합니다.
-     *
+     * <p>
      * 이미지 업로드 제한사항:
      * - 선택사항 (없어도 모임 생성 가능)
      * - 최대 1장만 업로드 가능
      * - 허용 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
      * - 최대 크기: 10MB
      *
-     * @param request 모임 생성 요청 데이터
+     * @param request   모임 생성 요청 데이터
      * @param imageFile 모임 대표 이미지 파일 (선택적, 최대 1장)
      * @return 생성된 모임의 상세 정보
      */
     @PostMapping("/api/meetings")
     @ResponseBody
     public ResponseEntity<MeetingDetailResponse> createMeeting(
-        // 수업 시간 때 배운 RequestPart를 사용하여 json, Image를 동시에 보내는 api를 생성
+            // 수업 시간 때 배운 RequestPart를 사용하여 json, Image를 동시에 보내는 api를 생성
             @Valid @RequestPart("meeting") MeetingCreateRequest request,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile,
             HttpServletRequest httpRequest) {
 
         log.info("모임 생성 요청 - 제목: {}, 도서: {}, 최대참여자: {}",
-                 request.getTitle(), request.getBookTitle(), request.getMaxParticipants());
+                request.getTitle(), request.getBookTitle(), request.getMaxParticipants());
 
         // JWT 토큰에서 현재 사용자 정보 가져오기
         User currentUser = getCurrentUserFromToken(httpRequest);
@@ -131,6 +133,7 @@ public class MeetingController {
 
     /**
      * 모임 상세 정보를 조회합니다.
+     *
      * @param id 모임 ID
      * @return 모임 상세 정보
      */
@@ -143,6 +146,7 @@ public class MeetingController {
 
     /**
      * HTTP 요청에서 JWT 토큰을 추출하고 현재 사용자 정보를 반환합니다.
+     *
      * @param request HTTP 요청
      * @return 현재 사용자 정보 (토큰이 유효하지 않으면 null)
      */
@@ -178,6 +182,7 @@ public class MeetingController {
 
     /**
      * 업로드된 이미지 파일을 검증합니다.
+     *
      * @param imageFile 검증할 이미지 파일
      * @throws CustomException 검증 실패 시
      */
@@ -213,6 +218,7 @@ public class MeetingController {
 
     /**
      * 파일명에서 확장자를 추출합니다.
+     *
      * @param filename 파일명
      * @return 확장자 (점 제외)
      */
@@ -231,10 +237,16 @@ public class MeetingController {
     @ResponseBody
     public ResponseEntity<List<ParticipantResponse>> getParticipants(
             @PathVariable Long meetingId,
-            @RequestParam(required = false) String status) {
+            @RequestParam(required = false) String status,
+            HttpServletRequest request) { // 이 부분 추가
 
         log.info("참가자 목록 조회 요청 - meetingId: {}, status: {}", meetingId, status);
 
+        // 현재 사용자 ID 추출 (JWT 토큰에서)
+        User currentUser = getCurrentUserFromToken(request);
+        Long currentUserId = currentUser != null ? currentUser.getId() : null;
+
+        // 수정된 서비스 메서드 호출 (2개 파라미터)
         List<ParticipantResponse> participants = meetingService.getParticipants(meetingId, status);
 
         log.info("참가자 목록 조회 완료 - meetingId: {}, count: {}", meetingId, participants.size());
@@ -257,4 +269,60 @@ public class MeetingController {
         log.info("모임 신청 완료 - meetingId: {}, userId: {}", meetingId, userId);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * 모임 종료 (호스트 전용)
+     */
+    @PutMapping("/api/meetings/{meetingId}/complete")
+    @ResponseBody
+    public ResponseEntity<Void> completeMeeting(
+            @PathVariable Long meetingId,
+            @RequestAttribute("userId") Long hostId) {
+
+        meetingService.completeMeeting(meetingId, hostId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 참여자 강제 퇴장 (호스트 전용)
+     */
+    @DeleteMapping("/api/meetings/{meetingId}/participants/{userId}")
+    @ResponseBody
+    public ResponseEntity<Void> removeParticipant(
+            @PathVariable Long meetingId,
+            @PathVariable Long userId,
+            @RequestAttribute("userId") Long hostId) {
+
+        meetingService.removeParticipant(meetingId, userId, hostId);
+        return ResponseEntity.ok().build();
+    }
+
+
+    /**
+     * 모임 정보를 수정합니다. (호스트만 가능)
+     */
+    @PutMapping("/api/meetings/{meetingId}")  // ✅ 수정: API 경로 완성
+    @ResponseBody
+    public ResponseEntity<Void> updateMeeting(
+            @PathVariable Long meetingId,
+            @Valid @RequestBody MeetingUpdateRequest request,
+            HttpServletRequest httpRequest) {  // ✅ 수정: @RequestAttribute 대신 JWT에서 직접 추출
+
+        log.info("모임 수정 요청 - meetingId: {}, request: {}", meetingId, request);
+
+        // JWT 토큰에서 현재 사용자 정보 가져오기
+        User currentUser = getCurrentUserFromToken(httpRequest);
+        if (currentUser == null) {
+            throw new CustomException(ErrorCode.NEED_LOGIN);
+        }
+
+        Long userId = currentUser.getId();
+        log.info("모임 수정 권한 확인 - userId: {}, meetingId: {}", userId, meetingId);
+
+        meetingService.updateMeeting(meetingId, userId, request);
+
+        log.info("모임 수정 완료 - meetingId: {}", meetingId);
+        return ResponseEntity.ok().build();
+    }
 }
+

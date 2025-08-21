@@ -4,10 +4,8 @@ import com.bookjuk.dto.board.request.CommentCreateRequest;
 import com.bookjuk.dto.board.request.CommentUpdateRequest;
 import com.bookjuk.dto.board.request.PostCreateRequest;
 import com.bookjuk.dto.board.request.PostUpdateRequest;
-import com.bookjuk.dto.board.response.CommentCreateResponse;
-import com.bookjuk.dto.board.response.PostCreateResponse;
-import com.bookjuk.dto.board.response.PostDetailResponse;
-import com.bookjuk.dto.board.response.PostListResponse;
+import com.bookjuk.dto.board.response.*;
+import com.bookjuk.repository.board.CommentRepository;
 import com.bookjuk.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 모임 게시판 관련 REST API를 제공하는 컨트롤러
@@ -30,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 public class BoardController {
 
     private final BoardService boardService;
+    private final CommentRepository commentRepository;
+
+
 
     /**
      * 특정 모임의 게시글 목록을 페이징하여 조회한다.(기본값: page=1, size=10)
@@ -39,7 +42,7 @@ public class BoardController {
      * @param size 페이지 크기 (기본값: 10)
      * @return 게시글 목록 응답 (200 OK)
      */
-    @GetMapping   // 페이징 조회는 기본 경로
+    @GetMapping
     @ResponseBody
     public ResponseEntity<Page<PostListResponse>> getPostList(
             @PathVariable Long meetingId,
@@ -50,11 +53,27 @@ public class BoardController {
 
         Page<PostListResponse> posts = boardService.getPostList(meetingId, page, size);
 
-        log.info("게시글 목록 조회 완료 - meetingId: {}, totalElements: {}", meetingId, posts.getTotalElements());
+        // ✅ 댓글 수 추가 로직
+        Page<PostListResponse> postsWithCommentCount = posts.map(post -> {
+            Long commentCount = commentRepository.countByPostId(post.getPostId());
 
-        return ResponseEntity.ok(posts);
+            return PostListResponse.builder()
+                    .postId(post.getPostId())
+                    .title(post.getTitle())
+                    .content(post.getContent())
+                    .imageUrl(post.getImageUrl())
+                    .userId(post.getUserId())
+                    .username(post.getUsername())
+                    .createdAt(post.getCreatedAt())
+                    .updatedAt(post.getUpdatedAt())
+                    .commentCount(commentCount)
+                    .build();
+        });
+
+        log.info("게시글 목록 조회 완료 - meetingId: {}, totalElements: {}", meetingId, postsWithCommentCount.getTotalElements());
+
+        return ResponseEntity.ok(postsWithCommentCount);
     }
-
     /**
      * 특정 게시글의 상세 정보를 조회한다. (게시글 정보와 모든 댓글)
      *
@@ -240,5 +259,24 @@ public class BoardController {
         log.info("댓글 삭제 완료 - meetingId: {}, postId: {}, commentId: {}, userId: {}", meetingId, postId, commentId, userId);
 
         return ResponseEntity.ok().build();
+    }
+    /**
+     * 특정 게시글의 댓글 목록만 조회 (프론트엔드에서 별도로 호출하는 API)
+     */
+    @GetMapping("/{postId}/comments")
+    @ResponseBody
+    public ResponseEntity<List<CommentResponse>> getComments(
+            @PathVariable Long meetingId,
+            @PathVariable Long postId) {
+
+        log.info("댓글 목록 조회 요청 - meetingId: {}, postId: {}", meetingId, postId);
+
+        // BoardService에서 댓글만 조회하는 메서드 호출
+        List<CommentResponse> comments = boardService.getCommentsByPostId(meetingId, postId);
+
+        log.info("댓글 목록 조회 완료 - meetingId: {}, postId: {}, count: {}",
+                meetingId, postId, comments.size());
+
+        return ResponseEntity.ok(comments);
     }
 }

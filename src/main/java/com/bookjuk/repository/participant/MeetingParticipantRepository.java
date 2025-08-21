@@ -4,6 +4,7 @@ import com.bookjuk.domain.meeting.Meeting;
 import com.bookjuk.domain.participant.MeetingParticipant;
 import com.bookjuk.domain.participant.ParticipantRole;
 import com.bookjuk.domain.participant.ParticipantStatus;
+import com.bookjuk.domain.review.MeetingReview;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -86,5 +87,9 @@ public interface MeetingParticipantRepository extends JpaRepository<MeetingParti
      * @return 신청 여부
      */
     boolean existsByMeeting_IdAndParticipant_Id(Long meetingId, Long userId);
+    /**
+     * 특정 모임의 모든 리뷰 조회
+     */
+    List<MeetingReview> findByMeeting(Meeting meeting);
 }
 
