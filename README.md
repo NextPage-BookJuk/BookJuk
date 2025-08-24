@@ -446,7 +446,7 @@ BookJuk 프로젝트를 만들어가는 모든 분들께 감사드립니다.
 * [김경민 - 2025-08-13 회고](https://github.com/minee0505/meetings/blob/main)
 * [박현수 - 2025-08-13 회고](https://github.com/hsp64/memoir/blob/main/teamNextPage20250805)
 * [신동준 - 2025-08-13 회고](https://github.com/sdj3959/my-retrospectives/tree/master/projects/202508BookJuk)
-* [진도희 - 2025-08-13 회고](https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings)
+* [진도희 - 2025-08-13 회고]([https://github.com/dohee-jin/project/blob/main/bookjuk/docs/meetings](https://github.com/dohee-jin/project/blob/bookjuk/bookjuk/docs/retrospectives/bookjuck-retrospectives.md))
 
 ---
 
