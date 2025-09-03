@@ -1,8 +1,8 @@
 -- =================================================================
---  BookJuk 데이터베이스 스키마 (v1.0)
+--  BookJuk 데이터베이스 스키마 (v1.1)
 --  오프라인 독서모임 플랫폼 DDL
---  작성일: 2025-08-18
---  특징: FK/UNIQUE 제약 조건 제거, 애플리케이션 레벨 무결성 보장
+--  작성일: 2025-09-03, 수정: 강관주
+--  특징: FK/UNIQUE 제약 조건 추가
 -- =================================================================
 
 -- =================================================================
@@ -65,6 +65,52 @@ CREATE TABLE `meeting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='독서 모임';
 
 -- -----------------------------------------------------
+-- Table `meeting_participant` - 모임 참여자
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `meeting_participant`;
+
+CREATE TABLE `meeting_participant` (
+    `id`         BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '참여 고유 식별자',
+    `meeting_id` BIGINT NOT NULL COMMENT '참여 모임의 id',
+    `user_id`    BIGINT NOT NULL COMMENT '참여 사용자의 user_id',
+    `role`       VARCHAR(20) NOT NULL COMMENT '역할: HOST, PARTICIPANT',
+    `status`     VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '참여 상태: PENDING, APPROVED, REJECTED',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '신청 시점',
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 시점',
+    CONSTRAINT uq_mp_meeting_user UNIQUE(meeting_id, user_id),
+    CONSTRAINT fk_mp_meeting
+       FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
+       ON DELETE CASCADE,
+    CONSTRAINT fk_mp_user
+       FOREIGN KEY (user_id) REFERENCES user(user_id)
+       ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 참여자';
+
+-- -----------------------------------------------------
+-- Table `meeting_review` - 모임 후기 (좋아요)
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `meeting_review`;
+
+CREATE TABLE `meeting_review` (
+    `id`           BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '후기(좋아요) 고유 식별자',
+    `meeting_id`   BIGINT NOT NULL COMMENT '관련 모임의 id',
+    `reviewer_id`  BIGINT NOT NULL COMMENT '리뷰 작성자 (좋아요를 누른 사람)',
+    `reviewee_id`  BIGINT NOT NULL COMMENT '리뷰 받은 사용자 (좋아요를 받은 사람)',
+    `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '리뷰 작성 시간',
+    CONSTRAINT uq_mr_meeting_reviewer_reviewee UNIQUE(meeting_id, reviewer_id, reviewee_id),
+    CONSTRAINT chk_not_self_review CHECK (reviewer_id <> reviewee_id),
+    CONSTRAINT fk_mr_meeting
+      FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
+      ON DELETE CASCADE,
+    CONSTRAINT fk_mr_reviewer
+      FOREIGN KEY (reviewer_id) REFERENCES user(user_id)
+      ON DELETE RESTRICT,
+    CONSTRAINT fk_mr_reviewee
+      FOREIGN KEY (reviewee_id) REFERENCES user(user_id)
+      ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 후기 (좋아요)';
+
+-- -----------------------------------------------------
 -- Table `post` - 모임별 게시글
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `post`;
@@ -85,52 +131,6 @@ CREATE TABLE `post` (
         FOREIGN KEY (user_id) REFERENCES user(user_id)
         ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임별 게시판의 게시글';
-
--- -----------------------------------------------------
--- Table `meeting_participant` - 모임 참여자
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `meeting_participant`;
-
-CREATE TABLE `meeting_participant` (
-    `id`         BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '참여 고유 식별자',
-    `meeting_id` BIGINT NOT NULL COMMENT '참여 모임의 id',
-    `user_id`    BIGINT NOT NULL COMMENT '참여 사용자의 user_id',
-    `role`       VARCHAR(20) NOT NULL COMMENT '역할: HOST, PARTICIPANT',
-    `status`     VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '참여 상태: PENDING, APPROVED, REJECTED',
-    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '신청 시점',
-    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 시점',
-    CONSTRAINT uq_mp_meeting_user UNIQUE(meeting_id, user_id),
-    CONSTRAINT fk_mp_meeting
-        FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_mp_user
-        FOREIGN KEY (user_id) REFERENCES user(user_id)
-        ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 참여자';
-
--- -----------------------------------------------------
--- Table `meeting_review` - 모임 후기 (좋아요)
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `meeting_review`;
-
-CREATE TABLE `meeting_review` (
-    `id`           BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '후기(좋아요) 고유 식별자',
-    `meeting_id`   BIGINT NOT NULL COMMENT '관련 모임의 id',
-    `reviewer_id`  BIGINT NOT NULL COMMENT '리뷰 작성자 (좋아요를 누른 사람)',
-    `reviewee_id`  BIGINT NOT NULL COMMENT '리뷰 받은 사용자 (좋아요를 받은 사람)',
-    `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '리뷰 작성 시간',
-    CONSTRAINT uq_mr_meeting_reviewer_reviewee UNIQUE(meeting_id, reviewer_id, reviewee_id),
-    CONSTRAINT chk_not_self_review CHECK (reviewer_id <> reviewee_id),
-    CONSTRAINT fk_mr_meeting
-        FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
-        ON DELETE CASCADE,
-    CONSTRAINT fk_mr_reviewer
-        FOREIGN KEY (reviewer_id) REFERENCES user(user_id)
-        ON DELETE RESTRICT,
-    CONSTRAINT fk_mr_reviewee
-        FOREIGN KEY (reviewee_id) REFERENCES user(user_id)
-        ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 후기 (좋아요)';
 
 -- -----------------------------------------------------
 -- Table `comment` - 댓글
@@ -336,7 +336,8 @@ ORDER BY participant_count DESC
    - spring.datasource.url: jdbc:mariadb://localhost:3306/bookjuk
 
 3. 개발 시 주의사항:
-   - FK 제약조건이 없으므로 애플리케이션에서 데이터 무결성 보장 필요
+   - 주요 데이터 무결성은 DB 제약 조건으로 보장
+   - 애플리케이션에서 제약 조건 위반에 대한 적절한 예외 처리 구현
    - 트랜잭션을 활용한 일관성 유지
    - 중복 데이터 방지를 위한 비즈니스 로직 구현
 
@@ -344,3 +345,4 @@ ORDER BY participant_count DESC
    - 인덱스 사용률 확인: EXPLAIN 활용
    - 슬로우 쿼리 로그 모니터링
    - 정기적인 ANALYZE TABLE 실행
+*/
