@@ -1,8 +1,8 @@
 -- =================================================================
---  BookJuk 데이터베이스 스키마 (v1.0)
+--  BookJuk 데이터베이스 스키마 (v1.1)
 --  오프라인 독서모임 플랫폼 DDL
---  작성일: 2025-08-18
---  특징: FK/UNIQUE 제약 조건 제거, 애플리케이션 레벨 무결성 보장
+--  작성일: 2025-09-03, 수정: 강관주
+--  특징: FK/UNIQUE 제약 조건 추가
 -- =================================================================
 
 -- =================================================================
@@ -24,15 +24,16 @@ USE bookjuk;
 DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
-                        `user_id`        BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '유저 고유 식별자',
-                        `username`       VARCHAR(50) NOT NULL COMMENT '닉네임 (중복 허용)',
-                        `email`          VARCHAR(100) NOT NULL COMMENT '이메일 (로그인 ID)',
-                        `password`       VARCHAR(255) NOT NULL COMMENT '비밀번호 (해시화하여 저장)',
-                        `preferred_genre` VARCHAR(100) NULL COMMENT '선호 장르',
-                        `profile_image`  VARCHAR(255) NULL DEFAULT 'default_profile.jpg' COMMENT '프로필 이미지 URL',
-                        `introduction`   TEXT NULL COMMENT '자기소개',
-                        `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '회원 가입 시점',
-                        `updated_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '회원 정보 수정 시점'
+    `user_id`        BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '유저 고유 식별자',
+    `username`       VARCHAR(50) NOT NULL COMMENT '닉네임 (중복 허용)',
+    `email`          VARCHAR(100) NOT NULL COMMENT '이메일 (로그인 ID)',
+    `password`       VARCHAR(255) NOT NULL COMMENT '비밀번호 (해시화하여 저장)',
+    `preferred_genre` VARCHAR(100) NULL COMMENT '선호 장르',
+    `profile_image`  VARCHAR(255) NULL DEFAULT 'default_profile.jpg' COMMENT '프로필 이미지 URL',
+    `introduction`   TEXT NULL COMMENT '자기소개',
+    `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '회원 가입 시점',
+    `updated_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '회원 정보 수정 시점',
+    CONSTRAINT uq_user_email UNIQUE(email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사용자 정보';
 
 -- -----------------------------------------------------
@@ -41,23 +42,26 @@ CREATE TABLE `user` (
 DROP TABLE IF EXISTS `meeting`;
 
 CREATE TABLE `meeting` (
-                           `meeting_id`       BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '모임 고유 식별자',
-                           `host_id`          BIGINT NOT NULL COMMENT '방장(주최자)의 user_id',
-                           `title`            VARCHAR(255) NOT NULL COMMENT '모임 제목',
-                           `description`      TEXT NULL COMMENT '모임 상세 설명',
-                           `image_url`        VARCHAR(255) NULL COMMENT '모임 대표 이미지 URL',
-                           `book_title`       VARCHAR(255) NOT NULL COMMENT '선정 도서 제목',
-                           `book_author`      VARCHAR(100) NOT NULL COMMENT '선정 도서 저자',
-                           `genre`            VARCHAR(100) NOT NULL COMMENT '모임 장르',
-                           `meeting_time`     DATETIME NOT NULL COMMENT '모임 시간',
-                           `region`           VARCHAR(20) NOT NULL COMMENT '시/도',
-                           `city`             VARCHAR(30) NOT NULL COMMENT '시/군',
-                           `district`         VARCHAR(30) NOT NULL COMMENT '구/군',
-                           `detail_address`   VARCHAR(255) NULL COMMENT '상세주소(선택)',
-                           `max_participants` INT NOT NULL COMMENT '최대 참여 인원',
-                           `status`           VARCHAR(20) NOT NULL DEFAULT 'RECRUITING' COMMENT '모임 상태 (RECRUITING, FULL, COMPLETED, CANCELLED)',
-                           `created_at`       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '모임 생성 시점',
-                           `updated_at`       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '모임 정보 수정 시점'
+    `meeting_id`       BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '모임 고유 식별자',
+    `host_id`          BIGINT NOT NULL COMMENT '방장(주최자)의 user_id',
+    `title`            VARCHAR(255) NOT NULL COMMENT '모임 제목',
+    `description`      TEXT NULL COMMENT '모임 상세 설명',
+    `image_url`        VARCHAR(255) NULL COMMENT '모임 대표 이미지 URL',
+    `book_title`       VARCHAR(255) NOT NULL COMMENT '선정 도서 제목',
+    `book_author`      VARCHAR(100) NOT NULL COMMENT '선정 도서 저자',
+    `genre`            VARCHAR(100) NOT NULL COMMENT '모임 장르',
+    `meeting_time`     DATETIME NOT NULL COMMENT '모임 시간',
+    `region`           VARCHAR(20) NOT NULL COMMENT '시/도',
+    `city`             VARCHAR(30) NOT NULL COMMENT '시/군',
+    `district`         VARCHAR(30) NOT NULL COMMENT '구/군',
+    `detail_address`   VARCHAR(255) NULL COMMENT '상세주소(선택)',
+    `max_participants` INT NOT NULL COMMENT '최대 참여 인원',
+    `status`           VARCHAR(20) NOT NULL DEFAULT 'RECRUITING' COMMENT '모임 상태 (RECRUITING, FULL, COMPLETED, CANCELLED)',
+    `created_at`       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '모임 생성 시점',
+    `updated_at`       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '모임 정보 수정 시점',
+    CONSTRAINT fk_meeting_host
+        FOREIGN KEY (host_id) REFERENCES user(user_id)
+        ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='독서 모임';
 
 -- -----------------------------------------------------
@@ -66,13 +70,20 @@ CREATE TABLE `meeting` (
 DROP TABLE IF EXISTS `meeting_participant`;
 
 CREATE TABLE `meeting_participant` (
-                                       `id`         BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '참여 고유 식별자',
-                                       `meeting_id` BIGINT NOT NULL COMMENT '참여 모임의 id',
-                                       `user_id`    BIGINT NOT NULL COMMENT '참여 사용자의 user_id',
-                                       `role`       VARCHAR(20) NOT NULL COMMENT '역할: HOST, PARTICIPANT',
-                                       `status`     VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '참여 상태: PENDING, APPROVED, REJECTED',
-                                       `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '신청 시점',
-                                       `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 시점'
+    `id`         BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '참여 고유 식별자',
+    `meeting_id` BIGINT NOT NULL COMMENT '참여 모임의 id',
+    `user_id`    BIGINT NOT NULL COMMENT '참여 사용자의 user_id',
+    `role`       VARCHAR(20) NOT NULL COMMENT '역할: HOST, PARTICIPANT',
+    `status`     VARCHAR(20) NOT NULL DEFAULT 'PENDING' COMMENT '참여 상태: PENDING, APPROVED, REJECTED',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '신청 시점',
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '상태 변경 시점',
+    CONSTRAINT uq_mp_meeting_user UNIQUE(meeting_id, user_id),
+    CONSTRAINT fk_mp_meeting
+       FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
+       ON DELETE CASCADE,
+    CONSTRAINT fk_mp_user
+       FOREIGN KEY (user_id) REFERENCES user(user_id)
+       ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 참여자';
 
 -- -----------------------------------------------------
@@ -81,11 +92,22 @@ CREATE TABLE `meeting_participant` (
 DROP TABLE IF EXISTS `meeting_review`;
 
 CREATE TABLE `meeting_review` (
-                                  `id`           BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '후기(좋아요) 고유 식별자',
-                                  `meeting_id`   BIGINT NOT NULL COMMENT '관련 모임의 id',
-                                  `reviewer_id`  BIGINT NOT NULL COMMENT '리뷰 작성자 (좋아요를 누른 사람)',
-                                  `reviewee_id`  BIGINT NOT NULL COMMENT '리뷰 받은 사용자 (좋아요를 받은 사람)',
-                                  `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '리뷰 작성 시간'
+    `id`           BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '후기(좋아요) 고유 식별자',
+    `meeting_id`   BIGINT NOT NULL COMMENT '관련 모임의 id',
+    `reviewer_id`  BIGINT NOT NULL COMMENT '리뷰 작성자 (좋아요를 누른 사람)',
+    `reviewee_id`  BIGINT NOT NULL COMMENT '리뷰 받은 사용자 (좋아요를 받은 사람)',
+    `created_at`   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '리뷰 작성 시간',
+    CONSTRAINT uq_mr_meeting_reviewer_reviewee UNIQUE(meeting_id, reviewer_id, reviewee_id),
+    CONSTRAINT chk_not_self_review CHECK (reviewer_id <> reviewee_id),
+    CONSTRAINT fk_mr_meeting
+      FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
+      ON DELETE CASCADE,
+    CONSTRAINT fk_mr_reviewer
+      FOREIGN KEY (reviewer_id) REFERENCES user(user_id)
+      ON DELETE RESTRICT,
+    CONSTRAINT fk_mr_reviewee
+      FOREIGN KEY (reviewee_id) REFERENCES user(user_id)
+      ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임 후기 (좋아요)';
 
 -- -----------------------------------------------------
@@ -94,14 +116,20 @@ CREATE TABLE `meeting_review` (
 DROP TABLE IF EXISTS `post`;
 
 CREATE TABLE `post` (
-                        `post_id`         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '게시글 고유 식별자',
-                        `meeting_id`      BIGINT NOT NULL COMMENT '소속된 모임의 id',
-                        `user_id`         BIGINT NOT NULL COMMENT '작성자의 user_id',
-                        `title`           VARCHAR(200) NOT NULL COMMENT '게시글 제목',
-                        `content`         TEXT NOT NULL COMMENT '게시글 내용',
-                        `image_url`       VARCHAR(255) NULL COMMENT '첨부 이미지 URL',
-                        `created_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
-                        `updated_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일'
+    `post_id`         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '게시글 고유 식별자',
+    `meeting_id`      BIGINT NOT NULL COMMENT '소속된 모임의 id',
+    `user_id`         BIGINT NOT NULL COMMENT '작성자의 user_id',
+    `title`           VARCHAR(200) NOT NULL COMMENT '게시글 제목',
+    `content`         TEXT NOT NULL COMMENT '게시글 내용',
+    `image_url`       VARCHAR(255) NULL COMMENT '첨부 이미지 URL',
+    `created_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
+    `updated_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+    CONSTRAINT fk_post_meeting
+        FOREIGN KEY (meeting_id) REFERENCES meeting(meeting_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_post_user
+        FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='모임별 게시판의 게시글';
 
 -- -----------------------------------------------------
@@ -110,12 +138,18 @@ CREATE TABLE `post` (
 DROP TABLE IF EXISTS `comment`;
 
 CREATE TABLE `comment` (
-                           `id`         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '댓글 고유 식별자',
-                           `post_id`    BIGINT NOT NULL COMMENT '원본 게시글의 id',
-                           `user_id`    BIGINT NOT NULL COMMENT '작성자의 user_id',
-                           `content`    TEXT NOT NULL COMMENT '댓글 내용',
-                           `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
-                           `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일'
+    `id`         BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '댓글 고유 식별자',
+    `post_id`    BIGINT NOT NULL COMMENT '원본 게시글의 id',
+    `user_id`    BIGINT NOT NULL COMMENT '작성자의 user_id',
+    `content`    TEXT NOT NULL COMMENT '댓글 내용',
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '작성일',
+    `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '수정일',
+    CONSTRAINT fk_comment_post
+        FOREIGN KEY (post_id) REFERENCES post(post_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_comment_user
+        FOREIGN KEY (user_id) REFERENCES user(user_id)
+        ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='게시글의 댓글';
 
 -- =================================================================
@@ -156,54 +190,54 @@ CREATE INDEX idx_comment_user ON `comment`(user_id);
 
 -- 테스트 사용자 데이터
 INSERT INTO `user` (username, email, password, preferred_genre, introduction) VALUES
-                                                                                  ('책읽는호랑이', 'tiger@bookjuk.com', '$2a$10$hashedpassword1', '소설', '안녕하세요! 소설을 좋아하는 독서광입니다.'),
-                                                                                  ('문학소녀', 'girl@bookjuk.com', '$2a$10$hashedpassword2', '에세이', '에세이와 시를 사랑합니다.'),
-                                                                                  ('철학자', 'philosophy@bookjuk.com', '$2a$10$hashedpassword3', '철학', '깊이 있는 사고를 좋아합니다.'),
-                                                                                  ('역사덕후', 'history@bookjuk.com', '$2a$10$hashedpassword4', '역사', '역사책만 읽어도 하루가 부족해요!'),
-                                                                                  ('과학맨', 'science@bookjuk.com', '$2a$10$hashedpassword5', '과학', '과학의 세계는 무궁무진합니다.');
+    ('책읽는호랑이', 'tiger@bookjuk.com', '$2a$10$hashedpassword1', '소설', '안녕하세요! 소설을 좋아하는 독서광입니다.'),
+    ('문학소녀', 'girl@bookjuk.com', '$2a$10$hashedpassword2', '에세이', '에세이와 시를 사랑합니다.'),
+    ('철학자', 'philosophy@bookjuk.com', '$2a$10$hashedpassword3', '철학', '깊이 있는 사고를 좋아합니다.'),
+    ('역사덕후', 'history@bookjuk.com', '$2a$10$hashedpassword4', '역사', '역사책만 읽어도 하루가 부족해요!'),
+    ('과학맨', 'science@bookjuk.com', '$2a$10$hashedpassword5', '과학', '과학의 세계는 무궁무진합니다.');
 
 -- 테스트 모임 데이터
 INSERT INTO `meeting` (host_id, title, description, book_title, book_author, genre, meeting_time, region, city, district, detail_address, max_participants) VALUES
-                                                                                                                                                                (1, '8월 소설 읽기 모임', '장류진 작가의 소설을 함께 읽어요!', '달까지 가자', '장류진', '소설', '2025-08-25 19:00:00', '서울특별시', '강남구', '삼성동', '스타벅스 코엑스점', 6),
-                                                                                                                                                                (2, '에세이 북클럽', '감성적인 에세이를 함께 나누어요', '나는 나로 살기로 했다', '김수현', '에세이', '2025-08-28 14:00:00', '서울특별시', '종로구', '인사동', '인사동 북카페', 8),
-                                                                                                                                                                (3, '철학 토론 모임', '존재에 대해 깊이 생각해봅시다', '존재와 시간', '마르틴 하이데거', '철학', '2025-09-01 15:00:00', '경기도', '수원시', '영통구', '수원대학교 도서관', 5),
-                                                                                                                                                                (4, '역사 탐험대', '조선시대 역사를 파헤쳐보아요', '조선왕조실록', '이성무', '역사', '2025-09-05 10:00:00', '서울특별시', '중구', '명동', '서울역사박물관', 7),
-                                                                                                                                                                (5, '과학 세미나', '양자역학의 신비를 탐구합니다', '양자역학 강의', '파인만', '과학', '2025-09-10 18:00:00', '경기도', '성남시', '분당구', '분당 과학도서관', 4);
+    (1, '8월 소설 읽기 모임', '장류진 작가의 소설을 함께 읽어요!', '달까지 가자', '장류진', '소설', '2025-08-25 19:00:00', '서울특별시', '강남구', '삼성동', '스타벅스 코엑스점', 6),
+    (2, '에세이 북클럽', '감성적인 에세이를 함께 나누어요', '나는 나로 살기로 했다', '김수현', '에세이', '2025-08-28 14:00:00', '서울특별시', '종로구', '인사동', '인사동 북카페', 8),
+    (3, '철학 토론 모임', '존재에 대해 깊이 생각해봅시다', '존재와 시간', '마르틴 하이데거', '철학', '2025-09-01 15:00:00', '경기도', '수원시', '영통구', '수원대학교 도서관', 5),
+    (4, '역사 탐험대', '조선시대 역사를 파헤쳐보아요', '조선왕조실록', '이성무', '역사', '2025-09-05 10:00:00', '서울특별시', '중구', '명동', '서울역사박물관', 7),
+    (5, '과학 세미나', '양자역학의 신비를 탐구합니다', '양자역학 강의', '파인만', '과학', '2025-09-10 18:00:00', '경기도', '성남시', '분당구', '분당 과학도서관', 4);
 
 -- 테스트 참가자 데이터 (호스트 자동 참여)
 INSERT INTO `meeting_participant` (meeting_id, user_id, role, status) VALUES
-                                                                          (1, 1, 'HOST', 'APPROVED'),
-                                                                          (2, 2, 'HOST', 'APPROVED'),
-                                                                          (3, 3, 'HOST', 'APPROVED'),
-                                                                          (4, 4, 'HOST', 'APPROVED'),
-                                                                          (5, 5, 'HOST', 'APPROVED');
+    (1, 1, 'HOST', 'APPROVED'),
+    (2, 2, 'HOST', 'APPROVED'),
+    (3, 3, 'HOST', 'APPROVED'),
+    (4, 4, 'HOST', 'APPROVED'),
+    (5, 5, 'HOST', 'APPROVED');
 
 -- 테스트 참가 신청 데이터
 INSERT INTO `meeting_participant` (meeting_id, user_id, role, status) VALUES
-                                                                          (1, 2, 'PARTICIPANT', 'APPROVED'),
-                                                                          (1, 3, 'PARTICIPANT', 'PENDING'),
-                                                                          (2, 1, 'PARTICIPANT', 'APPROVED'),
-                                                                          (2, 5, 'PARTICIPANT', 'APPROVED'),
-                                                                          (3, 1, 'PARTICIPANT', 'PENDING'),
-                                                                          (4, 2, 'PARTICIPANT', 'APPROVED'),
-                                                                          (5, 1, 'PARTICIPANT', 'REJECTED');
+    (1, 2, 'PARTICIPANT', 'APPROVED'),
+    (1, 3, 'PARTICIPANT', 'PENDING'),
+    (2, 1, 'PARTICIPANT', 'APPROVED'),
+    (2, 5, 'PARTICIPANT', 'APPROVED'),
+    (3, 1, 'PARTICIPANT', 'PENDING'),
+    (4, 2, 'PARTICIPANT', 'APPROVED'),
+    (5, 1, 'PARTICIPANT', 'REJECTED');
 
 -- 테스트 게시글 데이터
 INSERT INTO `post` (meeting_id, user_id, title, content) VALUES
-                                                             (1, 1, '모임 준비사항 안내', '안녕하세요! 다음 주 모임 준비사항을 알려드립니다.\n\n1. 책 읽어오기\n2. 간단한 감상문 준비\n3. 개인 컵 지참\n\n많은 참여 부탁드려요!'),
-                                                             (1, 2, '책 감상 후기', '정말 재미있게 읽었어요! 특히 마지막 부분이 인상깊었습니다.'),
-                                                             (2, 2, '에세이 모임 공지', '이번 주 모임은 예정대로 진행됩니다. 모두 건강히 참석해주세요!'),
-                                                             (3, 3, '철학 토론 주제', '이번 모임에서 논의할 주제를 미리 공유합니다.\n\n존재란 무엇인가에 대해 각자의 생각을 정리해와 주세요.'),
-                                                             (4, 4, '역사 자료 공유', '조선시대 관련 흥미로운 자료를 찾았습니다. 모임에서 함께 살펴보아요!');
+    (1, 1, '모임 준비사항 안내', '안녕하세요! 다음 주 모임 준비사항을 알려드립니다.\n\n1. 책 읽어오기\n2. 간단한 감상문 준비\n3. 개인 컵 지참\n\n많은 참여 부탁드려요!'),
+    (1, 2, '책 감상 후기', '정말 재미있게 읽었어요! 특히 마지막 부분이 인상깊었습니다.'),
+    (2, 2, '에세이 모임 공지', '이번 주 모임은 예정대로 진행됩니다. 모두 건강히 참석해주세요!'),
+    (3, 3, '철학 토론 주제', '이번 모임에서 논의할 주제를 미리 공유합니다.\n\n존재란 무엇인가에 대해 각자의 생각을 정리해와 주세요.'),
+    (4, 4, '역사 자료 공유', '조선시대 관련 흥미로운 자료를 찾았습니다. 모임에서 함께 살펴보아요!');
 
 -- 테스트 댓글 데이터
 INSERT INTO `comment` (post_id, user_id, content) VALUES
-                                                      (1, 2, '네, 알겠습니다! 열심히 준비해올게요.'),
-                                                      (1, 3, '감상문은 어느 정도 분량으로 준비하면 될까요?'),
-                                                      (2, 1, '저도 같은 부분이 가장 기억에 남아요!'),
-                                                      (3, 2, '건강 챙기시고 뵙겠습니다~'),
-                                                      (4, 1, '와 정말 궁금하네요! 기대됩니다.'),
-                                                      (5, 2, '좋은 자료 감사합니다. 미리 읽어보고 갈게요.');
+    (1, 2, '네, 알겠습니다! 열심히 준비해올게요.'),
+    (1, 3, '감상문은 어느 정도 분량으로 준비하면 될까요?'),
+    (2, 1, '저도 같은 부분이 가장 기억에 남아요!'),
+    (3, 2, '건강 챙기시고 뵙겠습니다~'),
+    (4, 1, '와 정말 궁금하네요! 기대됩니다.'),
+    (5, 2, '좋은 자료 감사합니다. 미리 읽어보고 갈게요.');
 
 -- =================================================================
 --  5. 데이터베이스 설정 확인 쿼리
@@ -302,7 +336,8 @@ ORDER BY participant_count DESC
    - spring.datasource.url: jdbc:mariadb://localhost:3306/bookjuk
 
 3. 개발 시 주의사항:
-   - FK 제약조건이 없으므로 애플리케이션에서 데이터 무결성 보장 필요
+   - 주요 데이터 무결성은 DB 제약 조건으로 보장
+   - 애플리케이션에서 제약 조건 위반에 대한 적절한 예외 처리 구현
    - 트랜잭션을 활용한 일관성 유지
    - 중복 데이터 방지를 위한 비즈니스 로직 구현
 
@@ -310,3 +345,4 @@ ORDER BY participant_count DESC
    - 인덱스 사용률 확인: EXPLAIN 활용
    - 슬로우 쿼리 로그 모니터링
    - 정기적인 ANALYZE TABLE 실행
+*/
